@@ -1,0 +1,76 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Change Language" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đổi ngôn ngữ"
+          }
+        }
+      }
+    },
+    "Language" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ngôn ngữ"
+          }
+        }
+      }
+    },
+    "Riengtu uses your device’s language. You can choose a different language for Riengtu in Settings." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riengtu dùng ngôn ngữ của thiết bị. Bạn có thể chọn ngôn ngữ khác cho Riengtu trong Cài đặt."
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cài đặt"
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phiên bản"
+          }
+        }
+      }
+    },
+    "Welcome to Riengtu" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chào mừng đến với Riengtu"
+          }
+        }
+      }
+    },
+    "Your app starts here." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ứng dụng của bạn bắt đầu từ đây."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
