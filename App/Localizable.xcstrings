@@ -1,12 +1,252 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Add Expense" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm khoản chi"
+          }
+        }
+      }
+    },
+    "Add what you spend. It stays on this device." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ghi lại những gì bạn chi. Mọi thứ chỉ ở trên thiết bị này."
+          }
+        }
+      }
+    },
+    "All Currencies" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tất cả tiền tệ"
+          }
+        }
+      }
+    },
+    "Amount" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Số tiền"
+          }
+        }
+      }
+    },
+    "Bills" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hóa đơn"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hủy"
+          }
+        }
+      }
+    },
+    "Can’t Open Your Data" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không mở được dữ liệu"
+          }
+        }
+      }
+    },
+    "Category" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Danh mục"
+          }
+        }
+      }
+    },
     "Change Language" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đổi ngôn ngữ"
+          }
+        }
+      }
+    },
+    "Couldn’t Save" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không lưu được"
+          }
+        }
+      }
+    },
+    "Currency" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền tệ"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ngày"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa"
+          }
+        }
+      }
+    },
+    "Delete Expense" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa khoản chi"
+          }
+        }
+      }
+    },
+    "Edit Expense" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sửa khoản chi"
+          }
+        }
+      }
+    },
+    "Education" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giáo dục"
+          }
+        }
+      }
+    },
+    "Entertainment" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giải trí"
+          }
+        }
+      }
+    },
+    "Erase All Data" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa toàn bộ dữ liệu"
+          }
+        }
+      }
+    },
+    "Erase all your expenses?" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa tất cả khoản chi?"
+          }
+        }
+      }
+    },
+    "Family" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gia đình"
+          }
+        }
+      }
+    },
+    "Food & Drink" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ăn uống"
+          }
+        }
+      }
+    },
+    "Gifts & Occasions" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quà tặng & hiếu hỉ"
+          }
+        }
+      }
+    },
+    "Groceries" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đi chợ"
+          }
+        }
+      }
+    },
+    "Health" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sức khỏe"
+          }
+        }
+      }
+    },
+    "Housing" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhà ở"
           }
         }
       }
@@ -21,12 +261,172 @@
         }
       }
     },
+    "Lock with Face ID" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khóa bằng Face ID"
+          }
+        }
+      }
+    },
+    "Lock with Optic ID" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khóa bằng Optic ID"
+          }
+        }
+      }
+    },
+    "Lock with Passcode" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khóa bằng mật mã"
+          }
+        }
+      }
+    },
+    "Lock with Touch ID" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khóa bằng Touch ID"
+          }
+        }
+      }
+    },
+    "New Expense" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khoản chi mới"
+          }
+        }
+      }
+    },
+    "No Expenses" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có khoản chi"
+          }
+        }
+      }
+    },
+    "Note" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ghi chú"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Other" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khác"
+          }
+        }
+      }
+    },
+    "Privacy" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quyền riêng tư"
+          }
+        }
+      }
+    },
+    "Riengtu Is Locked" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riengtu đang khóa"
+          }
+        }
+      }
+    },
+    "Riengtu can’t read the expenses saved on this device. They may be from a newer version of Riengtu, so try updating the app." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riengtu không đọc được các khoản chi đã lưu trên thiết bị này. Có thể chúng được lưu bởi phiên bản Riengtu mới hơn, nên hãy thử cập nhật ứng dụng."
+          }
+        }
+      }
+    },
+    "Riengtu couldn’t save your change. Try again." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riengtu không lưu được thay đổi của bạn. Hãy thử lại."
+          }
+        }
+      }
+    },
+    "Riengtu has no account and doesn’t connect to the internet. Your spending is stored only on this device and in its backups." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riengtu không cần tài khoản và không kết nối internet. Chi tiêu của bạn chỉ được lưu trên thiết bị này và trong bản sao lưu của thiết bị."
+          }
+        }
+      }
+    },
+    "Riengtu keeps the unreadable data on this device but won’t show it." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riengtu vẫn giữ dữ liệu không đọc được trên thiết bị này nhưng sẽ không hiển thị."
+          }
+        }
+      }
+    },
     "Riengtu uses your device’s language. You can choose a different language for Riengtu in Settings." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riengtu dùng ngôn ngữ của thiết bị. Bạn có thể chọn ngôn ngữ khác cho Riengtu trong Cài đặt."
+          }
+        }
+      }
+    },
+    "Save" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lưu"
           }
         }
       }
@@ -41,6 +441,126 @@
         }
       }
     },
+    "Shopping" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mua sắm"
+          }
+        }
+      }
+    },
+    "Spending" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chi tiêu"
+          }
+        }
+      }
+    },
+    "Start Over" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bắt đầu lại"
+          }
+        }
+      }
+    },
+    "Start over with no expenses?" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bắt đầu lại với sổ chi tiêu trống?"
+          }
+        }
+      }
+    },
+    "Suggested" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gợi ý"
+          }
+        }
+      }
+    },
+    "This deletes every expense from this device. You can’t undo this." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thao tác này xóa mọi khoản chi khỏi thiết bị này. Bạn không thể hoàn tác."
+          }
+        }
+      }
+    },
+    "To lock Riengtu, set a passcode for this device." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Để khóa Riengtu, hãy đặt mật mã cho thiết bị này."
+          }
+        }
+      }
+    },
+    "Today" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôm nay"
+          }
+        }
+      }
+    },
+    "Transport" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đi lại"
+          }
+        }
+      }
+    },
+    "Travel" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du lịch"
+          }
+        }
+      }
+    },
+    "Unlock" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở khóa"
+          }
+        }
+      }
+    },
+    "Unlock Riengtu to see your spending." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở khóa Riengtu để xem chi tiêu của bạn."
+          }
+        }
+      }
+    },
     "Version" : {
       "localizations" : {
         "vi" : {
@@ -51,22 +571,12 @@
         }
       }
     },
-    "Welcome to Riengtu" : {
+    "Yesterday" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chào mừng đến với Riengtu"
-          }
-        }
-      }
-    },
-    "Your app starts here." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ứng dụng của bạn bắt đầu từ đây."
+            "value" : "Hôm qua"
           }
         }
       }

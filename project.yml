@@ -57,6 +57,8 @@ targets:
         # Every orientation on the iPad, which multitasking needs.
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        # Translated in App/InfoPlist.xcstrings.
+        INFOPLIST_KEY_NSFaceIDUsageDescription: Riengtu uses Face ID to keep your spending private.
     scheme:
       testTargets:
         - package: RiengtuKit/RiengtuKitTests

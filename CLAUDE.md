@@ -8,6 +8,14 @@ SwiftUI app for iPhone and iPad, in English and Vietnamese. See README.md for se
 - iOS only for now: the one target has `supportedDestinations: [iOS]`. Put iOS-only APIs (UIKit) behind `#if os(iOS)`, so a native Mac build can come later by adding `macOS` there, as in Figbear and ETHnym. Check that it compiles with `-destination 'generic/platform=iOS Simulator'`. To run it, pick a simulator by name and OS from `xcrun simctl list devices available`, since a name alone can match more than one runtime.
 - Swift 6 language mode, iOS 18 deployment target. The app target defaults to main-actor isolation. RiengtuKit has no default isolation.
 
+## Privacy and money
+- Riengtu is a private spending tracker. It makes no network requests and has no analytics or third-party SDKs. Keep it that way unless the user asks otherwise.
+- The data stays in the ledger file (`LedgerFile`, complete file protection). Don't put spending data in `UserDefaults`, logs or anywhere else. `Logger` messages mustn't include amounts or notes.
+- Change the ledger only through `LedgerStore`, which saves before it shows a change, and refuses to save over a file it couldn't read.
+- Apply `.privacyShield()` to the root of every sheet or full-screen cover, as well as `RootView`, or the sheet shows above the lock screen.
+- Each expense has its own currency. Never add amounts in different currencies together. Totals and budgets are left out for now, by the user's choice.
+- Amounts are `Decimal`. Format them with `.currency(code: expense.currencyCode)`, and parse typed ones with `AmountInput`.
+
 ## Two languages
 - Every string the app shows is in English and Vietnamese, in `App/Localizable.xcstrings`. English is the source language and the keys are the English text.
 - Write UI text as literals SwiftUI localizes: `Text("…")`, `Button("…")`, `Label("…", systemImage:)`, `.navigationTitle("…")`. Where an API takes a plain `String`, use `String(localized: "…")`. Never put a `String` variable into `Text` and expect it translated.

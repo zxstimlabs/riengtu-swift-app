@@ -2,7 +2,11 @@ import RiengtuKit
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(LedgerStore.self) private var store
+    @Environment(AppLock.self) private var lock
     @Environment(\.openURL) private var openURL
+    @State private var confirmsErasing = false
+    @State private var eraseFailed = false
 
     /// The language the app is showing, which iOS picks from the ones it has.
     private let language = AppLanguage.preferred(from: Bundle.main.preferredLocalizations)
@@ -12,7 +16,32 @@ struct SettingsView: View {
     }
 
     var body: some View {
+        let method = lock.method
         Form {
+            Section {
+                Toggle(isOn: Binding(
+                    get: { lock.isEnabled },
+                    set: { enabled in Task { await lock.setEnabled(enabled) } }
+                )) {
+                    switch method {
+                    case .faceID: Text("Lock with Face ID")
+                    case .touchID: Text("Lock with Touch ID")
+                    case .opticID: Text("Lock with Optic ID")
+                    case .passcode, .unavailable: Text("Lock with Passcode")
+                    }
+                }
+                .disabled(method == .unavailable && !lock.isEnabled)
+            } header: {
+                Text("Privacy")
+            } footer: {
+                VStack(alignment: .leading, spacing: 8) {
+                    if method == .unavailable {
+                        Text("To lock Riengtu, set a passcode for this device.")
+                    }
+                    Text("Riengtu has no account and doesn’t connect to the internet. Your spending is stored only on this device and in its backups.")
+                }
+            }
+
             Section {
                 LabeledContent("Language", value: language.endonym)
                 #if os(iOS)
@@ -28,10 +57,33 @@ struct SettingsView: View {
             }
 
             Section {
+                Button("Erase All Data", role: .destructive) {
+                    confirmsErasing = true
+                }
+                .disabled(store.ledger.expenses.isEmpty)
+            }
+
+            Section {
                 LabeledContent("Version", value: version)
             }
         }
         .navigationTitle("Settings")
+        .confirmationDialog("Erase all your expenses?", isPresented: $confirmsErasing, titleVisibility: .visible) {
+            Button("Erase All Data", role: .destructive) {
+                do {
+                    try store.eraseAll()
+                } catch {
+                    eraseFailed = true
+                }
+            }
+        } message: {
+            Text("This deletes every expense from this device. You can’t undo this.")
+        }
+        .alert("Couldn’t Save", isPresented: $eraseFailed) {
+            Button("OK") {}
+        } message: {
+            Text("Riengtu couldn’t save your change. Try again.")
+        }
     }
 }
 
@@ -39,4 +91,5 @@ struct SettingsView: View {
     NavigationStack {
         SettingsView()
     }
+    .previewEnvironment()
 }
