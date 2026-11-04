@@ -38,7 +38,7 @@ struct SettingsView: View {
                     if method == .unavailable {
                         Text("To lock Riengtu, set a passcode for this device.")
                     }
-                    Text("Riengtu has no account and doesn’t connect to the internet. Your spending is stored only on this device and in its backups.")
+                    Text("Riengtu has no account and doesn’t connect to the internet. Your spending and assets are stored only on this device and in its backups.")
                 }
             }
 
@@ -60,7 +60,7 @@ struct SettingsView: View {
                 Button("Erase All Data", role: .destructive) {
                     confirmsErasing = true
                 }
-                .disabled(store.ledger.expenses.isEmpty)
+                .disabled(store.ledger.expenses.isEmpty && store.ledger.assets.isEmpty)
             }
 
             Section {
@@ -68,7 +68,7 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
-        .confirmationDialog("Erase all your expenses?", isPresented: $confirmsErasing, titleVisibility: .visible) {
+        .confirmationDialog("Erase all your expenses and assets?", isPresented: $confirmsErasing, titleVisibility: .visible) {
             Button("Erase All Data", role: .destructive) {
                 do {
                     try store.eraseAll()
@@ -77,7 +77,7 @@ struct SettingsView: View {
                 }
             }
         } message: {
-            Text("This deletes every expense from this device. You can’t undo this.")
+            Text("This deletes every expense and asset from this device. You can’t undo this.")
         }
         .alert("Couldn’t Save", isPresented: $eraseFailed) {
             Button("OK") {}

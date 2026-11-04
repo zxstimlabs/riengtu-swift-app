@@ -9,12 +9,14 @@ SwiftUI app for iPhone and iPad, in English and Vietnamese. See README.md for se
 - Swift 6 language mode, iOS 18 deployment target. The app target defaults to main-actor isolation. RiengtuKit has no default isolation.
 
 ## Privacy and money
-- Riengtu is a private spending tracker. It makes no network requests and has no analytics or third-party SDKs. Keep it that way unless the user asks otherwise.
+- Riengtu is a private money app: spending, and assets such as cash, bank accounts, Vietnamese stocks, gold and property. It makes no network requests and has no analytics or third-party SDKs. Keep it that way unless the user asks otherwise.
+- Stock, fund, gold and crypto prices are typed in for now. The user plans to fetch them from their own server later, which will fill in `Asset.Value`'s price and `valuedAt`.
 - The data stays in the ledger file (`LedgerFile`, complete file protection). Don't put spending data in `UserDefaults`, logs or anywhere else. `Logger` messages mustn't include amounts or notes.
 - Change the ledger only through `LedgerStore`, which saves before it shows a change, and refuses to save over a file it couldn't read.
 - Apply `.privacyShield()` to the root of every sheet or full-screen cover, as well as `RootView`, or the sheet shows above the lock screen.
-- Each expense has its own currency. Never add amounts in different currencies together. Totals and budgets are left out for now, by the user's choice.
-- Amounts are `Decimal`. Format them with `.currency(code: expense.currencyCode)`, and parse typed ones with `AmountInput`.
+- Each expense and asset has its own currency. Never add amounts in different currencies together. Assets are totaled per currency (`Ledger.assetTotals`). Expenses have no totals or budgets for now, by the user's choice. Expenses and assets are separate: spending doesn't change an account's balance.
+- Amounts are `Decimal`. Format them with `.currency(code:)`, and type them in a `NumberField`, which uses `AmountInput`. Don't read separators from `Locale.decimalSeparator`: it follows the Number Format chosen in Settings, which `FormatStyle` ignores (see `AmountInput.decimalSeparator`).
+- Changing what the ledger file holds means a new `Ledger.currentVersion`, and reading the earlier versions (see `LedgerStoreTests`).
 
 ## Two languages
 - Every string the app shows is in English and Vietnamese, in `App/Localizable.xcstrings`. English is the source language and the keys are the English text.

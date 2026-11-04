@@ -1,6 +1,6 @@
 # Riengtu
 
-A private spending tracker for iPhone and iPad, in English and Vietnamese. You record what you spend, in any currency, and it stays on your device.
+A private money app for iPhone and iPad, in English and Vietnamese. You record what you spend and what you own, from cash and bank accounts to Vietnamese stocks, gold and property, in any currency, and it stays on your device.
 
 ## Privacy
 
@@ -12,7 +12,12 @@ A private spending tracker for iPhone and iPad, in English and Vietnamese. You r
 
 ## Money
 
-Each expense keeps its own currency, and Riengtu never adds amounts in different currencies together, so there are no totals yet. Amounts are `Decimal`, stored as text, so no digits are lost. New expenses start in the currency used last, or the region's currency at first.
+Riengtu has three tabs: Spending, Assets and Settings.
+
+- **Spending.** Each expense keeps its own currency. Expenses have no totals. New expenses start in the currency used last, or the region's currency at first.
+- **Assets.** What the person owns, in three groups: money (cash, bank accounts, e-wallets, savings deposits), investments (stocks, fund certificates, gold, crypto) and property and belongings (property, vehicles, anything else). An asset is valued by an amount, by a quantity times a price, or, for gold, by a weight in lượng, chỉ or grams times a price per lượng, chỉ or gram. Prices are typed in, and each asset keeps the date its value was last changed. The tab totals each currency on its own: amounts in different currencies are never added together.
+
+Amounts, quantities and prices are `Decimal`, stored as text, so no digits are lost.
 
 ## Requirements
 
@@ -33,23 +38,24 @@ Run the `Riengtu` scheme on an iPhone or an iPad. The `.xcodeproj` is generated 
 ## Layout
 
 - `App/`: the SwiftUI app.
-  - `RootView` holds the navigation stack, loads the ledger when the app becomes active, and locks it in the background.
-  - `Home/` is the list of expenses, grouped by day.
-  - `Expenses/` has the editor sheet, the category grid and the currency picker. Each category's name, symbol and color is in `ExpenseCategory+Display.swift`.
+  - `RootView` holds the tabs, loads the ledger when the app becomes active, and locks it in the background.
+  - `Expenses/` has the Spending tab (`SpendingView`, the expenses grouped by day), the editor sheet, the category grid and the currency picker. Each category's name, symbol and color is in `ExpenseCategory+Display.swift`.
+  - `Assets/` has the Assets tab (`AssetsView`) and its editor sheet. Each kind of asset's name, symbol and color is in `AssetKind+Display.swift`.
+  - `Components/` has views both tabs use: `NumberField`, which tidies typed amounts, and `IconBadge`.
   - `Privacy/` has `AppLock` (Face ID, Touch ID or passcode) and `privacyShield()`, which covers a view while Riengtu is locked or inactive.
   - `Settings/` is the settings screen, and `Previews/` the sample data for previews.
   - `Localizable.xcstrings` has every string in both languages, and `InfoPlist.xcstrings` the Info.plist ones, such as the reason for Face ID. `PrivacyInfo.xcprivacy` is the privacy manifest: declare each required-reason API there as the app starts using it (so far, `UserDefaults` for the lock setting).
 - `Packages/RiengtuKit/`: everything that isn't UI, and the tests.
-  - `Expense`, `ExpenseCategory` and `Ledger` are the data.
+  - `Expense`, `ExpenseCategory`, `Asset`, `AssetKind` and `Ledger` are the data. `Ledger` also groups the assets and totals them by currency.
   - `LedgerStore` is what the app observes. It saves every change before showing it.
-  - `LedgerFile` reads and writes the JSON file.
+  - `LedgerFile` reads and writes the JSON file. The file has a version (`Ledger.currentVersion`, now 2): a file from an earlier version is read and saved in the current one, and one from a later version isn't read at all.
   - `AmountInput` tidies typed amounts in the device's number format, such as `1.250.000` in Vietnam.
   - `Currencies` lists the currencies and their digits and symbols.
   - `AppLanguage` lists the languages the app is in.
 
 ## Languages
 
-English is the source language and Vietnamese the translation, both in the string catalog `App/Localizable.xcstrings`. iOS picks the app's language from the device's preferred languages, or from the one chosen for Riengtu in Settings > Riengtu > Language. That choice only appears once the device has more than one preferred language.
+English is the source language and Vietnamese the translation, both in the string catalog `App/Localizable.xcstrings`. iOS picks the app's language from the device's preferred languages, or from the one chosen for Riengtu in Settings > Riêng Tư > Language. That choice only appears once the device has more than one preferred language.
 
 In Xcode, choose the language under Product > Scheme > Edit Scheme > Run > Options > App Language, or open the Vietnamese preview in `RootView.swift`. From the command line, build, install and launch in Vietnamese:
 
@@ -75,6 +81,6 @@ xcodebuild -exportLocalizations -project Riengtu.xcodeproj -scheme Riengtu -loca
 cd Packages/RiengtuKit && swift test
 ```
 
-They cover the ledger, saving and loading (including damaged files), amount input in both number formats, currencies and `AppLanguage`. `StringCatalogTests` checks both string catalogs: every string must be translated into Vietnamese and marked so. A new string fails until it is.
+They cover the ledger, assets and their values (including gold's units), saving and loading (including damaged files and ones from version 1), amount input in both number formats, currencies and `AppLanguage`. `StringCatalogTests` checks both string catalogs: every string must be translated into Vietnamese and marked so. A new string fails until it is.
 
 To try the lock in the Simulator, choose Features > Face ID > Enrolled, then Matching Face or Non-matching Face when Riengtu asks.

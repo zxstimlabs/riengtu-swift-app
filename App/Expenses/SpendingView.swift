@@ -2,7 +2,7 @@ import RiengtuKit
 import SwiftUI
 
 /// Every expense, newest first, grouped by day. Amounts stay in their own currencies.
-struct HomeView: View {
+struct SpendingView: View {
     @Environment(LedgerStore.self) private var store
     @Environment(\.calendar) private var calendar
     @State private var editor: Editor?
@@ -57,13 +57,6 @@ struct HomeView: View {
         }
         .navigationTitle("Spending")
         .toolbar {
-            ToolbarItem(placement: .navigation) {
-                NavigationLink {
-                    SettingsView()
-                } label: {
-                    Label("Settings", systemImage: "gear")
-                }
-            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Add Expense", systemImage: "plus") { editor = .new }
             }
@@ -143,14 +136,14 @@ private struct DayHeader: View {
 
 #Preview("English") {
     NavigationStack {
-        HomeView()
+        SpendingView()
     }
     .previewEnvironment()
 }
 
 #Preview("Vietnamese") {
     NavigationStack {
-        HomeView()
+        SpendingView()
     }
     .previewEnvironment()
     .environment(\.locale, Locale(identifier: "vi"))
@@ -158,7 +151,7 @@ private struct DayHeader: View {
 
 #Preview("Empty") {
     NavigationStack {
-        HomeView()
+        SpendingView()
     }
     .previewEnvironment(Ledger())
 }

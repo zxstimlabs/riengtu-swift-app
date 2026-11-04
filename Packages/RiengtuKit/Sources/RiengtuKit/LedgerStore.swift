@@ -67,7 +67,15 @@ public final class LedgerStore {
         try commit { $0.deleteExpense(id: id) }
     }
 
-    /// Deletes every expense, and the file.
+    public func save(_ asset: Asset) throws {
+        try commit { $0.save(asset) }
+    }
+
+    public func deleteAsset(id: Asset.ID) throws {
+        try commit { $0.deleteAsset(id: id) }
+    }
+
+    /// Deletes every expense and asset, and the file.
     public func eraseAll() throws {
         guard status == .ready else { throw NotReadyError() }
         try file?.delete()

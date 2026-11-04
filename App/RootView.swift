@@ -6,17 +6,31 @@ struct RootView: View {
     @Environment(AppLock.self) private var lock
     @Environment(\.scenePhase) private var scenePhase
 
+    @SceneStorage("tab") private var tab = AppTab.spending
+
     var body: some View {
-        NavigationStack {
+        Group {
             switch store.status {
             case .ready:
-                HomeView()
+                TabView(selection: $tab) {
+                    Tab("Spending", systemImage: "list.bullet.rectangle.portrait", value: .spending) {
+                        NavigationStack { SpendingView() }
+                    }
+                    Tab("Assets", systemImage: "chart.pie", value: .assets) {
+                        NavigationStack { AssetsView() }
+                    }
+                    Tab("Settings", systemImage: "gear", value: .settings) {
+                        NavigationStack { SettingsView() }
+                    }
+                }
+                // A sidebar on the iPad, which people can hide.
+                .tabViewStyle(.sidebarAdaptable)
             case .notLoaded:
                 // The data can't be read while the device is locked. It loads once Riengtu is
                 // active.
                 Color.clear
             case .unreadable:
-                UnreadableDataView()
+                NavigationStack { UnreadableDataView() }
             }
         }
         .privacyShield()
@@ -30,6 +44,10 @@ struct RootView: View {
     }
 }
 
+private enum AppTab: String {
+    case spending, assets, settings
+}
+
 /// Shown when the saved data is damaged, or from a later version of Riengtu.
 private struct UnreadableDataView: View {
     @Environment(LedgerStore.self) private var store
@@ -39,7 +57,7 @@ private struct UnreadableDataView: View {
         ContentUnavailableView {
             Label("Can’t Open Your Data", systemImage: "exclamationmark.triangle")
         } description: {
-            Text("Riengtu can’t read the expenses saved on this device. They may be from a newer version of Riengtu, so try updating the app.")
+            Text("Riengtu can’t read the data saved on this device. It may be from a newer version of Riengtu, so try updating the app.")
         } actions: {
             Button("Start Over") { confirmsStartingOver = true }
         }

@@ -44,6 +44,41 @@ final class LedgerStoreTests {
         #expect(reopened.ledger.recentCurrencyCodes == ["VND"])
     }
 
+    @Test func savesAssets() throws {
+        let store = LedgerStore(file: file)
+        store.load()
+        let kept = Asset(kind: .stock, name: "FPT", currencyCode: "VND", value: .holding(quantity: 100, price: 125_500), valuedAt: .now)
+        let deleted = Asset(kind: .cash, currencyCode: "VND", value: .amount(500_000), valuedAt: .now)
+        try store.save(kept)
+        try store.save(deleted)
+        try store.deleteAsset(id: deleted.id)
+
+        let reopened = LedgerStore(file: file)
+        reopened.load()
+        #expect(reopened.ledger.assets == [kept])
+    }
+
+    /// A file from before assets opens with none, and is saved in the current version.
+    @Test func readsAVersion1FileAndSavesItAsTheCurrentVersion() throws {
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let version1 = #"""
+        {"version": 1, "recentCurrencyCodes": ["VND"], "expenses": [{"id": "6F9619FF-8B86-D011-B42D-00C04FC964FF",
+         "amount": "45000", "currency": "VND", "category": "food", "date": 0}]}
+        """#
+        try Data(version1.utf8).write(to: file.url)
+        let store = LedgerStore(file: file)
+        store.load()
+
+        #expect(store.status == .ready)
+        #expect(store.ledger.expenses.map(\.amount) == [45_000])
+        #expect(store.ledger.assets.isEmpty)
+
+        try store.save(Asset(kind: .cash, currencyCode: "VND", value: .amount(1), valuedAt: .now))
+        let saved = try JSONSerialization.jsonObject(with: Data(contentsOf: file.url)) as! [String: Any]
+        #expect(saved["version"] as? Int == Ledger.currentVersion)
+        #expect((saved["expenses"] as? [Any])?.count == 1)
+    }
+
     @Test func refusesChangesBeforeLoading() {
         let store = LedgerStore(file: file)
         #expect(throws: LedgerStore.NotReadyError.self) { try store.save(Self.expense()) }

@@ -62,14 +62,7 @@ struct CategoryIcon: View {
     let category: ExpenseCategory
     var isSelected = false
 
-    @ScaledMetric(relativeTo: .body) private var size = 36
-
     var body: some View {
-        Image(systemName: category.symbolName)
-            .font(.system(size: size * 0.45, weight: .semibold))
-            .foregroundStyle(isSelected ? AnyShapeStyle(.white) : AnyShapeStyle(category.color))
-            .frame(width: size, height: size)
-            .background(category.color.opacity(isSelected ? 1 : 0.15), in: .circle)
-            .accessibilityHidden(true)
+        IconBadge(symbolName: category.symbolName, color: category.color, isSelected: isSelected)
     }
 }

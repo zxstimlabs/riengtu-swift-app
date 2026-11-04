@@ -8,7 +8,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Riengtu"
+            "value" : "Riêng Tư"
           }
         }
       },
@@ -34,13 +34,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Riengtu uses Face ID to keep your spending private."
+            "value" : "Riengtu uses Face ID to keep your spending and assets private."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Riengtu dùng Face ID để giữ kín chi tiêu của bạn."
+            "value" : "Riengtu dùng Face ID để giữ kín chi tiêu và tài sản của bạn."
           }
         }
       }

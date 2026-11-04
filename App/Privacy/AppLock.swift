@@ -90,7 +90,7 @@ final class AppLock {
         do {
             return try await LAContext().evaluatePolicy(
                 .deviceOwnerAuthentication,
-                localizedReason: String(localized: "Unlock Riengtu to see your spending.")
+                localizedReason: String(localized: "Unlock Riengtu to see your spending and assets.")
             )
         } catch {
             return false

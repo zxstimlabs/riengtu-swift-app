@@ -1,7 +1,7 @@
 import RiengtuKit
 import SwiftUI
 
-/// Picks the currency of an expense, with the ones used recently on top.
+/// Picks the currency of an expense or an asset, with suggested ones on top.
 struct CurrencyPicker: View {
     @Binding var selection: String
     /// Shown first. Never empty in practice: before any expense, it's the region's currency.

@@ -16,9 +16,10 @@ public enum AmountInput {
     /// `fractionDigits` 0, so is the decimal separator.
     ///
     /// A `.` or `,` at the very end is read as the decimal separator, whatever the locale's is.
-    /// That's the key just typed, and the decimal pad's key follows the keyboard's language, not
-    /// the region: with English and the Vietnam region, it types `.` where the region writes `,`.
-    /// The field groups digits itself, so no one needs to type a grouping separator.
+    /// That's the key just typed, and the decimal pad's key can differ from the separator the
+    /// region writes: with the Vietnam region, it types `.` where amounts show `,`, such as when
+    /// the 1,234.56 Number Format is chosen in Settings. The field groups digits itself, so no one
+    /// needs to type a grouping separator.
     public static func normalize(_ text: String, fractionDigits: Int, locale: Locale) -> String {
         let parts = Parts(text, fractionDigits: fractionDigits, locale: locale)
         guard parts.hasDigits || parts.fraction != nil else { return "" }
@@ -46,8 +47,15 @@ public enum AmountInput {
         return normalize(typed, fractionDigits: fractionDigits, locale: locale)
     }
 
-    private static func decimalSeparator(_ locale: Locale) -> String {
-        locale.decimalSeparator ?? "."
+    /// The decimal separator as `FormatStyle` writes it, which is also what groups the digits here
+    /// and formats amounts everywhere else in the app.
+    ///
+    /// Not `locale.decimalSeparator`: that follows a number format the person picked in Settings
+    /// (Language & Region > Number Format), but `FormatStyle` keeps the region's. With the Vietnam
+    /// region and the 1,234.56 format, the two disagree, and `1.250.000` would read as 1.25.
+    static func decimalSeparator(_ locale: Locale) -> String {
+        let oneAndAHalf = (Decimal(15) / 10).formatted(.number.locale(locale))
+        return oneAndAHalf.first { !$0.isNumber }.map(String.init) ?? "."
     }
 
     /// The digits before and after the decimal separator.

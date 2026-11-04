@@ -1,12 +1,62 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ chỉ" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ chỉ"
+          }
+        }
+      }
+    },
+    "%@ g" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ g"
+          }
+        }
+      }
+    },
+    "%@ lượng" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ lượng"
+          }
+        }
+      }
+    },
+    "Add Asset" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm tài sản"
+          }
+        }
+      }
+    },
     "Add Expense" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thêm khoản chi"
+          }
+        }
+      }
+    },
+    "Add what you own, from money and stocks to gold and property. It stays on this device." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ghi lại những gì bạn sở hữu, từ tiền, cổ phiếu đến vàng và nhà đất. Mọi thứ chỉ ở trên thiết bị này."
           }
         }
       }
@@ -41,6 +91,36 @@
         }
       }
     },
+    "Assets" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tài sản"
+          }
+        }
+      }
+    },
+    "Balance" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Số dư"
+          }
+        }
+      }
+    },
+    "Bank Account" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tài khoản ngân hàng"
+          }
+        }
+      }
+    },
     "Bills" : {
       "localizations" : {
         "vi" : {
@@ -67,6 +147,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Không mở được dữ liệu"
+          }
+        }
+      }
+    },
+    "Cash" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền mặt"
           }
         }
       }
@@ -101,6 +191,16 @@
         }
       }
     },
+    "Crypto" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền mã hóa"
+          }
+        }
+      }
+    },
     "Currency" : {
       "localizations" : {
         "vi" : {
@@ -131,12 +231,52 @@
         }
       }
     },
+    "Delete Asset" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa tài sản"
+          }
+        }
+      }
+    },
     "Delete Expense" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Xóa khoản chi"
+          }
+        }
+      }
+    },
+    "E-Wallet" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ví điện tử"
+          }
+        }
+      }
+    },
+    "Each currency is totaled on its own." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mỗi loại tiền được cộng riêng."
+          }
+        }
+      }
+    },
+    "Edit Asset" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sửa tài sản"
           }
         }
       }
@@ -181,12 +321,12 @@
         }
       }
     },
-    "Erase all your expenses?" : {
+    "Erase all your expenses and assets?" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Xóa tất cả khoản chi?"
+            "value" : "Xóa tất cả khoản chi và tài sản?"
           }
         }
       }
@@ -211,12 +351,32 @@
         }
       }
     },
+    "Fund Certificates" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chứng chỉ quỹ"
+          }
+        }
+      }
+    },
     "Gifts & Occasions" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quà tặng & hiếu hỉ"
+          }
+        }
+      }
+    },
+    "Gold" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vàng"
           }
         }
       }
@@ -247,6 +407,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nhà ở"
+          }
+        }
+      }
+    },
+    "Investments" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đầu tư"
           }
         }
       }
@@ -301,12 +471,52 @@
         }
       }
     },
+    "Money" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tên"
+          }
+        }
+      }
+    },
+    "New Asset" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tài sản mới"
+          }
+        }
+      }
+    },
     "New Expense" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Khoản chi mới"
+          }
+        }
+      }
+    },
+    "No Assets" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có tài sản"
           }
         }
       }
@@ -351,12 +561,62 @@
         }
       }
     },
+    "Price" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giá"
+          }
+        }
+      }
+    },
+    "Price Unit" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đơn vị giá"
+          }
+        }
+      }
+    },
     "Privacy" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quyền riêng tư"
+          }
+        }
+      }
+    },
+    "Property" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bất động sản"
+          }
+        }
+      }
+    },
+    "Property & Belongings" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bất động sản & đồ đạc"
+          }
+        }
+      }
+    },
+    "Quantity" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Số lượng"
           }
         }
       }
@@ -371,12 +631,12 @@
         }
       }
     },
-    "Riengtu can’t read the expenses saved on this device. They may be from a newer version of Riengtu, so try updating the app." : {
+    "Riengtu can’t read the data saved on this device. It may be from a newer version of Riengtu, so try updating the app." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Riengtu không đọc được các khoản chi đã lưu trên thiết bị này. Có thể chúng được lưu bởi phiên bản Riengtu mới hơn, nên hãy thử cập nhật ứng dụng."
+            "value" : "Riengtu không đọc được dữ liệu đã lưu trên thiết bị này. Có thể dữ liệu được lưu bởi phiên bản Riengtu mới hơn, nên hãy thử cập nhật ứng dụng."
           }
         }
       }
@@ -391,12 +651,12 @@
         }
       }
     },
-    "Riengtu has no account and doesn’t connect to the internet. Your spending is stored only on this device and in its backups." : {
+    "Riengtu has no account and doesn’t connect to the internet. Your spending and assets are stored only on this device and in its backups." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Riengtu không cần tài khoản và không kết nối internet. Chi tiêu của bạn chỉ được lưu trên thiết bị này và trong bản sao lưu của thiết bị."
+            "value" : "Riengtu không cần tài khoản và không kết nối internet. Chi tiêu và tài sản của bạn chỉ được lưu trên thiết bị này và trong bản sao lưu của thiết bị."
           }
         }
       }
@@ -431,12 +691,32 @@
         }
       }
     },
+    "Savings Deposit" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền gửi tiết kiệm"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cài đặt"
+          }
+        }
+      }
+    },
+    "Shares" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Số cổ phiếu"
           }
         }
       }
@@ -481,6 +761,16 @@
         }
       }
     },
+    "Stocks" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cổ phiếu"
+          }
+        }
+      }
+    },
     "Suggested" : {
       "localizations" : {
         "vi" : {
@@ -491,12 +781,22 @@
         }
       }
     },
-    "This deletes every expense from this device. You can’t undo this." : {
+    "This deletes every expense and asset from this device. You can’t undo this." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thao tác này xóa mọi khoản chi khỏi thiết bị này. Bạn không thể hoàn tác."
+            "value" : "Thao tác này xóa mọi khoản chi và tài sản khỏi thiết bị này. Bạn không thể hoàn tác."
+          }
+        }
+      }
+    },
+    "Ticker" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mã"
           }
         }
       }
@@ -521,6 +821,16 @@
         }
       }
     },
+    "Total" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tổng"
+          }
+        }
+      }
+    },
     "Transport" : {
       "localizations" : {
         "vi" : {
@@ -541,6 +851,46 @@
         }
       }
     },
+    "Type" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loại"
+          }
+        }
+      }
+    },
+    "Type the whole price in đồng. Price boards often show it in thousands." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhập giá đầy đủ theo đồng. Bảng giá thường ghi theo nghìn đồng."
+          }
+        }
+      }
+    },
+    "Unit" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đơn vị"
+          }
+        }
+      }
+    },
+    "Units" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Số lượng CCQ"
+          }
+        }
+      }
+    },
     "Unlock" : {
       "localizations" : {
         "vi" : {
@@ -551,12 +901,42 @@
         }
       }
     },
-    "Unlock Riengtu to see your spending." : {
+    "Unlock Riengtu to see your spending and assets." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mở khóa Riengtu để xem chi tiêu của bạn."
+            "value" : "Mở khóa Riengtu để xem chi tiêu và tài sản của bạn."
+          }
+        }
+      }
+    },
+    "Updated %@" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cập nhật %@"
+          }
+        }
+      }
+    },
+    "Value" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giá trị"
+          }
+        }
+      }
+    },
+    "Vehicle" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xe cộ"
           }
         }
       }
@@ -571,12 +951,92 @@
         }
       }
     },
+    "Weight" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trọng lượng"
+          }
+        }
+      }
+    },
+    "What it would sell for today." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Số tiền bạn có thể bán được hôm nay."
+          }
+        }
+      }
+    },
     "Yesterday" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hôm qua"
+          }
+        }
+      }
+    },
+    "chỉ" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "chỉ"
+          }
+        }
+      }
+    },
+    "gram" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gam"
+          }
+        }
+      }
+    },
+    "lượng" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lượng"
+          }
+        }
+      }
+    },
+    "per chỉ" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mỗi chỉ"
+          }
+        }
+      }
+    },
+    "per gram" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mỗi gam"
+          }
+        }
+      }
+    },
+    "per lượng" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mỗi lượng"
           }
         }
       }

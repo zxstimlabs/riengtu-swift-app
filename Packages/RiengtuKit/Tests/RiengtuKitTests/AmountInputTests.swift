@@ -36,8 +36,7 @@ struct AmountInputTests {
         #expect(AmountInput.normalize("1234,5", fractionDigits: 2, locale: Self.vietnamese) == "1.234,5")
     }
 
-    /// With the Vietnam region and an English keyboard, the decimal pad types `.` but the region
-    /// writes `,`.
+    /// With the Vietnam region, the decimal pad can type `.` where amounts show `,`.
     @Test func readsTheDecimalKeyJustTypedWhateverItIs() {
         #expect(AmountInput.normalize("12.", fractionDigits: 2, locale: Self.vietnamese) == "12,")
         #expect(AmountInput.normalize("1.234.", fractionDigits: 2, locale: Self.vietnamese) == "1.234,")
@@ -50,6 +49,15 @@ struct AmountInputTests {
         #expect(AmountInput.parse("12,5", locale: Self.vietnamese) == Decimal(string: "12.5"))
         // The đồng has no fraction, so the key is ignored.
         #expect(AmountInput.normalize("1.234.", fractionDigits: 0, locale: Self.vietnamese) == "1.234")
+    }
+
+    /// The separator that groups the digits must never also read as the decimal separator.
+    @Test(arguments: ["vi_VN", "en_VN", "en_US", "de_DE", "fr_FR", "de_CH", "hi_IN", "ja_JP"])
+    func readsBackWhatItGroups(identifier: String) {
+        let locale = Locale(identifier: identifier)
+        let text = AmountInput.normalize("1250000", fractionDigits: 2, locale: locale)
+        #expect(AmountInput.parse(text, locale: locale) == 1_250_000)
+        #expect(AmountInput.decimalSeparator(locale) == locale.decimalSeparator)
     }
 
     @Test func capsTheWholePart() {

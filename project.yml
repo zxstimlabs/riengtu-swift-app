@@ -50,7 +50,8 @@ targets:
         SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
         SWIFT_APPROACHABLE_CONCURRENCY: YES
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: Riengtu
+        # The name under the icon, and on its page in Settings.
+        INFOPLIST_KEY_CFBundleDisplayName: Riêng Tư
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
@@ -58,7 +59,7 @@ targets:
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         # Translated in App/InfoPlist.xcstrings.
-        INFOPLIST_KEY_NSFaceIDUsageDescription: Riengtu uses Face ID to keep your spending private.
+        INFOPLIST_KEY_NSFaceIDUsageDescription: Riengtu uses Face ID to keep your spending and assets private.
     scheme:
       testTargets:
         - package: RiengtuKit/RiengtuKitTests
