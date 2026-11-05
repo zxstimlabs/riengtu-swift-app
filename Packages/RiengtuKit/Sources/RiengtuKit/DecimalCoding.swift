@@ -14,10 +14,20 @@ extension KeyedDecodingContainer {
         }
         return number
     }
+
+    func decodeDecimalIfPresent(forKey key: Key) throws -> Decimal? {
+        try contains(key) ? decodeDecimal(forKey: key) : nil
+    }
 }
 
 extension KeyedEncodingContainer {
     mutating func encodeDecimal(_ number: Decimal, forKey key: Key) throws {
         try encode(number.description, forKey: key)
+    }
+
+    mutating func encodeDecimalIfPresent(_ number: Decimal?, forKey key: Key) throws {
+        if let number {
+            try encodeDecimal(number, forKey: key)
+        }
     }
 }

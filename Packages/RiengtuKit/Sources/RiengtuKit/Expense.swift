@@ -12,6 +12,8 @@ public struct Expense: Identifiable, Hashable, Sendable {
     public var date: Date
     /// What the person wrote about it. Empty when they wrote nothing.
     public var note: String
+    /// What it was for, from the person's tags (`Ledger.tags`), in the order they were added.
+    public var tags: [String]
 
     public init(
         id: UUID = UUID(),
@@ -19,7 +21,8 @@ public struct Expense: Identifiable, Hashable, Sendable {
         currencyCode: String,
         category: ExpenseCategory,
         date: Date,
-        note: String = ""
+        note: String = "",
+        tags: [String] = []
     ) {
         self.id = id
         self.amount = amount
@@ -27,12 +30,13 @@ public struct Expense: Identifiable, Hashable, Sendable {
         self.category = category
         self.date = date
         self.note = note
+        self.tags = tags
     }
 }
 
 extension Expense: Codable {
     private enum CodingKeys: String, CodingKey {
-        case id, amount, currencyCode = "currency", category, date, note
+        case id, amount, currencyCode = "currency", category, date, note, tags
     }
 
     public init(from decoder: any Decoder) throws {
@@ -43,6 +47,7 @@ extension Expense: Codable {
         category = try container.decode(ExpenseCategory.self, forKey: .category)
         date = try container.decode(Date.self, forKey: .date)
         note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+        tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -54,6 +59,9 @@ extension Expense: Codable {
         try container.encode(date, forKey: .date)
         if !note.isEmpty {
             try container.encode(note, forKey: .note)
+        }
+        if !tags.isEmpty {
+            try container.encode(tags, forKey: .tags)
         }
     }
 }

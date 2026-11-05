@@ -1,14 +1,15 @@
 import Foundation
 
-/// Everything Riengtu keeps: the person's expenses, newest first, what they own, and the
-/// currencies they spend in.
+/// Everything Riengtu keeps: the person's expenses, newest first, their tags, what they own, and
+/// the currencies they spend in.
 public struct Ledger: Equatable, Sendable {
     /// The file format's version. A ledger from a later version isn't read, so this one can't
     /// overwrite data it doesn't understand.
     ///
     /// - 1: expenses.
     /// - 2: assets too. A version 1 file reads as having none.
-    public static let currentVersion = 2
+    /// - 3: tags too. An earlier file reads as having none, and as needing the starter tags.
+    public static let currentVersion = 3
 
     /// How many recently used currencies the ledger remembers.
     public static let recentCurrencyLimit = 5
@@ -20,11 +21,20 @@ public struct Ledger: Equatable, Sendable {
     /// The currencies of the expenses saved most recently, most recent first. Assets don't
     /// change it, so the currency a new expense starts in is always one the person spent in.
     public private(set) var recentCurrencyCodes: [String]
+    /// The person's tags, or `nil` before the starter tags were added, so that tags the person
+    /// deleted don't come back.
+    private var storedTags: [String]?
 
-    public init(expenses: [Expense] = [], assets: [Asset] = [], recentCurrencyCodes: [String] = []) {
+    public init(
+        expenses: [Expense] = [],
+        assets: [Asset] = [],
+        recentCurrencyCodes: [String] = [],
+        tags: [String]? = nil
+    ) {
         self.expenses = expenses.sorted { $0.date > $1.date }
         self.assets = assets
         self.recentCurrencyCodes = Array(recentCurrencyCodes.prefix(Self.recentCurrencyLimit))
+        self.storedTags = tags.map { Tags.unique($0.map(Tags.tidy).filter { !$0.isEmpty }) }
     }
 
     // MARK: Expenses
@@ -34,7 +44,12 @@ public struct Ledger: Equatable, Sendable {
     }
 
     /// Adds the expense, or replaces the one with the same ID, and remembers its currency.
+    ///
+    /// Its tags are spelled as in the tag list, and ones the list doesn't have are added to it.
     public mutating func save(_ expense: Expense) {
+        var expense = expense
+        expense.tags = Tags.unique(expense.tags.compactMap { addTag($0) })
+
         expenses.removeAll { $0.id == expense.id }
         let index = expenses.firstIndex { $0.date <= expense.date } ?? expenses.endIndex
         expenses.insert(expense, at: index)
@@ -55,10 +70,11 @@ public struct Ledger: Equatable, Sendable {
         recentCurrencyCodes.first ?? fallback
     }
 
-    /// The expenses grouped by the day they're on in `calendar`, newest day first.
-    public func days(in calendar: Calendar) -> [Day] {
+    /// The expenses grouped by the day they're on in `calendar`, newest day first. With a `tag`,
+    /// only the expenses that have it.
+    public func days(in calendar: Calendar, taggedWith tag: String? = nil) -> [Day] {
         var days: [Day] = []
-        for expense in expenses {
+        for expense in expenses where tag.map(expense.tags.contains) ?? true {
             let start = calendar.startOfDay(for: expense.date)
             if days.last?.date == start {
                 days[days.count - 1].expenses.append(expense)
@@ -76,6 +92,72 @@ public struct Ledger: Equatable, Sendable {
         public var expenses: [Expense]
 
         public var id: Date { date }
+    }
+
+    // MARK: Tags
+
+    /// The person's tags, in the order they were added.
+    public var tags: [String] {
+        storedTags ?? []
+    }
+
+    /// Whether the starter tags (`Tags.starter`) haven't been added yet.
+    public var needsStarterTags: Bool {
+        storedTags == nil
+    }
+
+    /// Adds the starter tags, once.
+    public mutating func addStarterTags() {
+        guard needsStarterTags else { return }
+        storedTags = Tags.starter
+    }
+
+    /// Adds a tag, unless the list has it already. Returns the tag as the list spells it, or `nil`
+    /// if `name` is blank.
+    @discardableResult
+    public mutating func addTag(_ name: String) -> String? {
+        let name = Tags.tidy(name)
+        guard !name.isEmpty else { return nil }
+        if let existing = Tags.match(name, in: tags) {
+            return existing
+        }
+        storedTags = tags + [name]
+        return name
+    }
+
+    /// Renames a tag on every expense that has it. If another tag already has the new name, the
+    /// two become one.
+    public mutating func renameTag(_ name: String, to newName: String) {
+        let newName = Tags.tidy(newName)
+        guard !newName.isEmpty, let old = Tags.match(name, in: tags) else { return }
+        let replacement: String
+        if let other = Tags.match(newName, in: tags), other != old {
+            replacement = other
+            storedTags = tags.filter { $0 != old }
+        } else {
+            replacement = newName
+            storedTags = tags.map { $0 == old ? newName : $0 }
+        }
+        replaceTag(old, with: [replacement])
+    }
+
+    /// Deletes a tag, and takes it off every expense. The expenses stay.
+    public mutating func deleteTag(_ name: String) {
+        guard let old = Tags.match(name, in: tags) else { return }
+        storedTags = tags.filter { $0 != old }
+        replaceTag(old, with: [])
+    }
+
+    /// How many expenses have the tag.
+    public func expenseCount(taggedWith tag: String) -> Int {
+        expenses.count { $0.tags.contains(tag) }
+    }
+
+    /// Puts `replacement`, which can be empty, in place of `tag` on every expense that has it.
+    private mutating func replaceTag(_ tag: String, with replacement: [String]) {
+        for index in expenses.indices where expenses[index].tags.contains(tag) {
+            expenses[index].tags = Tags.unique(expenses[index].tags.flatMap { $0 == tag ? replacement : [$0] })
+        }
     }
 
     // MARK: Assets
@@ -143,7 +225,7 @@ public struct Ledger: Equatable, Sendable {
 
 extension Ledger: Codable {
     private enum CodingKeys: String, CodingKey {
-        case version, expenses, assets, recentCurrencyCodes
+        case version, expenses, assets, recentCurrencyCodes, tags
     }
 
     /// Reads a ledger of this version or an earlier one. `LedgerFile` checks the version first.
@@ -152,6 +234,7 @@ extension Ledger: Codable {
         expenses = try container.decode([Expense].self, forKey: .expenses)
         assets = try container.decodeIfPresent([Asset].self, forKey: .assets) ?? []
         recentCurrencyCodes = try container.decode([String].self, forKey: .recentCurrencyCodes)
+        storedTags = try container.decodeIfPresent([String].self, forKey: .tags)
     }
 
     /// Always writes the current version, so an earlier version of Riengtu won't read it.
@@ -161,5 +244,6 @@ extension Ledger: Codable {
         try container.encode(expenses, forKey: .expenses)
         try container.encode(assets, forKey: .assets)
         try container.encode(recentCurrencyCodes, forKey: .recentCurrencyCodes)
+        try container.encodeIfPresent(storedTags, forKey: .tags)
     }
 }

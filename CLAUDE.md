@@ -18,6 +18,17 @@ SwiftUI app for iPhone and iPad, in English and Vietnamese. See README.md for se
 - Amounts are `Decimal`. Format them with `.currency(code:)`, and type them in a `NumberField`, which uses `AmountInput`. Don't read separators from `Locale.decimalSeparator`: it follows the Number Format chosen in Settings, which `FormatStyle` ignores (see `AmountInput.decimalSeparator`).
 - Changing what the ledger file holds means a new `Ledger.currentVersion`, and reading the earlier versions (see `LedgerStoreTests`).
 
+## Tags and Apple Intelligence
+- Expenses have tags for what they were for. The starter tags (`Tags.starter`) are stored in English and shown in the app's language with `Tags.displayName`. Tags the person makes are stored and shown as typed. Pass every name the person types through `Tags.stored`, so "Công việc" stays the starter tag "Work".
+- `ExpenseTagger` suggests a category and tags with the Apple Intelligence model on the device. Use only `SystemLanguageModel`, never `PrivateCloudComputeLanguageModel` or any other model that leaves the device. Never log notes or the model's answers.
+- The app must work fully without the model: on iOS 18, on devices without Apple Intelligence, and with it off. Check `ExpenseTagger.availability` first. Suggestions are only ever shown for the person to tap, except the category, which is filled in only until the person picks one. `FoundationModels` is weakly linked (`project.yml`).
+- The instructions were tuned on sample notes: the general model beats the content-tagging one here, and the "none" choice stops it tagging everything. Re-run sample notes after changing them. `swift test` runs the real model on a Mac with Apple Intelligence on. The iOS 26.3 simulator can't load the model's safety check and fails every request; use an iOS 27 simulator or a device.
+
+## Inbox
+- Payments captured by the Shortcuts actions (`App/Capture`) go to `InboxStore`, never straight into the ledger. The inbox has its own file, protected until first unlock, because the actions run in the background while the device may be locked, when the ledger can't be opened.
+- The actions' replies can show on the Lock Screen: never put amounts, names or notes in them.
+- `TransactionText` (rules) reads a message at capture. `TransactionReader` (Apple Intelligence) reads it only while the app is open. Prefer the rules' amount: the model sometimes gives the balance. Add new bank formats to `TransactionTextTests`, with account numbers and names changed.
+
 ## Two languages
 - Every string the app shows is in English and Vietnamese, in `App/Localizable.xcstrings`. English is the source language and the keys are the English text.
 - Write UI text as literals SwiftUI localizes: `Text("…")`, `Button("…")`, `Label("…", systemImage:)`, `.navigationTitle("…")`. Where an API takes a plain `String`, use `String(localized: "…")`. Never put a `String` variable into `Text` and expect it translated.

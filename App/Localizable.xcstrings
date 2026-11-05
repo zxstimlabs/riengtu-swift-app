@@ -31,6 +31,36 @@
         }
       }
     },
+    "Add" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm"
+          }
+        }
+      }
+    },
+    "Add ${amount} at ${merchant} to the inbox" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm ${amount} tại ${merchant} vào Giao dịch chờ"
+          }
+        }
+      }
+    },
+    "Add ${message} to the inbox" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm ${message} vào Giao dịch chờ"
+          }
+        }
+      }
+    },
     "Add Asset" : {
       "localizations" : {
         "vi" : {
@@ -41,12 +71,42 @@
         }
       }
     },
+    "Add Bank Message to Inbox" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm thông báo ngân hàng vào Giao dịch chờ"
+          }
+        }
+      }
+    },
     "Add Expense" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thêm khoản chi"
+          }
+        }
+      }
+    },
+    "Add Payment to Inbox" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm khoản thanh toán vào Giao dịch chờ"
+          }
+        }
+      }
+    },
+    "Add Tag" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm thẻ"
           }
         }
       }
@@ -71,6 +131,16 @@
         }
       }
     },
+    "Added to the inbox." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã thêm vào Giao dịch chờ."
+          }
+        }
+      }
+    },
     "All Currencies" : {
       "localizations" : {
         "vi" : {
@@ -81,12 +151,52 @@
         }
       }
     },
+    "All Expenses" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tất cả khoản chi"
+          }
+        }
+      }
+    },
     "Amount" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Số tiền"
+          }
+        }
+      }
+    },
+    "Apple Intelligence is getting ready. Suggestions start once it’s downloaded." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence đang được chuẩn bị. Gợi ý sẽ có sau khi tải xong."
+          }
+        }
+      }
+    },
+    "Apple Intelligence suggests a category and tags from an expense’s note. It runs on this device, so your notes never leave it." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence gợi ý danh mục và thẻ dựa trên ghi chú của khoản chi. Mọi thứ chạy trên thiết bị này, nên ghi chú của bạn không bao giờ rời khỏi thiết bị."
+          }
+        }
+      }
+    },
+    "Apple Pay" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Pay"
           }
         }
       }
@@ -121,6 +231,26 @@
         }
       }
     },
+    "Bank Emails" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email ngân hàng"
+          }
+        }
+      }
+    },
+    "Bank Message" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thông báo ngân hàng"
+          }
+        }
+      }
+    },
     "Bills" : {
       "localizations" : {
         "vi" : {
@@ -151,6 +281,16 @@
         }
       }
     },
+    "Capture Payments" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ghi nhận thanh toán"
+          }
+        }
+      }
+    },
     "Cash" : {
       "localizations" : {
         "vi" : {
@@ -177,6 +317,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đổi ngôn ngữ"
+          }
+        }
+      }
+    },
+    "Choose your bank’s email address as the sender, choose Run Immediately, and tap Next." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn địa chỉ email của ngân hàng làm người gửi, chọn Chạy ngay lập tức, rồi chạm vào Tiếp."
+          }
+        }
+      }
+    },
+    "Choose your cards, choose Run Immediately, and tap Next." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn các thẻ của bạn, chọn Chạy ngay lập tức, rồi chạm vào Tiếp."
           }
         }
       }
@@ -247,6 +407,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Xóa khoản chi"
+          }
+        }
+      }
+    },
+    "Delete Tag" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa thẻ"
+          }
+        }
+      }
+    },
+    "Delete this tag?" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa thẻ này?"
+          }
+        }
+      }
+    },
+    "Dismiss" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bỏ qua"
           }
         }
       }
@@ -341,6 +531,16 @@
         }
       }
     },
+    "Filter by Tag" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lọc theo thẻ"
+          }
+        }
+      }
+    },
     "Food & Drink" : {
       "localizations" : {
         "vi" : {
@@ -351,12 +551,42 @@
         }
       }
     },
+    "For QR transfers and card payments your bank emails you about. The emails need to arrive in the Mail app. Money received is left out." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dành cho chuyển khoản QR và thanh toán thẻ mà ngân hàng gửi email báo cho bạn. Email cần được nhận trong ứng dụng Mail. Tiền vào sẽ được bỏ qua."
+          }
+        }
+      }
+    },
+    "For payments with a card in Wallet." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dành cho thanh toán bằng thẻ trong Ví."
+          }
+        }
+      }
+    },
     "Fund Certificates" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chứng chỉ quỹ"
+          }
+        }
+      }
+    },
+    "Gift" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quà tặng"
           }
         }
       }
@@ -407,6 +637,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nhà ở"
+          }
+        }
+      }
+    },
+    "In Shortcuts, tap Automation, then the Add button, and choose Email." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trong Phím tắt, chạm vào Tự động hóa, rồi nút Thêm, và chọn Email."
+          }
+        }
+      }
+    },
+    "In Shortcuts, tap Automation, then the Add button, and choose Transaction." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trong Phím tắt, chạm vào Tự động hóa, rồi nút Thêm, và chọn Giao dịch."
+          }
+        }
+      }
+    },
+    "Inbox" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao dịch chờ"
           }
         }
       }
@@ -471,6 +731,26 @@
         }
       }
     },
+    "Merchant" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Người bán"
+          }
+        }
+      }
+    },
+    "Message" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tin nhắn"
+          }
+        }
+      }
+    },
     "Money" : {
       "localizations" : {
         "vi" : {
@@ -511,6 +791,26 @@
         }
       }
     },
+    "New Tag" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thẻ mới"
+          }
+        }
+      }
+    },
+    "No Amount" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có số tiền"
+          }
+        }
+      }
+    },
     "No Assets" : {
       "localizations" : {
         "vi" : {
@@ -527,6 +827,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chưa có khoản chi"
+          }
+        }
+      }
+    },
+    "No Expenses Tagged “%@”" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có khoản chi nào gắn thẻ “%@”"
+          }
+        }
+      }
+    },
+    "No Tags" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có thẻ"
           }
         }
       }
@@ -551,12 +871,52 @@
         }
       }
     },
+    "Open Shortcuts" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở Phím tắt"
+          }
+        }
+      }
+    },
     "Other" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Khác"
+          }
+        }
+      }
+    },
+    "Payment" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thanh toán"
+          }
+        }
+      }
+    },
+    "Personal" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cá nhân"
+          }
+        }
+      }
+    },
+    "Picked from your note by Apple Intelligence." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence chọn dựa trên ghi chú của bạn."
           }
         }
       }
@@ -611,12 +971,52 @@
         }
       }
     },
+    "Puts a payment in the inbox to add as an expense, such as one from an automation that runs when you pay with Apple Pay." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đưa một khoản thanh toán vào Giao dịch chờ để thêm làm khoản chi, chẳng hạn từ một mục tự động hóa chạy khi bạn thanh toán bằng Apple Pay."
+          }
+        }
+      }
+    },
     "Quantity" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Số lượng"
+          }
+        }
+      }
+    },
+    "Reads a bank’s email or message about a payment, such as a QR transfer, and puts it in the inbox to add as an expense. Money received is left out." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đọc email hoặc tin nhắn của ngân hàng về một khoản thanh toán, như chuyển khoản QR, và đưa vào Giao dịch chờ để thêm làm khoản chi. Tiền vào sẽ được bỏ qua."
+          }
+        }
+      }
+    },
+    "Rename" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đổi tên"
+          }
+        }
+      }
+    },
+    "Rename Tag" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đổi tên thẻ"
           }
         }
       }
@@ -637,6 +1037,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riengtu không đọc được dữ liệu đã lưu trên thiết bị này. Có thể dữ liệu được lưu bởi phiên bản Riengtu mới hơn, nên hãy thử cập nhật ứng dụng."
+          }
+        }
+      }
+    },
+    "Riengtu can’t see other apps’ notifications, but Shortcuts can send it your bank’s emails and your Apple Pay payments. They wait in the inbox until you add or dismiss them." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riengtu không thể xem thông báo của ứng dụng khác, nhưng Phím tắt có thể gửi cho Riengtu email của ngân hàng và các khoản thanh toán Apple Pay. Chúng sẽ nằm trong Giao dịch chờ cho đến khi bạn thêm hoặc bỏ qua."
           }
         }
       }
@@ -701,6 +1111,26 @@
         }
       }
     },
+    "Send your bank’s emails and your Apple Pay payments to the inbox with Shortcuts." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gửi email ngân hàng và các khoản thanh toán Apple Pay vào Giao dịch chờ bằng Phím tắt."
+          }
+        }
+      }
+    },
+    "Set its amount and merchant to the Shortcut Input’s Amount and Merchant." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đặt Số tiền và Người bán của tác vụ theo Số tiền và Người bán trong Đầu vào phím tắt."
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "vi" : {
@@ -727,6 +1157,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mua sắm"
+          }
+        }
+      }
+    },
+    "Show All Expenses" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiện tất cả khoản chi"
           }
         }
       }
@@ -771,12 +1211,132 @@
         }
       }
     },
+    "Suggest with Apple Intelligence" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gợi ý bằng Apple Intelligence"
+          }
+        }
+      }
+    },
     "Suggested" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gợi ý"
+          }
+        }
+      }
+    },
+    "Suggested by Apple Intelligence on this device. Tap to add." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence gợi ý ngay trên thiết bị này. Chạm để thêm."
+          }
+        }
+      }
+    },
+    "Tag" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thẻ"
+          }
+        }
+      }
+    },
+    "Tags" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thẻ"
+          }
+        }
+      }
+    },
+    "Tags say what an expense was for, such as work or a trip." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thẻ cho biết khoản chi dành cho việc gì, như công việc hay một chuyến đi."
+          }
+        }
+      }
+    },
+    "Tap Message in the action, and choose Shortcut Input." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm vào Tin nhắn trong tác vụ, rồi chọn Đầu vào phím tắt."
+          }
+        }
+      }
+    },
+    "Tap New Blank Automation, and add the action Add Bank Message to Inbox." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm vào Mục tự động hóa trống mới, rồi thêm tác vụ Thêm thông báo ngân hàng vào Giao dịch chờ."
+          }
+        }
+      }
+    },
+    "Tap New Blank Automation, and add the action Add Payment to Inbox." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm vào Mục tự động hóa trống mới, rồi thêm tác vụ Thêm khoản thanh toán vào Giao dịch chờ."
+          }
+        }
+      }
+    },
+    "Tap a payment to add it as an expense, or swipe to dismiss it." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm vào một khoản để thêm làm khoản chi, hoặc vuốt để bỏ qua."
+          }
+        }
+      }
+    },
+    "That was money received, so it wasn’t added." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đây là tiền vào nên không được thêm."
+          }
+        }
+      }
+    },
+    "That’s already in the inbox." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao dịch này đã có trong Giao dịch chờ."
+          }
+        }
+      }
+    },
+    "There was nothing to add." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có gì để thêm."
           }
         }
       }
@@ -797,6 +1357,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mã"
+          }
+        }
+      }
+    },
+    "To get suggestions for tags and categories, turn on Apple Intelligence in Settings." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Để nhận gợi ý thẻ và danh mục, hãy bật Apple Intelligence trong Cài đặt."
           }
         }
       }
@@ -847,6 +1417,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Du lịch"
+          }
+        }
+      }
+    },
+    "Trip" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuyến đi"
           }
         }
       }
@@ -971,6 +1551,16 @@
         }
       }
     },
+    "Work" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Công việc"
+          }
+        }
+      }
+    },
     "Yesterday" : {
       "localizations" : {
         "vi" : {
@@ -1037,6 +1627,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "mỗi lượng"
+          }
+        }
+      }
+    },
+    "“%@” comes off every expense that has it. The expenses stay." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thẻ “%@” sẽ được gỡ khỏi mọi khoản chi có thẻ này. Các khoản chi vẫn được giữ lại."
           }
         }
       }

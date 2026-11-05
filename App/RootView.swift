@@ -4,6 +4,7 @@ import SwiftUI
 struct RootView: View {
     @Environment(LedgerStore.self) private var store
     @Environment(AppLock.self) private var lock
+    @Environment(InboxStore.self) private var inbox
     @Environment(\.scenePhase) private var scenePhase
 
     @SceneStorage("tab") private var tab = AppTab.spending
@@ -16,6 +17,7 @@ struct RootView: View {
                     Tab("Spending", systemImage: "list.bullet.rectangle.portrait", value: .spending) {
                         NavigationStack { SpendingView() }
                     }
+                    .badge(inbox.items.count)
                     Tab("Assets", systemImage: "chart.pie", value: .assets) {
                         NavigationStack { AssetsView() }
                     }
@@ -34,9 +36,20 @@ struct RootView: View {
             }
         }
         .privacyShield()
+        .task(id: scenePhase == .active ? inbox.items.count { !$0.wasRead } : -1) {
+            // Apple Intelligence reads new bank messages while the app is open.
+            if scenePhase == .active { await inbox.readNewMessages() }
+        }
+        .onChange(of: store.status == .ready && store.ledger.needsStarterTags, initial: true) { _, needsThem in
+            // Once, and again after erasing everything.
+            if needsThem { try? store.addStarterTags() }
+        }
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
-            case .active: store.load()
+            case .active:
+                store.load()
+                // Shortcuts may have added payments while the app was closed.
+                inbox.load()
             case .background: lock.lock()
             default: break
             }

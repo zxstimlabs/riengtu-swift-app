@@ -25,7 +25,7 @@ public final class LedgerStore {
 
     @ObservationIgnored private let file: LedgerFile?
 
-    private static let logger = Logger(subsystem: "com.riengtu", category: "LedgerStore")
+    private static let logger = Logger(subsystem: "vn.riengtu", category: "LedgerStore")
 
     /// A store for the ledger in `file`. Call `load()` before using it.
     public init(file: LedgerFile) {
@@ -65,6 +65,24 @@ public final class LedgerStore {
 
     public func deleteExpense(id: Expense.ID) throws {
         try commit { $0.deleteExpense(id: id) }
+    }
+
+    /// Adds the starter tags, unless they were added before.
+    public func addStarterTags() throws {
+        guard ledger.needsStarterTags else { return }
+        try commit { $0.addStarterTags() }
+    }
+
+    public func addTag(_ name: String) throws {
+        try commit { $0.addTag(name) }
+    }
+
+    public func renameTag(_ name: String, to newName: String) throws {
+        try commit { $0.renameTag(name, to: newName) }
+    }
+
+    public func deleteTag(_ name: String) throws {
+        try commit { $0.deleteTag(name) }
     }
 
     public func save(_ asset: Asset) throws {

@@ -10,7 +10,7 @@ options:
 settings:
   base:
     # Single source of truth for IDs.
-    APP_BUNDLE_ID: com.riengtu
+    APP_BUNDLE_ID: vn.riengtu
     # Pyhash LLC, the same team as ETHnym and Figbear.
     DEVELOPMENT_TEAM: 8G6DC3A5B8
     # Xcode registers the bundle ID and makes the profiles it needs.
@@ -58,6 +58,8 @@ targets:
         # Every orientation on the iPad, which multitasking needs.
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
         INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        # Apple Intelligence's model needs iOS 26. Linked weakly, so the app still opens on iOS 18.
+        OTHER_LDFLAGS: -weak_framework FoundationModels
         # Translated in App/InfoPlist.xcstrings.
         INFOPLIST_KEY_NSFaceIDUsageDescription: Riengtu uses Face ID to keep your spending and assets private.
     scheme:

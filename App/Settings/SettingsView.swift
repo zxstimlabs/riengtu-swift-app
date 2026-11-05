@@ -3,10 +3,16 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(LedgerStore.self) private var store
+    @Environment(InboxStore.self) private var inbox
     @Environment(AppLock.self) private var lock
     @Environment(\.openURL) private var openURL
     @State private var confirmsErasing = false
     @State private var eraseFailed = false
+    @AppStorage(Self.suggestsTagsKey) private var suggestsTags = true
+
+    /// Whether Apple Intelligence suggests tags and categories in the expense editor. A setting,
+    /// not spending data, so it can live in `UserDefaults`.
+    static let suggestsTagsKey = "suggestsTags"
 
     /// The language the app is showing, which iOS picks from the ones it has.
     private let language = AppLanguage.preferred(from: Bundle.main.preferredLocalizations)
@@ -42,6 +48,16 @@ struct SettingsView: View {
                 }
             }
 
+            tagsSection
+
+            Section {
+                NavigationLink("Capture Payments") {
+                    CaptureHelpView()
+                }
+            } footer: {
+                Text("Send your bank’s emails and your Apple Pay payments to the inbox with Shortcuts.")
+            }
+
             Section {
                 LabeledContent("Language", value: language.endonym)
                 #if os(iOS)
@@ -60,7 +76,7 @@ struct SettingsView: View {
                 Button("Erase All Data", role: .destructive) {
                     confirmsErasing = true
                 }
-                .disabled(store.ledger.expenses.isEmpty && store.ledger.assets.isEmpty)
+                .disabled(store.ledger.expenses.isEmpty && store.ledger.assets.isEmpty && store.ledger.tags.isEmpty && inbox.items.isEmpty)
             }
 
             Section {
@@ -72,6 +88,7 @@ struct SettingsView: View {
             Button("Erase All Data", role: .destructive) {
                 do {
                     try store.eraseAll()
+                    try inbox.removeAll()
                 } catch {
                     eraseFailed = true
                 }
@@ -83,6 +100,34 @@ struct SettingsView: View {
             Button("OK") {}
         } message: {
             Text("Riengtu couldn’t save your change. Try again.")
+        }
+    }
+
+    private var tagsSection: some View {
+        let availability = ExpenseTagger.availability
+        return Section {
+            NavigationLink {
+                TagsView()
+            } label: {
+                LabeledContent("Tags") {
+                    Text(store.ledger.tags.count, format: .number)
+                }
+            }
+            if availability != .unsupported {
+                Toggle("Suggest with Apple Intelligence", isOn: $suggestsTags)
+                    .disabled(availability != .available)
+            }
+        } footer: {
+            switch availability {
+            case .available:
+                Text("Apple Intelligence suggests a category and tags from an expense’s note. It runs on this device, so your notes never leave it.")
+            case .appleIntelligenceOff:
+                Text("To get suggestions for tags and categories, turn on Apple Intelligence in Settings.")
+            case .notReady:
+                Text("Apple Intelligence is getting ready. Suggestions start once it’s downloaded.")
+            case .unsupported:
+                EmptyView()
+            }
         }
     }
 }
