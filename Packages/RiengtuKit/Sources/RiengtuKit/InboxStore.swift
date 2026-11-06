@@ -2,8 +2,8 @@ import Foundation
 import Observation
 import os
 
-/// The payments waiting to be added as expenses, newest first, saved to their own file after
-/// every change.
+/// The money in and out waiting to be added to the ledger, newest first, saved to its own file
+/// after every change.
 ///
 /// On the main actor, because the app and its Shortcuts actions share one store: an action can
 /// run while the app is open.
@@ -12,8 +12,6 @@ import os
 public final class InboxStore {
     public enum CaptureResult: Equatable, Sendable {
         case added
-        /// Money came in, which isn't an expense.
-        case moneyIn
         /// The same message is already in the inbox.
         case duplicate
         /// There was nothing in the message.
@@ -61,12 +59,12 @@ public final class InboxStore {
         }
     }
 
-    /// Puts the transaction a bank's message describes in the inbox, unless money came in.
+    /// Puts the transaction a bank's message describes in the inbox, whether money went out or
+    /// came in. One that doesn't say is taken as money out.
     public func capture(message text: String, now: Date = .now, timeZone: TimeZone = .current) throws -> CaptureResult {
         let text = String(text.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maximumTextLength))
         guard !text.isEmpty else { return .empty }
         let reading = TransactionText.read(text, timeZone: timeZone)
-        if reading.direction == .moneyIn { return .moneyIn }
 
         try loadIfNeeded()
         if items.contains(where: { $0.text == text }) { return .duplicate }
@@ -76,6 +74,7 @@ public final class InboxStore {
             date: reading.date ?? now,
             amount: reading.amount,
             currencyCode: reading.currencyCode,
+            isMoneyIn: reading.direction == .moneyIn,
             description: reading.description,
             text: text
         )
@@ -83,16 +82,18 @@ public final class InboxStore {
         return .added
     }
 
-    /// Puts a payment whose amount is known, such as one from Apple Pay, in the inbox.
-    public func capturePayment(amount: Decimal, currencyCode: String, merchant: String, now: Date = .now) throws -> CaptureResult {
-        guard amount > 0 else { return .empty }
+    /// Puts a card payment, such as one from Apple Pay, in the inbox. Without an amount, as when
+    /// Wallet doesn't pass one on, it's still added, and the amount is typed in when it's added
+    /// to the ledger.
+    public func capturePayment(amount: Decimal?, currencyCode: String?, merchant: String, now: Date = .now) throws -> CaptureResult {
+        if let amount, amount <= 0 { return .empty }
         try loadIfNeeded()
         let item = CapturedTransaction(
             source: .payment,
             capturedAt: now,
             date: now,
             amount: amount,
-            currencyCode: currencyCode,
+            currencyCode: amount == nil ? nil : currencyCode,
             description: Tags.tidy(merchant)
         )
         try commit { $0.insert(item, at: 0) }

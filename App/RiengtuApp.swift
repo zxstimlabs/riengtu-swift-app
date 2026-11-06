@@ -4,11 +4,15 @@ import SwiftUI
 
 @main
 struct RiengtuApp: App {
-    @State private var store = LedgerStore(file: .applicationSupport)
+    @State private var store: LedgerStore
+    @State private var sync: CloudSync
     @State private var lock = AppLock()
     @State private var inbox: InboxStore
 
     init() {
+        let store = LedgerStore(location: .applicationSupport)
+        _store = State(initialValue: store)
+        _sync = State(initialValue: CloudSync(store: store))
         let inbox = InboxStore(file: .applicationSupport)
         _inbox = State(initialValue: inbox)
         // The Shortcuts actions put payments in this same inbox, so they show at once when the
@@ -20,6 +24,7 @@ struct RiengtuApp: App {
         WindowGroup {
             RootView()
                 .environment(store)
+                .environment(sync)
                 .environment(lock)
                 .environment(inbox)
         }

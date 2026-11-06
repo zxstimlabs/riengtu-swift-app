@@ -1,6 +1,7 @@
 import Foundation
 
-/// Where the ledger is kept on disk, as JSON.
+/// Where builds before the database kept the ledger, as JSON. `LedgerStore` reads it once, moves
+/// it to the database (`LedgerDatabase`), and deletes it.
 ///
 /// On iOS the file is encrypted with the device's passcode and can't be read while the device is
 /// locked (complete file protection).
@@ -21,11 +22,14 @@ public struct LedgerFile: Sendable {
         LedgerFile(url: .applicationSupportDirectory.appending(path: "ledger.json"))
     }
 
-    /// The ledger in the file, or `nil` if there's no file yet.
+    /// The ledger in the file, or `nil` if there's no file.
     ///
     /// Throws `LoadError` or `DecodingError` if the file can't be understood, and other errors if
     /// it can't be read now, such as while the device is locked.
-    public func load() throws -> Ledger? {
+    ///
+    /// A version 5 file's assets had what entries changed added to their values, so they read as
+    /// valued at `now`, and those entries don't count again.
+    public func load(now: Date = .now) throws -> Ledger? {
         let data: Data
         do {
             data = try Data(contentsOf: url)
@@ -35,22 +39,9 @@ public struct LedgerFile: Sendable {
         let decoder = JSONDecoder()
         let version = try decoder.decode(Header.self, from: data).version
         guard version <= Ledger.currentVersion else { throw LoadError.newerVersion(version) }
-        return try decoder.decode(Ledger.self, from: data)
-    }
-
-    /// Replaces the file with `ledger`, all at once, so a failed write leaves the old file whole.
-    public func save(_ ledger: Ledger) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        let data = try encoder.encode(ledger)
-        try FileManager.default.createDirectory(
-            at: url.deletingLastPathComponent(), withIntermediateDirectories: true
-        )
-        #if os(iOS)
-        try data.write(to: url, options: [.atomic, .completeFileProtection])
-        #else
-        try data.write(to: url, options: [.atomic])
-        #endif
+        var ledger = try decoder.decode(Ledger.self, from: data)
+        if version >= 5 { ledger.valueAssets(at: now) }
+        return ledger
     }
 
     /// Deletes the file, if there is one.

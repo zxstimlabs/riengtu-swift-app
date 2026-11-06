@@ -8,9 +8,14 @@ let package = Package(
     products: [
         .library(name: "RiengtuKit", targets: ["RiengtuKit"]),
     ],
+    dependencies: [
+        // SQLite, for the ledger's database. No network, no analytics: a library that runs SQL.
+        .package(url: "https://github.com/groue/GRDB.swift", from: "7.12.0"),
+    ],
     targets: [
         .target(
             name: "RiengtuKit",
+            dependencies: [.product(name: "GRDB", package: "GRDB.swift")],
             swiftSettings: [
                 .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
                 .enableUpcomingFeature("InferIsolatedConformances"),
@@ -18,7 +23,7 @@ let package = Package(
         ),
         .testTarget(
             name: "RiengtuKitTests",
-            dependencies: ["RiengtuKit"],
+            dependencies: ["RiengtuKit", .product(name: "GRDB", package: "GRDB.swift")],
             swiftSettings: [
                 .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
                 .enableUpcomingFeature("InferIsolatedConformances"),

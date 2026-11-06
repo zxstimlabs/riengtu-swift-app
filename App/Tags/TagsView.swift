@@ -1,7 +1,7 @@
 import RiengtuKit
 import SwiftUI
 
-/// The person's tags, with how many expenses have each. Tap one to rename it, swipe to delete it.
+/// The person's tags, with how many entries have each. Tap one to rename it, swipe to delete it.
 struct TagsView: View {
     @Environment(LedgerStore.self) private var store
     @State private var addsTag = false
@@ -19,7 +19,7 @@ struct TagsView: View {
                     renaming = tag
                 } label: {
                     LabeledContent {
-                        Text(store.ledger.expenseCount(taggedWith: tag), format: .number)
+                        Text(store.ledger.entryCount(taggedWith: tag), format: .number)
                     } label: {
                         Text(verbatim: Tags.displayName(tag))
                     }
@@ -38,7 +38,7 @@ struct TagsView: View {
                 ContentUnavailableView {
                     Label("No Tags", systemImage: "tag")
                 } description: {
-                    Text("Tags say what an expense was for, such as work or a trip.")
+                    Text("Tags say what money was spent or received for, such as work or a trip.")
                 }
             }
         }
@@ -64,7 +64,7 @@ struct TagsView: View {
         .confirmationDialog("Delete this tag?", isPresented: isPresent($deleting), titleVisibility: .visible, presenting: deleting) { tag in
             Button("Delete Tag", role: .destructive) { change { try store.deleteTag(tag) } }
         } message: { tag in
-            Text("“\(Tags.displayName(tag))” comes off every expense that has it. The expenses stay.")
+            Text("“\(Tags.displayName(tag))” comes off every transaction that has it. The transactions stay.")
         }
         .alert("Couldn’t Save", isPresented: $saveFailed) {
             Button("OK") {}

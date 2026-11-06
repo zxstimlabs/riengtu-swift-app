@@ -114,7 +114,7 @@ struct LedgerAssetTests {
         #expect(ledger.assets == [kept])
     }
 
-    @Test func leavesTheExpenseCurrenciesAlone() {
+    @Test func leavesTheRecentCurrenciesAlone() {
         var ledger = Ledger(recentCurrencyCodes: ["VND"])
         ledger.save(Self.asset(.cash, currency: "USD"))
         #expect(ledger.recentCurrencyCodes == ["VND"])
@@ -128,7 +128,7 @@ struct LedgerAssetTests {
         let fpt = Self.asset(.stock, name: "FPT")
         let ledger = Ledger(assets: [car, vcb, fpt, acb, wallet])
 
-        let sections = ledger.assetSections
+        let sections = ledger.assetSections()
 
         #expect(sections.map(\.group) == [.money, .investments, .things])
         #expect(sections.map { $0.assets.map(\.name) } == [["Ví", "ACB", "Vietcombank"], ["FPT"], ["Xe hơi"]])
@@ -136,8 +136,8 @@ struct LedgerAssetTests {
 
     @Test func leavesOutGroupsWithNoAssets() {
         let ledger = Ledger(assets: [Self.asset(.property)])
-        #expect(ledger.assetSections.map(\.group) == [.things])
-        #expect(Ledger().assetSections.isEmpty)
+        #expect(ledger.assetSections().map(\.group) == [.things])
+        #expect(Ledger().assetSections().isEmpty)
     }
 
     @Test func totalsEachCurrencyOnItsOwn() {
@@ -149,16 +149,16 @@ struct LedgerAssetTests {
             Self.asset(.savings, amount: 100_000_000),
         ])
 
-        #expect(ledger.assetTotals == [
+        #expect(ledger.assetTotals() == [
             Ledger.Total(currencyCode: "VND", amount: 137_550_000),
             Ledger.Total(currencyCode: "USD", amount: Decimal(string: "200.5")!),
         ])
-        #expect(Ledger().assetTotals.isEmpty)
+        #expect(Ledger().assetTotals().isEmpty)
     }
 
     @Test func roundTripsThroughJSON() throws {
         let ledger = Ledger(
-            expenses: [LedgerTests.expense(day: 1)],
+            entries: [LedgerTests.expense(day: 1)],
             assets: [Self.asset(.cash), Self.asset(.gold, name: "SJC")],
             recentCurrencyCodes: ["VND"]
         )

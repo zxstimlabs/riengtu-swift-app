@@ -108,3 +108,15 @@ extension GoldUnit {
         }
     }
 }
+
+extension Asset {
+    /// What the person calls it, or its kind's name when they gave none.
+    var title: Text {
+        name.isEmpty ? Text(kind.name) : Text(verbatim: name)
+    }
+
+    /// The same as a string, to put next to other names.
+    var titleString: String {
+        name.isEmpty ? String(localized: kind.name) : name
+    }
+}

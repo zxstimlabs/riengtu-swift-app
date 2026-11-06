@@ -17,7 +17,7 @@ settings:
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "2"
+    CURRENT_PROJECT_VERSION: "7"
 
 packages:
   RiengtuKit:
@@ -32,6 +32,17 @@ targets:
     sources: [App]
     dependencies:
       - package: RiengtuKit
+    # iCloud sync (CloudSync), in the person's private database, and the pushes that tell it about
+    # other devices' changes. The container is made the first time a signed build needs it, and
+    # can't be deleted, so don't rename it.
+    entitlements:
+      path: App/Riengtu.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.vn.riengtu
+        com.apple.developer.icloud-services:
+          - CloudKit
+        aps-environment: development
     settings:
       base:
         PRODUCT_NAME: Riengtu
@@ -65,3 +76,27 @@ targets:
     scheme:
       testTargets:
         - package: RiengtuKit/RiengtuKitTests
+
+  # Runs the Shortcuts actions through the system. Apple's AppIntentsTesting needs iOS 27.2, so
+  # these have their own scheme, apart from the tests that run on any simulator.
+  RiengtuIntentTests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "27.0"
+    sources: [IntentTests]
+    dependencies:
+      - target: Riengtu
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: vn.riengtu.IntentTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Riengtu
+
+schemes:
+  RiengtuIntentTests:
+    build:
+      targets:
+        Riengtu: all
+        RiengtuIntentTests: [test]
+    test:
+      targets: [RiengtuIntentTests]

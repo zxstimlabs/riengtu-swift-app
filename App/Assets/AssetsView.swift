@@ -2,11 +2,13 @@ import RiengtuKit
 import SwiftUI
 
 /// What the person owns, grouped into money, investments, and property and belongings, with what
-/// it's worth in each currency.
+/// it's worth in each currency. Each asset shows what it holds now: its value as set by hand, with
+/// what entries changed since.
 struct AssetsView: View {
     @Environment(LedgerStore.self) private var store
     @State private var editor: Editor?
     @State private var saveFailed = false
+    @State private var showsNewerVersion = false
 
     private enum Editor: Identifiable {
         case new(AssetKind)
@@ -21,8 +23,8 @@ struct AssetsView: View {
     }
 
     var body: some View {
-        let sections = store.ledger.assetSections
-        let totals = store.ledger.assetTotals
+        let sections = store.ledger.assetSections()
+        let totals = store.ledger.assetTotals()
         List {
             if !totals.isEmpty {
                 Section {
@@ -47,7 +49,11 @@ struct AssetsView: View {
                 Section {
                     ForEach(section.assets) { asset in
                         Button {
-                            editor = .edit(asset)
+                            if store.ledger.newerIDs.contains(asset.id) {
+                                showsNewerVersion = true
+                            } else {
+                                editor = .edit(asset)
+                            }
                         } label: {
                             AssetRow(asset: asset)
                         }
@@ -94,6 +100,7 @@ struct AssetsView: View {
                 AssetEditor(editing: asset, kind: asset.kind, currencyCode: asset.currencyCode)
             }
         }
+        .newerVersionAlert(isPresented: $showsNewerVersion)
         .alert("Couldn’t Save", isPresented: $saveFailed) {
             Button("OK") {}
         } message: {

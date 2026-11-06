@@ -3,8 +3,8 @@ import Testing
 @testable import RiengtuKit
 
 struct TagTests {
-    static func expense(_ note: String = "", tags: [String] = [], day: Int = 1) -> Expense {
-        Expense(amount: 50_000, currencyCode: "VND", category: .food, date: LedgerTests.date(day), note: note, tags: tags)
+    static func expense(_ note: String = "", tags: [String] = [], day: Int = 1) -> Entry {
+        Entry(kind: .expense(.food, account: nil), amount: 50_000, currencyCode: "VND", date: LedgerTests.date(day), note: note, tags: tags)
     }
 
     @Test func tidiesAndMatchesNamesIgnoringCaseButNotDiacritics() {
@@ -36,10 +36,10 @@ struct TagTests {
         #expect(ledger.tags == ["Work"])
     }
 
-    @Test func savesAnExpensesTagsInTheListsSpellingAndAddsNewOnes() {
+    @Test func savesAnEntrysTagsInTheListsSpellingAndAddsNewOnes() {
         var ledger = Ledger(tags: ["Work"])
         ledger.save(Self.expense(tags: ["work", "Đà Lạt trip", "WORK"]))
-        #expect(ledger.expenses[0].tags == ["Work", "Đà Lạt trip"])
+        #expect(ledger.entries[0].tags == ["Work", "Đà Lạt trip"])
         #expect(ledger.tags == ["Work", "Đà Lạt trip"])
     }
 
@@ -48,7 +48,7 @@ struct TagTests {
         ledger.save(Self.expense(tags: ["Work"]))
         ledger.renameTag("Work", to: "Công việc")
         #expect(ledger.tags == ["Công việc", "Trip"])
-        #expect(ledger.expenses[0].tags == ["Công việc"])
+        #expect(ledger.entries[0].tags == ["Công việc"])
 
         // Only the case changes.
         ledger.renameTag("Trip", to: "trip")
@@ -62,15 +62,15 @@ struct TagTests {
         ledger.renameTag("Job", to: "work")
 
         #expect(ledger.tags == ["Work"])
-        #expect(ledger.expenses.map(\.tags) == [["Work"], ["Work"]])
+        #expect(ledger.entries.map(\.tags) == [["Work"], ["Work"]])
     }
 
-    @Test func deletesATagButKeepsTheExpenses() {
+    @Test func deletesATagButKeepsTheEntries() {
         var ledger = Ledger(tags: ["Work", "Trip"])
         ledger.save(Self.expense(tags: ["Work", "Trip"]))
         ledger.deleteTag("work")
         #expect(ledger.tags == ["Trip"])
-        #expect(ledger.expenses.map(\.tags) == [["Trip"]])
+        #expect(ledger.entries.map(\.tags) == [["Trip"]])
     }
 
     @Test func countsAndFiltersByTag() {
@@ -80,9 +80,9 @@ struct TagTests {
         ledger.save(Self.expense("Phở", day: 2))
         ledger.save(Self.expense("Taxi", tags: ["Work"], day: 1))
 
-        #expect(ledger.expenseCount(taggedWith: "Work") == 2)
+        #expect(ledger.entryCount(taggedWith: "Work") == 2)
         let days = ledger.days(in: LedgerTests.calendar, taggedWith: "Work")
-        #expect(days.flatMap(\.expenses).map(\.note) == ["Lunch", "Taxi"])
+        #expect(days.flatMap(\.entries).map(\.note) == ["Lunch", "Taxi"])
         #expect(ledger.days(in: LedgerTests.calendar).count == 3)
     }
 
@@ -91,7 +91,7 @@ struct TagTests {
         ledger.save(Self.expense(tags: ["Work"]))
         let decoded = try JSONDecoder().decode(Ledger.self, from: JSONEncoder().encode(ledger))
         #expect(decoded == ledger)
-        #expect(decoded.expenses[0].tags == ["Work"])
+        #expect(decoded.entries[0].tags == ["Work"])
 
         // No tags left is different from never having had the starter tags.
         let emptied = try JSONDecoder().decode(Ledger.self, from: JSONEncoder().encode(Ledger(tags: [])))
@@ -115,7 +115,7 @@ struct TagSuggestionTests {
     }
 
     @Test func dropsAnUnknownCategory() {
-        #expect(TagSuggestion(category: "pets", tags: [], newTag: nil, list: Self.list, note: "").category == nil)
+        #expect(TagSuggestion(category: "spaceships", tags: [], newTag: nil, list: Self.list, note: "").category == nil)
     }
 
     @Test func treatsANewTagFromTheListAsOneOfItsTags() {
@@ -149,6 +149,12 @@ struct ExpenseTaggerTests {
     @Test func writesTheNoteAndAmountInThePrompt() {
         #expect(ExpenseTagger.prompt(note: "Phở bò", amount: 45_000, currencyCode: "VND") == "Note: Phở bò\nAmount: 45000 VND")
         #expect(ExpenseTagger.prompt(note: "Phở bò", amount: nil, currencyCode: "VND") == "Note: Phở bò")
+    }
+
+    @Test func describesEveryCategoryForTheModel() {
+        for category in ExpenseCategory.allCases {
+            #expect(ExpenseTagger.categoryDescription.contains("\(category.rawValue): "), "\(category)")
+        }
     }
 
     @Test func makesASchemaWithAndWithoutTags() throws {

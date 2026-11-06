@@ -26,7 +26,8 @@ public enum Tags {
         return names.filter { seen.insert(key($0)).inserted }
     }
 
-    private static func key(_ name: String) -> String {
+    /// What two names of the same tag have in common.
+    static func key(_ name: String) -> String {
         tidy(name).folding(options: .caseInsensitive, locale: nil)
     }
 }

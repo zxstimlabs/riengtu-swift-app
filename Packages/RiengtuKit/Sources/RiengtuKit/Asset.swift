@@ -12,13 +12,14 @@ public struct Asset: Identifiable, Hashable, Sendable {
     /// An ISO 4217 code, such as `VND`. Assets in different currencies are never added together.
     public var currencyCode: String
     public var value: Value
-    /// When the amount or price was last set.
+    /// When the amount or price was last set by hand. Entries that change the asset leave it.
     public var valuedAt: Date
     /// What the person wrote about it. Empty when they wrote nothing.
     public var note: String
 
-    /// How much of something there is, and what it's worth, in the asset's currency. Never
-    /// negative.
+    /// How much of something there is, and what it's worth, in the asset's currency. Typed in as
+    /// zero or more, but entries can take an amount or a quantity below zero, such as a balance
+    /// spent from when what came into it wasn't recorded.
     public enum Value: Hashable, Sendable {
         /// A balance, or what the thing would sell for.
         case amount(Decimal)
@@ -61,6 +62,30 @@ public struct Asset: Identifiable, Hashable, Sendable {
         var rounded = Decimal()
         NSDecimalRound(&rounded, &exact, Currencies.fractionDigits(for: currencyCode), .plain)
         return rounded
+    }
+}
+
+extension Asset.Value {
+    /// The value with `change` added to its amount, its quantity, or its weight of gold, in the
+    /// gold's unit. The price stays.
+    public func adding(_ change: Decimal) -> Asset.Value {
+        switch self {
+        case .amount(let amount):
+            .amount(amount + change)
+        case .holding(let quantity, let price):
+            .holding(quantity: quantity + change, price: price)
+        case .gold(let weight, let unit, let price, let priceUnit):
+            .gold(weight: weight + change, unit: unit, price: price, priceUnit: priceUnit)
+        }
+    }
+
+    /// The amount, quantity or weight that entries add to and take from.
+    public var quantity: Decimal {
+        switch self {
+        case .amount(let amount): amount
+        case .holding(let quantity, _): quantity
+        case .gold(let weight, _, _, _): weight
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 import Foundation
 
-/// A payment Riengtu picked up from outside the app, such as from a bank's email or an Apple
-/// Pay payment, waiting in the inbox for the person to add as an expense or dismiss.
+/// Money in or out that Riengtu picked up from outside the app, such as from a bank's email or
+/// an Apple Pay payment, waiting in the inbox for the person to add to the ledger or dismiss.
 public struct CapturedTransaction: Identifiable, Hashable, Sendable {
     public enum Source: String, Codable, Sendable {
         /// A bank's email or message, read by `TransactionText`.
@@ -18,7 +18,9 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
     /// `nil` when the message doesn't say clearly.
     public var amount: Decimal?
     public var currencyCode: String?
-    /// Who was paid, or what for. Empty when the message doesn't say.
+    /// Whether the money came in, such as a transfer received, rather than going out.
+    public var isMoneyIn: Bool
+    /// Who was paid or who paid, or what for. Empty when the message doesn't say.
     public var description: String
     /// The message as it came, kept until the transaction is added or dismissed so the person
     /// can check it. Empty for payments.
@@ -33,6 +35,7 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
         date: Date,
         amount: Decimal?,
         currencyCode: String?,
+        isMoneyIn: Bool = false,
         description: String,
         text: String = "",
         wasRead: Bool = false
@@ -43,6 +46,7 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
         self.date = date
         self.amount = amount
         self.currencyCode = currencyCode
+        self.isMoneyIn = isMoneyIn
         self.description = description
         self.text = text
         self.wasRead = wasRead
@@ -51,7 +55,7 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
 
 extension CapturedTransaction: Codable {
     private enum CodingKeys: String, CodingKey {
-        case id, source, capturedAt, date, amount, currencyCode = "currency", description, text, wasRead
+        case id, source, capturedAt, date, amount, currencyCode = "currency", isMoneyIn = "moneyIn", description, text, wasRead
     }
 
     public init(from decoder: any Decoder) throws {
@@ -62,6 +66,7 @@ extension CapturedTransaction: Codable {
         date = try container.decode(Date.self, forKey: .date)
         amount = try container.decodeDecimalIfPresent(forKey: .amount)
         currencyCode = try container.decodeIfPresent(String.self, forKey: .currencyCode)
+        isMoneyIn = try container.decodeIfPresent(Bool.self, forKey: .isMoneyIn) ?? false
         description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
         text = try container.decodeIfPresent(String.self, forKey: .text) ?? ""
         wasRead = try container.decodeIfPresent(Bool.self, forKey: .wasRead) ?? false
@@ -75,6 +80,7 @@ extension CapturedTransaction: Codable {
         try container.encode(date, forKey: .date)
         try container.encodeDecimalIfPresent(amount, forKey: .amount)
         try container.encodeIfPresent(currencyCode, forKey: .currencyCode)
+        if isMoneyIn { try container.encode(isMoneyIn, forKey: .isMoneyIn) }
         if !description.isEmpty { try container.encode(description, forKey: .description) }
         if !text.isEmpty { try container.encode(text, forKey: .text) }
         if wasRead { try container.encode(wasRead, forKey: .wasRead) }

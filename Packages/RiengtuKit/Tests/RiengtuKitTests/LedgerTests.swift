@@ -13,11 +13,11 @@ struct LedgerTests {
         calendar.date(from: DateComponents(year: 2026, month: 11, day: day, hour: hour))!
     }
 
-    static func expense(day: Int, hour: Int = 12, amount: Decimal = 50_000, currency: String = "VND") -> Expense {
-        Expense(amount: amount, currencyCode: currency, category: .food, date: date(day, hour: hour))
+    static func expense(day: Int, hour: Int = 12, amount: Decimal = 50_000, currency: String = "VND") -> Entry {
+        Entry(kind: .expense(.food, account: nil), amount: amount, currencyCode: currency, date: date(day, hour: hour))
     }
 
-    @Test func keepsExpensesNewestFirst() {
+    @Test func keepsEntriesNewestFirst() {
         var ledger = Ledger()
         let middle = Self.expense(day: 2)
         let oldest = Self.expense(day: 1)
@@ -25,7 +25,7 @@ struct LedgerTests {
         ledger.save(middle)
         ledger.save(oldest)
         ledger.save(newest)
-        #expect(ledger.expenses.map(\.id) == [newest.id, middle.id, oldest.id])
+        #expect(ledger.entries.map(\.id) == [newest.id, middle.id, oldest.id])
     }
 
     @Test func putsTheLatestAddedFirstOnTheSameDate() {
@@ -35,10 +35,10 @@ struct LedgerTests {
         second.date = first.date
         ledger.save(first)
         ledger.save(second)
-        #expect(ledger.expenses.map(\.id) == [second.id, first.id])
+        #expect(ledger.entries.map(\.id) == [second.id, first.id])
     }
 
-    @Test func replacesAnExpenseWithTheSameID() {
+    @Test func replacesAnEntryWithTheSameID() {
         var ledger = Ledger()
         var expense = Self.expense(day: 2)
         ledger.save(expense)
@@ -48,19 +48,19 @@ struct LedgerTests {
         expense.date = Self.date(4)
         ledger.save(expense)
 
-        #expect(ledger.expenses.count == 2)
-        #expect(ledger.expenses.first == expense)
-        #expect(ledger.expense(id: expense.id)?.amount == 75_000)
+        #expect(ledger.entries.count == 2)
+        #expect(ledger.entries.first == expense)
+        #expect(ledger.entry(id: expense.id)?.amount == 75_000)
     }
 
-    @Test func deletesAnExpense() {
+    @Test func deletesAnEntry() {
         var ledger = Ledger()
         let kept = Self.expense(day: 1)
         let deleted = Self.expense(day: 2)
         ledger.save(kept)
         ledger.save(deleted)
-        ledger.deleteExpense(id: deleted.id)
-        #expect(ledger.expenses == [kept])
+        ledger.deleteEntry(id: deleted.id)
+        #expect(ledger.entries == [kept])
     }
 
     @Test func remembersRecentCurrenciesMostRecentFirst() {
@@ -82,33 +82,33 @@ struct LedgerTests {
         #expect(ledger.recentCurrencyCodes == ["KRW", "SGD", "THB", "JPY", "EUR"])
     }
 
-    @Test func groupsExpensesByDayInTheCalendar() {
+    @Test func groupsEntriesByDayInTheCalendar() {
         let lateOnThe3rd = Self.expense(day: 3, hour: 23)
         let earlyOnThe3rd = Self.expense(day: 3, hour: 0)
         let onThe1st = Self.expense(day: 1)
-        let ledger = Ledger(expenses: [earlyOnThe3rd, onThe1st, lateOnThe3rd])
+        let ledger = Ledger(entries: [earlyOnThe3rd, onThe1st, lateOnThe3rd])
 
         let days = ledger.days(in: Self.calendar)
 
         #expect(days.map(\.date) == [Self.date(3, hour: 0), Self.date(1, hour: 0)])
-        #expect(days.map { $0.expenses.map(\.id) } == [[lateOnThe3rd.id, earlyOnThe3rd.id], [onThe1st.id]])
+        #expect(days.map { $0.entries.map(\.id) } == [[lateOnThe3rd.id, earlyOnThe3rd.id], [onThe1st.id]])
     }
 
     @Test func roundTripsThroughJSONWithoutLosingDigits() throws {
-        let ledger = Ledger(expenses: [
-            Expense(amount: Decimal(string: "1234567890123.4567")!, currencyCode: "USD", category: .travel, date: Self.date(1), note: "Vé máy bay"),
-            Expense(amount: 0.1, currencyCode: "EUR", category: .gifts, date: Self.date(2)),
+        let ledger = Ledger(entries: [
+            Entry(kind: .expense(.travel, account: nil), amount: Decimal(string: "1234567890123.4567")!, currencyCode: "USD", date: Self.date(1), note: "Vé máy bay"),
+            Entry(kind: .expense(.gifts, account: nil), amount: 0.1, currencyCode: "EUR", date: Self.date(2)),
         ], recentCurrencyCodes: ["USD"])
 
         let data = try JSONEncoder().encode(ledger)
         let decoded = try JSONDecoder().decode(Ledger.self, from: data)
 
         #expect(decoded == ledger)
-        #expect(decoded.expenses.last?.amount.description == "1234567890123.4567")
+        #expect(decoded.entries.last?.amount.description == "1234567890123.4567")
     }
 
     @Test func readsAnUnknownCategoryAsOther() throws {
-        let json = #"["food", "pets"]"#
+        let json = #"["food", "spaceships"]"#
         let categories = try JSONDecoder().decode([ExpenseCategory].self, from: Data(json.utf8))
         #expect(categories == [.food, .other])
     }

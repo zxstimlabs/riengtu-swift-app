@@ -1,15 +1,15 @@
 import RiengtuKit
 import SwiftUI
 
-/// Every category at once, so picking one is a single tap.
-struct CategoryGrid: View {
-    @Binding var selection: ExpenseCategory
+/// Every category at once, of expenses or of income, so picking one is a single tap.
+struct CategoryGrid<Category: DisplayedCategory>: View {
+    @Binding var selection: Category
 
     @ScaledMetric(relativeTo: .caption) private var minimumWidth = 76
 
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: minimumWidth), spacing: 4, alignment: .top)], spacing: 12) {
-            ForEach(ExpenseCategory.allCases, id: \.self) { category in
+            ForEach(Category.allCases, id: \.self) { category in
                 Button {
                     selection = category
                 } label: {
@@ -35,8 +35,10 @@ struct CategoryGrid: View {
 }
 
 #Preview {
-    @Previewable @State var category = ExpenseCategory.food
+    @Previewable @State var expense = ExpenseCategory.food
+    @Previewable @State var income = IncomeCategory.salary
     Form {
-        CategoryGrid(selection: $category)
+        CategoryGrid(selection: $expense)
+        CategoryGrid(selection: $income)
     }
 }

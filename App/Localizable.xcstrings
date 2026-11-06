@@ -81,12 +81,12 @@
         }
       }
     },
-    "Add Expense" : {
+    "Add Card Payment Shortcut" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thêm khoản chi"
+            "value" : "Thêm phím tắt thanh toán thẻ"
           }
         }
       }
@@ -111,6 +111,16 @@
         }
       }
     },
+    "Add Transaction" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm giao dịch"
+          }
+        }
+      }
+    },
     "Add what you own, from money and stocks to gold and property. It stays on this device." : {
       "localizations" : {
         "vi" : {
@@ -121,12 +131,22 @@
         }
       }
     },
-    "Add what you spend. It stays on this device." : {
+    "Add what you spend and receive, and money you move between accounts. It stays on this device." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ghi lại những gì bạn chi. Mọi thứ chỉ ở trên thiết bị này."
+            "value" : "Ghi lại những gì bạn chi, những gì bạn nhận và tiền bạn chuyển giữa các tài khoản. Mọi thứ chỉ ở trên thiết bị này."
+          }
+        }
+      }
+    },
+    "Add your accounts and other assets in Assets to move money between them." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm tài khoản và các tài sản khác trong mục Tài sản để chuyển tiền giữa chúng."
           }
         }
       }
@@ -151,12 +171,12 @@
         }
       }
     },
-    "All Expenses" : {
+    "All Transactions" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tất cả khoản chi"
+            "value" : "Tất cả giao dịch"
           }
         }
       }
@@ -221,6 +241,16 @@
         }
       }
     },
+    "Balance Updated" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cập nhật số dư"
+          }
+        }
+      }
+    },
     "Bank Account" : {
       "localizations" : {
         "vi" : {
@@ -251,12 +281,52 @@
         }
       }
     },
+    "Beauty & Care" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Làm đẹp"
+          }
+        }
+      }
+    },
+    "Below zero, because more was recorded going out than coming in. Type what’s there now." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dưới 0 vì tiền ra được ghi nhiều hơn tiền vào. Hãy nhập số tiền hiện có."
+          }
+        }
+      }
+    },
     "Bills" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hóa đơn"
+          }
+        }
+      }
+    },
+    "Bonus" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thưởng"
+          }
+        }
+      }
+    },
+    "Business" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kinh doanh"
           }
         }
       }
@@ -321,6 +391,36 @@
         }
       }
     },
+    "Charity" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ thiện"
+          }
+        }
+      }
+    },
+    "Choose" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn"
+          }
+        }
+      }
+    },
+    "Choose two different assets." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hãy chọn hai tài sản khác nhau."
+          }
+        }
+      }
+    },
     "Choose your bank’s email address as the sender, choose Run Immediately, and tap Next." : {
       "localizations" : {
         "vi" : {
@@ -341,12 +441,42 @@
         }
       }
     },
+    "Coffee & Drinks" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cà phê & đồ uống"
+          }
+        }
+      }
+    },
+    "Couldn’t Erase" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể xóa"
+          }
+        }
+      }
+    },
     "Couldn’t Save" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Không lưu được"
+          }
+        }
+      }
+    },
+    "Couldn’t sync just now. Riêng Tư will try again." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa đồng bộ được. Riêng Tư sẽ thử lại."
           }
         }
       }
@@ -401,22 +531,22 @@
         }
       }
     },
-    "Delete Expense" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xóa khoản chi"
-          }
-        }
-      }
-    },
     "Delete Tag" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Xóa thẻ"
+          }
+        }
+      }
+    },
+    "Delete Transaction" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa giao dịch"
           }
         }
       }
@@ -461,6 +591,16 @@
         }
       }
     },
+    "Eating Out" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ăn ngoài"
+          }
+        }
+      }
+    },
     "Edit Asset" : {
       "localizations" : {
         "vi" : {
@@ -481,12 +621,42 @@
         }
       }
     },
+    "Edit Income" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sửa khoản thu"
+          }
+        }
+      }
+    },
+    "Edit Transfer" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sửa chuyển tiền"
+          }
+        }
+      }
+    },
     "Education" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Giáo dục"
+          }
+        }
+      }
+    },
+    "Electronics" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đồ điện tử"
           }
         }
       }
@@ -511,12 +681,22 @@
         }
       }
     },
-    "Erase all your expenses and assets?" : {
+    "Erase your ledger and assets?" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Xóa tất cả khoản chi và tài sản?"
+            "value" : "Xóa sổ thu chi và tài sản?"
+          }
+        }
+      }
+    },
+    "Expense" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khoản chi"
           }
         }
       }
@@ -531,6 +711,26 @@
         }
       }
     },
+    "Fashion" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thời trang"
+          }
+        }
+      }
+    },
+    "Fees & Taxes" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phí & thuế"
+          }
+        }
+      }
+    },
     "Filter by Tag" : {
       "localizations" : {
         "vi" : {
@@ -541,22 +741,12 @@
         }
       }
     },
-    "Food & Drink" : {
+    "For QR transfers, card payments and money received that your bank emails you about. The emails need to arrive in the Mail app." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ăn uống"
-          }
-        }
-      }
-    },
-    "For QR transfers and card payments your bank emails you about. The emails need to arrive in the Mail app. Money received is left out." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dành cho chuyển khoản QR và thanh toán thẻ mà ngân hàng gửi email báo cho bạn. Email cần được nhận trong ứng dụng Mail. Tiền vào sẽ được bỏ qua."
+            "value" : "Dành cho chuyển khoản QR, thanh toán thẻ và tiền nhận được mà ngân hàng gửi email báo cho bạn. Email cần được nhận trong ứng dụng Mail."
           }
         }
       }
@@ -567,6 +757,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dành cho thanh toán bằng thẻ trong Ví."
+          }
+        }
+      }
+    },
+    "From" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ"
+          }
+        }
+      }
+    },
+    "From Family" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gia đình cho"
           }
         }
       }
@@ -587,6 +797,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quà tặng"
+          }
+        }
+      }
+    },
+    "Gifts & Lucky Money" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quà & lì xì"
           }
         }
       }
@@ -631,6 +851,16 @@
         }
       }
     },
+    "Household" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đồ gia dụng"
+          }
+        }
+      }
+    },
     "Housing" : {
       "localizations" : {
         "vi" : {
@@ -671,6 +901,36 @@
         }
       }
     },
+    "Income" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khoản thu"
+          }
+        }
+      }
+    },
+    "Insurance" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bảo hiểm"
+          }
+        }
+      }
+    },
+    "Interest & Dividends" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lãi & cổ tức"
+          }
+        }
+      }
+    },
     "Investments" : {
       "localizations" : {
         "vi" : {
@@ -681,12 +941,52 @@
         }
       }
     },
+    "Keeps your ledger and assets on each of your devices with Riêng Tư, through your iCloud account. They’re encrypted end to end, so only your devices can read them." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giữ sổ thu chi và tài sản trên mọi thiết bị có Riêng Tư của bạn, qua tài khoản iCloud. Dữ liệu được mã hóa đầu cuối, nên chỉ thiết bị của bạn đọc được."
+          }
+        }
+      }
+    },
+    "Kids" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con cái"
+          }
+        }
+      }
+    },
     "Language" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ngôn ngữ"
+          }
+        }
+      }
+    },
+    "Ledger" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sổ thu chi"
+          }
+        }
+      }
+    },
+    "Loans & Installments" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trả nợ & trả góp"
           }
         }
       }
@@ -761,12 +1061,52 @@
         }
       }
     },
+    "Money In" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền vào"
+          }
+        }
+      }
+    },
+    "Money Out" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền ra"
+          }
+        }
+      }
+    },
+    "Money Received" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiền nhận được"
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tên"
+          }
+        }
+      }
+    },
+    "Net" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chênh lệch"
           }
         }
       }
@@ -791,12 +1131,42 @@
         }
       }
     },
+    "New Income" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khoản thu mới"
+          }
+        }
+      }
+    },
     "New Tag" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thẻ mới"
+          }
+        }
+      }
+    },
+    "New Transfer" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuyển tiền mới"
+          }
+        }
+      }
+    },
+    "Next Month" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tháng sau"
           }
         }
       }
@@ -821,26 +1191,6 @@
         }
       }
     },
-    "No Expenses" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chưa có khoản chi"
-          }
-        }
-      }
-    },
-    "No Expenses Tagged “%@”" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không có khoản chi nào gắn thẻ “%@”"
-          }
-        }
-      }
-    },
     "No Tags" : {
       "localizations" : {
         "vi" : {
@@ -851,12 +1201,52 @@
         }
       }
     },
+    "No Transactions" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có giao dịch"
+          }
+        }
+      }
+    },
+    "None" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không chọn"
+          }
+        }
+      }
+    },
     "Note" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ghi chú"
+          }
+        }
+      }
+    },
+    "Nothing recorded in this month." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có giao dịch nào trong tháng này."
+          }
+        }
+      }
+    },
+    "Nothing tagged “%@” in this month." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có giao dịch nào gắn thẻ “%@” trong tháng này."
           }
         }
       }
@@ -881,12 +1271,32 @@
         }
       }
     },
+    "Opens Shortcuts to add a shortcut that puts each payment with a card in Wallet in the inbox." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở Phím tắt để thêm một phím tắt đưa mỗi khoản thanh toán bằng thẻ trong Ví vào Giao dịch chờ."
+          }
+        }
+      }
+    },
     "Other" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Khác"
+          }
+        }
+      }
+    },
+    "Paid From" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trả từ"
           }
         }
       }
@@ -911,12 +1321,32 @@
         }
       }
     },
+    "Pets" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thú cưng"
+          }
+        }
+      }
+    },
     "Picked from your note by Apple Intelligence." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence chọn dựa trên ghi chú của bạn."
+          }
+        }
+      }
+    },
+    "Previous Month" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tháng trước"
           }
         }
       }
@@ -971,12 +1401,12 @@
         }
       }
     },
-    "Puts a payment in the inbox to add as an expense, such as one from an automation that runs when you pay with Apple Pay." : {
+    "Puts a payment in the inbox to add as an expense, such as one from an automation that runs when you pay with a card in Wallet." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Đưa một khoản thanh toán vào Giao dịch chờ để thêm làm khoản chi, chẳng hạn từ một mục tự động hóa chạy khi bạn thanh toán bằng Apple Pay."
+            "value" : "Đưa một khoản thanh toán vào Giao dịch chờ để thêm làm khoản chi, chẳng hạn từ một mục tự động hóa chạy khi bạn thanh toán bằng thẻ trong Ví."
           }
         }
       }
@@ -991,12 +1421,52 @@
         }
       }
     },
-    "Reads a bank’s email or message about a payment, such as a QR transfer, and puts it in the inbox to add as an expense. Money received is left out." : {
+    "Reads a bank’s email or message about money sent or received, such as a QR transfer, and puts it in the inbox to add to the ledger." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Đọc email hoặc tin nhắn của ngân hàng về một khoản thanh toán, như chuyển khoản QR, và đưa vào Giao dịch chờ để thêm làm khoản chi. Tiền vào sẽ được bỏ qua."
+            "value" : "Đọc email hoặc tin nhắn của ngân hàng về tiền gửi đi hoặc nhận được, như chuyển khoản QR, và đưa vào Giao dịch chờ để thêm vào sổ thu chi."
+          }
+        }
+      }
+    },
+    "Received" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhận được"
+          }
+        }
+      }
+    },
+    "Received In" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhận vào"
+          }
+        }
+      }
+    },
+    "Refunds & Cashback" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoàn tiền"
+          }
+        }
+      }
+    },
+    "Removed Asset" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tài sản đã xóa"
           }
         }
       }
@@ -1017,6 +1487,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đổi tên thẻ"
+          }
+        }
+      }
+    },
+    "Rent Received" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cho thuê"
           }
         }
       }
@@ -1061,12 +1541,12 @@
         }
       }
     },
-    "Riengtu has no account and doesn’t connect to the internet. Your spending and assets are stored only on this device and in its backups." : {
+    "Riengtu has no account and doesn’t connect to the internet. Your ledger and assets are stored only on this device and in its backups." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Riengtu không cần tài khoản và không kết nối internet. Chi tiêu và tài sản của bạn chỉ được lưu trên thiết bị này và trong bản sao lưu của thiết bị."
+            "value" : "Riengtu không cần tài khoản và không kết nối internet. Sổ thu chi và tài sản của bạn chỉ được lưu trên thiết bị này và trong bản sao lưu của thiết bị."
           }
         }
       }
@@ -1091,12 +1571,62 @@
         }
       }
     },
+    "Riêng Tư couldn’t erase your data in iCloud, so nothing was erased. Check your connection and try again." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không thể xóa dữ liệu của bạn trên iCloud, nên chưa có gì bị xóa. Hãy kiểm tra kết nối và thử lại."
+          }
+        }
+      }
+    },
+    "Riêng Tư couldn’t open your data just now. Nothing was changed. Try again, and if this keeps happening, restart your device." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư chưa mở được dữ liệu của bạn. Chưa có gì bị thay đổi. Hãy thử lại, và nếu vẫn bị như vậy, hãy khởi động lại thiết bị."
+          }
+        }
+      }
+    },
+    "Riêng Tư has no account of its own. Your ledger and assets are on this device, in its backups, and in your iCloud account, encrypted end to end." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không cần tài khoản riêng. Sổ thu chi và tài sản của bạn nằm trên thiết bị này, trong bản sao lưu của thiết bị và trong tài khoản iCloud của bạn, được mã hóa đầu cuối."
+          }
+        }
+      }
+    },
+    "Salary" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lương"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lưu"
+          }
+        }
+      }
+    },
+    "Saved by a Newer Version" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Được lưu bởi phiên bản mới hơn"
           }
         }
       }
@@ -1161,22 +1691,42 @@
         }
       }
     },
-    "Show All Expenses" : {
+    "Show Everything" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hiện tất cả khoản chi"
+            "value" : "Hiện tất cả"
           }
         }
       }
     },
-    "Spending" : {
+    "Side Jobs" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chi tiêu"
+            "value" : "Làm thêm"
+          }
+        }
+      }
+    },
+    "Some of your data was saved by a newer version of Riêng Tư. Update the app on this device to see it." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Một phần dữ liệu được lưu bởi phiên bản Riêng Tư mới hơn. Hãy cập nhật ứng dụng trên thiết bị này để xem."
+          }
+        }
+      }
+    },
+    "Sports & Fitness" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thể thao"
           }
         }
       }
@@ -1191,12 +1741,12 @@
         }
       }
     },
-    "Start over with no expenses?" : {
+    "Start over with an empty ledger?" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bắt đầu lại với sổ chi tiêu trống?"
+            "value" : "Bắt đầu lại với sổ thu chi trống?"
           }
         }
       }
@@ -1207,6 +1757,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cổ phiếu"
+          }
+        }
+      }
+    },
+    "Subscriptions" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gói đăng ký"
           }
         }
       }
@@ -1241,6 +1801,56 @@
         }
       }
     },
+    "Sync with iCloud" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đồng bộ với iCloud"
+          }
+        }
+      }
+    },
+    "Synced %@." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã đồng bộ %@."
+          }
+        }
+      }
+    },
+    "Syncing turned off because this device’s iCloud account changed. What’s on this device is kept." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã tắt đồng bộ vì tài khoản iCloud trên thiết bị này đã thay đổi. Dữ liệu trên thiết bị này vẫn được giữ."
+          }
+        }
+      }
+    },
+    "Syncing turned off because your data was erased from iCloud, such as on another device. What’s on this device is kept." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã tắt đồng bộ vì dữ liệu của bạn đã bị xóa khỏi iCloud, chẳng hạn từ một thiết bị khác. Dữ liệu trên thiết bị này vẫn được giữ."
+          }
+        }
+      }
+    },
+    "Syncing…" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang đồng bộ…"
+          }
+        }
+      }
+    },
     "Tag" : {
       "localizations" : {
         "vi" : {
@@ -1261,12 +1871,12 @@
         }
       }
     },
-    "Tags say what an expense was for, such as work or a trip." : {
+    "Tags say what money was spent or received for, such as work or a trip." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thẻ cho biết khoản chi dành cho việc gì, như công việc hay một chuyến đi."
+            "value" : "Thẻ cho biết tiền được chi hoặc nhận cho việc gì, như công việc hay một chuyến đi."
           }
         }
       }
@@ -1301,22 +1911,12 @@
         }
       }
     },
-    "Tap a payment to add it as an expense, or swipe to dismiss it." : {
+    "Tap one to add it to the ledger, or swipe to dismiss it." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chạm vào một khoản để thêm làm khoản chi, hoặc vuốt để bỏ qua."
-          }
-        }
-      }
-    },
-    "That was money received, so it wasn’t added." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đây là tiền vào nên không được thêm."
+            "value" : "Chạm vào một khoản để thêm vào sổ thu chi, hoặc vuốt để bỏ qua."
           }
         }
       }
@@ -1341,12 +1941,32 @@
         }
       }
     },
-    "This deletes every expense and asset from this device. You can’t undo this." : {
+    "Things Sold" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thao tác này xóa mọi khoản chi và tài sản khỏi thiết bị này. Bạn không thể hoàn tác."
+            "value" : "Bán đồ"
+          }
+        }
+      }
+    },
+    "This deletes every transaction and asset from this device and from iCloud. Your other devices keep theirs and stop syncing. You can’t undo this." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thao tác này xóa mọi giao dịch và tài sản khỏi thiết bị này và khỏi iCloud. Các thiết bị khác của bạn vẫn giữ dữ liệu của chúng và ngừng đồng bộ. Bạn không thể hoàn tác."
+          }
+        }
+      }
+    },
+    "This deletes every transaction and asset from this device. You can’t undo this." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thao tác này xóa mọi giao dịch và tài sản khỏi thiết bị này. Bạn không thể hoàn tác."
           }
         }
       }
@@ -1357,6 +1977,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mã"
+          }
+        }
+      }
+    },
+    "To" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đến"
           }
         }
       }
@@ -1381,6 +2011,16 @@
         }
       }
     },
+    "To sync, sign in to iCloud in Settings." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Để đồng bộ, hãy đăng nhập iCloud trong Cài đặt."
+          }
+        }
+      }
+    },
     "Today" : {
       "localizations" : {
         "vi" : {
@@ -1397,6 +2037,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tổng"
+          }
+        }
+      }
+    },
+    "Transfer" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuyển tiền"
+          }
+        }
+      }
+    },
+    "Transfers and changes to assets’ values aren’t counted." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không tính chuyển tiền và thay đổi giá trị tài sản."
           }
         }
       }
@@ -1427,6 +2087,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chuyến đi"
+          }
+        }
+      }
+    },
+    "Try Again" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử lại"
           }
         }
       }
@@ -1491,6 +2161,16 @@
         }
       }
     },
+    "Update Riêng Tư on this device to change this." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hãy cập nhật Riêng Tư trên thiết bị này để thay đổi mục này."
+          }
+        }
+      }
+    },
     "Updated %@" : {
       "localizations" : {
         "vi" : {
@@ -1507,6 +2187,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Giá trị"
+          }
+        }
+      }
+    },
+    "Value Updated" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cập nhật giá trị"
           }
         }
       }
@@ -1561,6 +2251,16 @@
         }
       }
     },
+    "Worship & Offerings" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tâm linh"
+          }
+        }
+      }
+    },
     "Yesterday" : {
       "localizations" : {
         "vi" : {
@@ -1587,6 +2287,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "gam"
+          }
+        }
+      }
+    },
+    "iCloud" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud"
           }
         }
       }
@@ -1631,12 +2341,12 @@
         }
       }
     },
-    "“%@” comes off every expense that has it. The expenses stay." : {
+    "“%@” comes off every transaction that has it. The transactions stay." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thẻ “%@” sẽ được gỡ khỏi mọi khoản chi có thẻ này. Các khoản chi vẫn được giữ lại."
+            "value" : "Thẻ “%@” sẽ được gỡ khỏi mọi giao dịch có thẻ này. Các giao dịch vẫn được giữ lại."
           }
         }
       }

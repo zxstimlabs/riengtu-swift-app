@@ -40,13 +40,25 @@ final class InboxTests {
         #expect(!item.wasRead)
     }
 
-    @Test func leavesOutMoneyInDuplicatesAndBlanks() throws {
+    @Test func leavesOutDuplicatesAndBlanks() throws {
         let inbox = InboxStore(file: file)
-        #expect(try inbox.capture(message: "TK 0123 +5.000.000 VND. ND: Luong") == .moneyIn)
         #expect(try inbox.capture(message: "  \n ") == .empty)
         #expect(try inbox.capture(message: Self.transfer) == .added)
         #expect(try inbox.capture(message: Self.transfer + "\n") == .duplicate)
         #expect(inbox.items.count == 1)
+        #expect(inbox.items.first?.isMoneyIn == false)
+    }
+
+    @Test func capturesMoneyReceivedAndKeepsItOnDisk() throws {
+        let inbox = InboxStore(file: file)
+        #expect(try inbox.capture(message: "TK 0123 +5.000.000 VND. ND: Luong") == .added)
+
+        let reopened = InboxStore(file: file)
+        reopened.load()
+        let item = try #require(reopened.items.first)
+        #expect(item.isMoneyIn)
+        #expect(item.amount == 5_000_000)
+        #expect(item.description == "Luong")
     }
 
     @Test func keepsAMessageWithoutAnAmountForThePersonToFinish() throws {
@@ -70,6 +82,14 @@ final class InboxTests {
         #expect(inbox.items.count == 2)
     }
 
+    @Test func capturesAPaymentWithoutItsAmount() throws {
+        let inbox = InboxStore(file: file)
+        #expect(try inbox.capturePayment(amount: nil, currencyCode: "VND", merchant: "") == .added)
+        let item = try #require(inbox.items.first)
+        #expect(item.amount == nil)
+        #expect(item.currencyCode == nil)
+    }
+
     @Test func removesItems() throws {
         let inbox = InboxStore(file: file)
         _ = try inbox.capture(message: Self.transfer)
@@ -79,7 +99,7 @@ final class InboxTests {
 
         try inbox.removeAll()
         #expect(inbox.items.isEmpty)
-        #expect(!FileManager.default.fileExists(atPath: file.url.path()))
+        #expect(!FileManager.default.fileExists(atPath: file.url.path(percentEncoded: false)))
     }
 
     @Test func addsToWhatsOnDiskEvenBeforeLoading() throws {

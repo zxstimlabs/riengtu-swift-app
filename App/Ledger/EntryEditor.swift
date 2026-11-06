@@ -1,0 +1,573 @@
+import RiengtuKit
+import SwiftUI
+
+/// Adds an entry, or edits one, in a sheet: an expense, income, or a transfer between the
+/// person's own assets.
+///
+/// An expense can come from one of the person's accounts, and income go into one, which changes
+/// its balance. A transfer takes from one asset and adds to another, by a quantity or a weight
+/// for shares, fund units, coins and gold.
+///
+/// Where Apple Intelligence is available, the model on the device reads an expense's note as
+/// it's typed and suggests tags, and a category until the person picks one.
+struct EntryEditor: View {
+    enum Mode: CaseIterable {
+        case expense, income, transfer
+    }
+
+    /// The entry being edited, or `nil` for a new one. Never an adjustment: those are edited in
+    /// the asset's editor.
+    private let original: Entry?
+    /// The transaction from the inbox this entry starts from, which leaves the inbox once it's
+    /// saved.
+    private let captured: CapturedTransaction?
+
+    @Environment(LedgerStore.self) private var store
+    @Environment(InboxStore.self) private var inbox
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var mode: Mode
+    @State private var amountText: String
+    @State private var currencyCode: String
+    @State private var expenseCategory: ExpenseCategory
+    @State private var incomeCategory: IncomeCategory
+    /// The account an expense came from, or income went to.
+    @State private var account: Asset.ID?
+    @State private var fromAsset: Asset.ID?
+    @State private var toAsset: Asset.ID?
+    /// How many shares, units or coins, or how much gold, left `fromAsset`, when it isn't valued
+    /// by an amount.
+    @State private var fromChangeText: String
+    /// What `toAsset` gained when that isn't the amount: shares, units, coins or gold, or money in
+    /// its own currency.
+    @State private var toChangeText: String
+    @State private var date: Date
+    @State private var note: String
+    @State private var tags: [String]
+    @State private var suggestion: TagSuggestion?
+    /// Whether the person picked the category, so a suggestion doesn't change it.
+    @State private var categoryWasPicked: Bool
+    @State private var categoryWasSuggested = false
+    @State private var saveFailed = false
+    @State private var savedCount = 0
+    @FocusState private var amountIsFocused: Bool
+    @AppStorage(SettingsView.suggestsTagsKey) private var suggestsTags = true
+
+    init(editing entry: Entry?, currencyCode defaultCurrencyCode: String) {
+        self.init(entry: entry, captured: nil, currencyCode: defaultCurrencyCode)
+    }
+
+    /// A new entry from the inbox: income if the money came in, otherwise an expense.
+    init(capturing item: CapturedTransaction, currencyCode defaultCurrencyCode: String) {
+        self.init(entry: nil, captured: item, currencyCode: defaultCurrencyCode)
+    }
+
+    private init(entry: Entry?, captured: CapturedTransaction?, currencyCode defaultCurrencyCode: String) {
+        original = entry
+        self.captured = captured
+        let currencyCode = entry?.currencyCode ?? captured?.currencyCode ?? defaultCurrencyCode
+        let amount = entry?.amount ?? captured?.amount
+        _currencyCode = State(initialValue: currencyCode)
+        _amountText = State(initialValue: amount.map {
+            NumberField.text(for: $0, fractionDigits: Currencies.fractionDigits(for: currencyCode))
+        } ?? "")
+        _date = State(initialValue: entry?.date ?? captured?.date ?? .now)
+        _note = State(initialValue: entry?.note ?? captured?.description ?? "")
+        _tags = State(initialValue: entry?.tags ?? [])
+        _categoryWasPicked = State(initialValue: entry != nil)
+
+        var mode = captured?.isMoneyIn == true ? Mode.income : .expense
+        var expenseCategory = ExpenseCategory.food
+        // Money that came in from the inbox is often someone paying back, not pay.
+        var incomeCategory = captured == nil ? IncomeCategory.salary : .other
+        var account: Asset.ID?
+        var from: Entry.Leg?, to: Entry.Leg?
+        switch entry?.kind {
+        case .expense(let category, let paidFrom):
+            mode = .expense
+            expenseCategory = category
+            account = paidFrom
+        case .income(let category, let paidInto):
+            mode = .income
+            incomeCategory = category
+            account = paidInto
+        case .transfer(let fromLeg, let toLeg):
+            mode = .transfer
+            from = fromLeg
+            to = toLeg
+        case .adjustment, nil:
+            break
+        }
+        _mode = State(initialValue: mode)
+        _expenseCategory = State(initialValue: expenseCategory)
+        _incomeCategory = State(initialValue: incomeCategory)
+        _account = State(initialValue: account)
+        _fromAsset = State(initialValue: from?.asset)
+        _toAsset = State(initialValue: to?.asset)
+        // The changes' digits depend on the assets, which aren't known here. `onAppear` fills
+        // them in.
+        _fromChangeText = State(initialValue: "")
+        _toChangeText = State(initialValue: "")
+    }
+
+    // MARK: Values
+
+    private var amount: Decimal? {
+        NumberField.number(in: amountText).flatMap { $0 > 0 ? $0 : nil }
+    }
+
+    /// The accounts an expense can come from and income go into: cash, bank accounts, e-wallets
+    /// and savings deposits.
+    private var accounts: [Asset] {
+        store.ledger.assetSections().first { $0.group == .money }?.assets ?? []
+    }
+
+    private func asset(_ id: Asset.ID?) -> Asset? {
+        id.flatMap(store.ledger.asset(id:))
+    }
+
+    /// What a transfer's side changes by, in its own terms, when that isn't the amount.
+    private enum ChangeField {
+        /// Shares, units or coins, or a weight of gold.
+        case quantity(Asset)
+        /// Money in the asset's currency, which isn't the amount's.
+        case money(Asset)
+    }
+
+    private var fromChangeField: ChangeField? {
+        guard let from = asset(fromAsset), from.kind.valuation != .amount else { return nil }
+        return .quantity(from)
+    }
+
+    private var toChangeField: ChangeField? {
+        guard let to = asset(toAsset) else { return nil }
+        if to.kind.valuation != .amount { return .quantity(to) }
+        return to.currencyCode == currencyCode ? nil : .money(to)
+    }
+
+    private static func positive(_ text: String) -> Decimal? {
+        NumberField.number(in: text).flatMap { $0 > 0 ? $0 : nil }
+    }
+
+    /// The entry's kind as filled in, or `nil` while something it needs is missing.
+    private var kind: Entry.Kind? {
+        switch mode {
+        case .expense:
+            return .expense(expenseCategory, account: account)
+        case .income:
+            return .income(incomeCategory, account: account)
+        case .transfer:
+            guard let amount, let fromAsset, let toAsset, fromAsset != toAsset else { return nil }
+            var fromChange = amount, toChange = amount
+            if fromChangeField != nil {
+                guard let change = Self.positive(fromChangeText) else { return nil }
+                fromChange = change
+            }
+            if toChangeField != nil {
+                guard let change = Self.positive(toChangeText) else { return nil }
+                toChange = change
+            }
+            return .transfer(
+                from: Entry.Leg(asset: fromAsset, change: fromChange),
+                to: Entry.Leg(asset: toAsset, change: toChange)
+            )
+        }
+    }
+
+    // MARK: Views
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Picker("Type", selection: $mode) {
+                        Text("Expense").tag(Mode.expense)
+                        Text("Income").tag(Mode.income)
+                        Text("Transfer").tag(Mode.transfer)
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+
+                amountSection
+
+                switch mode {
+                case .expense, .income:
+                    categorySection
+                    Section {
+                        accountPicker
+                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                        TextField("Note", text: $note, axis: .vertical)
+                    }
+                    tagsSection
+                case .transfer:
+                    transferSections
+                    Section {
+                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                        TextField("Note", text: $note, axis: .vertical)
+                    }
+                }
+
+                if let captured, !captured.text.isEmpty {
+                    Section {
+                        DisclosureGroup("Bank Message") {
+                            Text(verbatim: captured.text)
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .textSelection(.enabled)
+                        }
+                    }
+                }
+
+                if let original {
+                    Section {
+                        Button("Delete Transaction", role: .destructive) {
+                            delete(original)
+                        }
+                    }
+                }
+            }
+            .navigationTitle(title)
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", role: .cancel) { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save", action: save)
+                        .disabled(amount == nil || kind == nil)
+                }
+            }
+            .onAppear(perform: fillIn)
+            .onChange(of: account) { _, account in
+                // An account's money is in its currency.
+                if let asset = asset(account) { currencyCode = asset.currencyCode }
+            }
+            .onChange(of: fromAsset) { _, from in
+                if let asset = asset(from) { currencyCode = asset.currencyCode }
+            }
+            .onChange(of: currencyCode) { _, code in
+                if mode != .transfer, let asset = asset(account), asset.currencyCode != code { account = nil }
+            }
+            .onChange(of: mode) { _, mode in
+                if mode == .transfer, let from = asset(fromAsset) {
+                    currencyCode = from.currencyCode
+                } else if mode != .transfer, let asset = asset(account) {
+                    currencyCode = asset.currencyCode
+                }
+            }
+            .task(id: mode == .expense ? note : nil) {
+                await suggest()
+            }
+            .alert("Couldn’t Save", isPresented: $saveFailed) {
+                Button("OK") {}
+            } message: {
+                Text("Riengtu couldn’t save your change. Try again.")
+            }
+            .sensoryFeedback(.success, trigger: savedCount)
+        }
+        .privacyShield()
+    }
+
+    private var title: LocalizedStringKey {
+        switch (mode, original == nil) {
+        case (.expense, true): "New Expense"
+        case (.expense, false): "Edit Expense"
+        case (.income, true): "New Income"
+        case (.income, false): "Edit Income"
+        case (.transfer, true): "New Transfer"
+        case (.transfer, false): "Edit Transfer"
+        }
+    }
+
+    private var amountSection: some View {
+        Section {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(Currencies.symbol(for: currencyCode, locale: NumberField.locale))
+                    .foregroundStyle(.secondary)
+                NumberField(title: Text("Amount"), text: $amountText, fractionDigits: fractionDigits)
+                    .focused($amountIsFocused)
+            }
+            .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+            .monospacedDigit()
+
+            // An account's or an asset's money is in its currency.
+            if mode == .transfer ? fromAsset == nil : asset(account) == nil {
+                NavigationLink {
+                    CurrencyPicker(selection: $currencyCode, suggested: suggestedCurrencies)
+                } label: {
+                    LabeledContent("Currency", value: currencyCode)
+                }
+            }
+        }
+    }
+
+    private var categorySection: some View {
+        Section {
+            if mode == .income {
+                CategoryGrid(selection: Binding(
+                    get: { incomeCategory },
+                    set: { incomeCategory = $0 }
+                ))
+            } else {
+                CategoryGrid(selection: Binding(
+                    get: { expenseCategory },
+                    set: { picked in
+                        expenseCategory = picked
+                        categoryWasPicked = true
+                        categoryWasSuggested = false
+                    }
+                ))
+            }
+        } header: {
+            Text("Category")
+        } footer: {
+            if mode == .expense, categoryWasSuggested {
+                Label("Picked from your note by Apple Intelligence.", systemImage: "apple.intelligence")
+            }
+        }
+    }
+
+    @ViewBuilder private var accountPicker: some View {
+        let accounts = accounts
+        if !accounts.isEmpty {
+            Picker(selection: $account) {
+                Text("None").tag(Asset.ID?.none)
+                ForEach(accounts) { asset in
+                    AssetLabel(asset: asset).tag(Optional(asset.id))
+                }
+            } label: {
+                Text(mode == .income ? "Received In" : "Paid From")
+            }
+        }
+    }
+
+    private var tagsSection: some View {
+        Section {
+            TagPicker(selection: $tags, tags: store.ledger.tags, suggestion: mode == .expense ? suggestion : nil)
+        } header: {
+            Text("Tags")
+        } footer: {
+            if mode == .expense, let suggestion, !suggestion.tags.allSatisfy(tags.contains) || suggestion.newTag != nil {
+                Label("Suggested by Apple Intelligence on this device. Tap to add.", systemImage: "apple.intelligence")
+            }
+        }
+    }
+
+    @ViewBuilder private var transferSections: some View {
+        let sections = store.ledger.assetSections()
+        Section {
+            AssetPicker(title: Text("From"), selection: $fromAsset, sections: sections)
+            if let field = fromChangeField {
+                changeRow(field, text: $fromChangeText)
+            }
+        } footer: {
+            if sections.isEmpty {
+                Text("Add your accounts and other assets in Assets to move money between them.")
+            }
+        }
+        Section {
+            AssetPicker(title: Text("To"), selection: $toAsset, sections: sections)
+            if let field = toChangeField {
+                changeRow(field, text: $toChangeText)
+            }
+        } footer: {
+            if fromAsset != nil, fromAsset == toAsset {
+                Text("Choose two different assets.")
+            }
+        }
+    }
+
+    /// A field for a quantity, a weight, or money in another currency.
+    @ViewBuilder private func changeRow(_ field: ChangeField, text: Binding<String>) -> some View {
+        switch field {
+        case .quantity(let asset):
+            LabeledContent {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    NumberField(title: quantityTitle(asset), text: text, fractionDigits: asset.kind.quantityFractionDigits)
+                        .multilineTextAlignment(.trailing)
+                    if case .gold(_, let unit, _, _) = asset.value {
+                        Text(unit.name)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .monospacedDigit()
+            } label: {
+                quantityTitle(asset)
+            }
+        case .money(let asset):
+            LabeledContent {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text(Currencies.symbol(for: asset.currencyCode, locale: NumberField.locale))
+                        .foregroundStyle(.secondary)
+                    NumberField(title: Text("Received"), text: text, fractionDigits: Currencies.fractionDigits(for: asset.currencyCode))
+                        .multilineTextAlignment(.trailing)
+                }
+                .monospacedDigit()
+            } label: {
+                Text("Received")
+            }
+        }
+    }
+
+    private func quantityTitle(_ asset: Asset) -> Text {
+        asset.kind.valuation == .gold ? Text("Weight") : Text(asset.kind.quantityName)
+    }
+
+    private var fractionDigits: Int {
+        Currencies.fractionDigits(for: currencyCode)
+    }
+
+    private var suggestedCurrencies: [String] {
+        let recent = store.ledger.recentCurrencyCodes
+        return recent.isEmpty ? [Currencies.code(for: NumberField.locale)] : recent
+    }
+
+    // MARK: Actions
+
+    /// Fills in what needs the ledger: a new expense's or income's account, and a transfer's
+    /// quantities.
+    private func fillIn() {
+        if original == nil, captured?.amount == nil { amountIsFocused = true }
+        if original == nil, mode != .transfer,
+           let last = asset(store.ledger.lastAccount(for: mode == .income ? .moneyIn : .moneyOut)),
+           last.currencyCode == currencyCode {
+            account = last.id
+        }
+        guard case .transfer(let from, let to)? = original?.kind else { return }
+        if let from, fromChangeField != nil, let asset = asset(from.asset) {
+            fromChangeText = NumberField.text(for: from.change, fractionDigits: asset.kind.quantityFractionDigits)
+        }
+        if let to, let field = toChangeField {
+            switch field {
+            case .quantity(let asset):
+                toChangeText = NumberField.text(for: to.change, fractionDigits: asset.kind.quantityFractionDigits)
+            case .money(let asset):
+                toChangeText = NumberField.text(for: to.change, fractionDigits: Currencies.fractionDigits(for: asset.currencyCode))
+            }
+        }
+    }
+
+    /// Asks the model about an expense's note, once the person stops typing for a moment.
+    /// Typing again cancels the question.
+    private func suggest() async {
+        let note = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard mode == .expense, suggestsTags, note.count >= 2, note != original?.note,
+              ExpenseTagger.availability == .available
+        else {
+            withAnimation { suggestion = nil }
+            return
+        }
+        do {
+            try await Task.sleep(for: .milliseconds(600))
+            let result = try await ExpenseTagger.suggest(
+                note: note, amount: amount, currencyCode: currencyCode, tags: store.ledger.tags
+            )
+            try Task.checkCancellation()
+            withAnimation {
+                suggestion = result
+                if !categoryWasPicked, let suggested = result.category {
+                    expenseCategory = suggested
+                    categoryWasSuggested = true
+                }
+            }
+        } catch {
+            // Cancelled by more typing, or the model couldn't answer, such as for a language it
+            // doesn't support. Either way, no suggestion.
+        }
+    }
+
+    private func save() {
+        guard let amount, let kind else { return }
+        let entry = Entry(
+            id: original?.id ?? UUID(),
+            kind: kind,
+            amount: amount,
+            currencyCode: currencyCode,
+            date: date,
+            note: note.trimmingCharacters(in: .whitespacesAndNewlines),
+            // Tags say what money was spent or received for.
+            tags: mode == .transfer ? [] : tags
+        )
+        do {
+            try store.save(entry)
+            if let captured {
+                // The entry is saved either way. If this fails, the transaction stays in the
+                // inbox.
+                try? inbox.remove(id: captured.id)
+            }
+            savedCount += 1
+            dismiss()
+        } catch {
+            saveFailed = true
+        }
+    }
+
+    private func delete(_ entry: Entry) {
+        do {
+            try store.deleteEntry(id: entry.id)
+            dismiss()
+        } catch {
+            saveFailed = true
+        }
+    }
+}
+
+/// Picks one of the person's assets, by group.
+private struct AssetPicker: View {
+    let title: Text
+    @Binding var selection: Asset.ID?
+    let sections: [Ledger.AssetSection]
+
+    var body: some View {
+        Picker(selection: $selection) {
+            if selection == nil {
+                Text("Choose").tag(Asset.ID?.none)
+            }
+            ForEach(sections) { section in
+                Section {
+                    ForEach(section.assets) { asset in
+                        AssetLabel(asset: asset).tag(Optional(asset.id))
+                    }
+                } header: {
+                    Text(section.group.name)
+                }
+            }
+        } label: {
+            title
+        }
+    }
+}
+
+/// An asset's name and its kind's symbol.
+struct AssetLabel: View {
+    let asset: Asset
+
+    var body: some View {
+        Label {
+            asset.title
+        } icon: {
+            Image(systemName: asset.kind.symbolName)
+        }
+    }
+}
+
+#Preview("New") {
+    EntryEditor(editing: nil, currencyCode: "VND")
+        .previewEnvironment()
+}
+
+#Preview("Edit") {
+    EntryEditor(editing: Ledger.preview.entries[0], currencyCode: "VND")
+        .previewEnvironment()
+}
+
+#Preview("Transfer") {
+    EntryEditor(editing: Ledger.preview.entries.first { $0.flow == .neither }, currencyCode: "VND")
+        .previewEnvironment()
+        .environment(\.locale, Locale(identifier: "vi"))
+}

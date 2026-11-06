@@ -4,7 +4,8 @@ import SwiftUI
 /// Adds an asset, or edits one, in a sheet. The fields follow how the kind is valued: an amount,
 /// a quantity and a price, or a weight of gold and a price by weight.
 struct AssetEditor: View {
-    /// The asset being edited, or `nil` for a new one.
+    /// The asset being edited as it is now (`Ledger.current`), with what entries changed since
+    /// its value was set, or `nil` for a new one.
     private let original: Asset?
 
     @Environment(LedgerStore.self) private var store
@@ -21,6 +22,8 @@ struct AssetEditor: View {
     @State private var weightUnit: GoldUnit
     @State private var priceUnit: GoldUnit
     @State private var note: String
+    /// What the value's fields started with, to tell whether the person changed them.
+    private let startingValueFields: [String]
     @State private var saveFailed = false
     @State private var savedCount = 0
     @FocusState private var focus: Field?
@@ -60,6 +63,7 @@ struct AssetEditor: View {
         _priceText = State(initialValue: priceText)
         _weightUnit = State(initialValue: weightUnit)
         _priceUnit = State(initialValue: priceUnit)
+        startingValueFields = [amountText, quantityText, priceText, weightUnit.rawValue, priceUnit.rawValue]
     }
 
     private var trimmedName: String {
@@ -68,7 +72,15 @@ struct AssetEditor: View {
 
     /// The value as typed, or `nil` while something it needs is missing. Shares, fund
     /// certificates and coins also need a ticker.
+    ///
+    /// Until the fields are changed, it's the value the asset had, which can be below zero after
+    /// entries took from it. The fields can't show a minus, nor can it be typed.
     private var value: Asset.Value? {
+        if let original, original.kind.valuation == kind.valuation,
+           [amountText, quantityText, priceText, weightUnit.rawValue, priceUnit.rawValue] == startingValueFields,
+           kind.valuation != .holding || !trimmedName.isEmpty {
+            return original.value
+        }
         let quantity = NumberField.number(in: quantityText).flatMap { $0 > 0 ? $0 : nil }
         let price = NumberField.number(in: priceText)
         switch kind.valuation {
@@ -178,8 +190,8 @@ struct AssetEditor: View {
     private var amountSection: some View {
         Section {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(currencySymbol)
-                    .foregroundStyle(.secondary)
+                Text(verbatim: isBelowZero ? "−" + currencySymbol : currencySymbol)
+                    .foregroundStyle(isBelowZero ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
                 NumberField(title: kind.group == .money ? Text("Balance") : Text("Value"), text: $amountText, fractionDigits: moneyDigits)
                     .focused($focus, equals: .amount)
             }
@@ -190,10 +202,17 @@ struct AssetEditor: View {
         } header: {
             Text(kind.group == .money ? "Balance" : "Value")
         } footer: {
-            if kind.group == .things {
+            if isBelowZero {
+                Text("Below zero, because more was recorded going out than coming in. Type what’s there now.")
+            } else if kind.group == .things {
                 Text("What it would sell for today.")
             }
         }
+    }
+
+    /// Whether the balance entries left is below zero, and hasn't been changed yet.
+    private var isBelowZero: Bool {
+        if case .amount(let amount)? = value, amount < 0 { true } else { false }
     }
 
     private var holdingSection: some View {
@@ -308,18 +327,22 @@ struct AssetEditor: View {
 
     private func save() {
         guard let value else { return }
+        // Unchanged, it keeps the value set by hand, and when, so the entries since still count.
+        // Changed, what's typed is its value from now on.
         let isUnchanged = original?.value == value && original?.currencyCode == currencyCode
+        let setByHand = original.flatMap { store.ledger.asset(id: $0.id) }
         let asset = Asset(
             id: original?.id ?? UUID(),
             kind: kind,
             name: kind.valuation == .holding ? trimmedName.uppercased() : trimmedName,
             currencyCode: currencyCode,
-            value: value,
-            valuedAt: isUnchanged ? original!.valuedAt : .now,
+            value: isUnchanged ? setByHand?.value ?? value : value,
+            valuedAt: isUnchanged ? setByHand?.valuedAt ?? .now : .now,
             note: note.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         do {
-            try store.save(asset)
+            // A change to its value goes in the ledger.
+            try store.save(asset, recordingChangeOn: .now)
             savedCount += 1
             dismiss()
         } catch {
