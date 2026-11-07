@@ -105,14 +105,14 @@ struct EntryAmount: View {
         Group {
             switch entry.kind {
             case .expense:
-                Text(-entry.amount, format: .currency(code: entry.currencyCode))
+                Text(-entry.amount, format: .money(code: entry.currencyCode))
             case .income:
-                Text(entry.amount, format: .currency(code: entry.currencyCode).sign(strategy: .always()))
+                Text(entry.amount, format: .money(code: entry.currencyCode).showingPlus())
                     .foregroundStyle(.green)
             case .transfer:
-                Text(entry.amount, format: .currency(code: entry.currencyCode))
+                Text(entry.amount, format: .money(code: entry.currencyCode))
             case .adjustment(_, let isIncrease):
-                Text(isIncrease ? entry.amount : -entry.amount, format: .currency(code: entry.currencyCode).sign(strategy: .always()))
+                Text(isIncrease ? entry.amount : -entry.amount, format: .money(code: entry.currencyCode).showingPlus())
                     .foregroundStyle(.secondary)
             }
         }

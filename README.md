@@ -10,12 +10,12 @@ A private money app for iPhone and iPad, in English and Vietnamese. You record t
 - **App lock.** Settings > Lock with Face ID (or Touch ID, or the passcode). Once it's on, Riengtu locks when it launches and each time it goes to the background. If the device's passcode is later turned off, Riengtu unlocks rather than lock someone out of their own data.
 - **Hidden in the app switcher.** Whenever Riengtu isn't active, a cover hides its screens, so amounts don't show in the app switcher.
 - **Apple Intelligence stays on the device.** Where it's available (iOS 26, a device that runs it, and it turned on), the model on the device suggests a category and tags from an expense's note. Riêng Tư never uses a model in the cloud, and it works fully without one.
-- **Captured payments stay on the device too.** Shortcuts can send a bank's emails and Apple Pay payments to Riêng Tư's inbox. They wait there, in a separate file (`inbox.json`) that can be written while the device is locked after its first unlock, until the person adds or dismisses them.
+- **Captured payments stay on the device too.** Shortcuts can forward a bank app's notifications and a bank's emails, and Apple Pay payments, to Riêng Tư's inbox. They wait there, in a separate database (`Inbox/inbox.sqlite`) that can be written while the device is locked after its first unlock, until the person adds or dismisses them. Then they stay in the inbox's history, with the message as it came, until the app deletes them after the time chosen in Settings (a week unless changed).
 - **Never overwrites what it can't read.** If the database is damaged, Riengtu saves nothing until the person chooses Start Over, which keeps the old file on the device. Records a newer version saved, such as on another device, are shown without being changed, or kept as they are if this version can't read them, until the app is updated.
 
 ## Money
 
-Riengtu has three tabs: Ledger, Assets and Settings.
+Riengtu has three tabs: Inbox (see Capturing payments), Ledger and Assets. The gear at the top left of each opens Settings, and the + at the top right adds to that tab.
 
 - **Ledger** (Sổ thu chi). A month at a time, grouped by day, with the month's money in, money out and the difference on top, each currency on its own. It holds four kinds of entry:
   - **Expenses** and **income**, each with a category. Either can name the account (cash, a bank account, an e-wallet or a savings deposit) the money came from or went to, and that account's balance goes down or up. Its currency is then the account's.
@@ -29,12 +29,16 @@ Amounts, quantities and prices are `Decimal`, stored as text, so no digits are l
 
 ## Capturing payments
 
-iOS doesn't let an app read other apps' notifications, so Riêng Tư can't see a bank app's alerts. Instead, it has two Shortcuts actions, which run in the background:
+iOS doesn't let an app read other apps' notifications itself, but Shortcuts can forward them. Riêng Tư has two Shortcuts actions, which run in the background:
 
-- **Add Bank Message to Inbox** takes the text of a bank's email or message. `TransactionText` reads it with rules: the amount (not the balance), whether money went out or came in, the time, and the "Nội dung". This covers QR transfers, card payments and money received that the bank emails about.
-- **Add Payment to Inbox** takes an amount and a merchant, for an Apple Pay automation. Both are optional: Wallet doesn't always pass the amount on, and an automation can't stop to ask for it, so the payment goes in the inbox without one.
+- **Add Bank Message to Inbox** forwards the text of a bank app's notification (its title, then its body, on iOS 27), or of a bank's email or message, as it came. This covers QR transfers, card payments and money received.
+- **Add Payment to Inbox** takes Wallet's amount, as text, and a merchant, for an Apple Pay automation. Both are optional: Wallet doesn't always pass the amount on, and an automation can't stop to ask for it, so the payment goes in the inbox without one.
 
-Captured transactions wait in the inbox at the top of the Ledger tab's current month. When the app is open, Apple Intelligence (`TransactionReader`) reads new messages for a cleaner description. Tapping one opens the editor with its amount, date and note filled in, as income if the money came in and as an expense otherwise.
+Captured transactions wait in the Inbox, the first tab. When the app is open, it reads new ones. With Apple Intelligence, `TransactionReader` reads the amount, the description, and whether it's spending, income or a transfer between the person's own accounts, and where income came from; `ExpenseTagger` picks an expense's category. The rules (`TransactionText`) check the amount and read the + or −, and read the message alone without Apple Intelligence. The person checks them and taps Add All, which adds the expenses and income from or into the account used last; or taps one to open the editor with it filled in. Transfers wait for their accounts to be chosen.
+
+For transactions from before the inbox was set up, take screenshots of the bank app's transaction history, then in the Inbox tap **+** and choose **From Photos**. **From Files** takes a bank's or another app's export (CSV, TSV, JSON) or text, a transaction for each row, object or paragraph (`FileText`). Vision reads the text on the device (`ScreenshotReader`), `ScreenshotText` finds each transaction with its day and time, and they go in the inbox to be read like a forwarded message. Transactions already in the inbox or its history are left out.
+
+For a bank app's notifications (iOS 27): in Shortcuts > Automation > New, choose **Notification**, the bank's app, a filter that only transactions match (such as Title contains VND) and Run Immediately, then add **Add Bank Message to Inbox** with Shortcut Input as the message: Shortcuts passes the notification's title and body. Set up one for each bank.
 
 On iOS 27, where a shared shortcut carries its trigger, Settings > Capture Payments has an Add Card Payment Shortcut button. It opens an iCloud link to a shortcut that runs Add Payment to Inbox when any card in Wallet is tapped, so adding it is all the setup. The app makes no request itself: Shortcuts downloads the shortcut.
 
@@ -80,6 +84,7 @@ Don't pipe the upload into `head`: closing the pipe early stops `xcodebuild` par
   - `RootView` holds the tabs, loads the ledger when the app becomes active, and locks it in the background.
   - `Ledger/` has the Ledger tab (`LedgerView`, a month of entries grouped by day under the month's totals), the rows (`EntryRow`), the editor sheet for expenses, income and transfers (`EntryEditor`), the category grid and the currency picker. Each category's name, symbol and color is in `ExpenseCategory+Display.swift` and `IncomeCategory+Display.swift`.
   - `Assets/` has the Assets tab (`AssetsView`) and its editor sheet. Each kind of asset's name, symbol and color is in `AssetKind+Display.swift`.
+  - `Inbox/` has the Inbox tab (`InboxView`), the first: what waits to be added, Add All, and Add from Screenshots. Also the reading screen (`ReadingView`), reading in the background (`BackgroundReading`), and the inbox's history.
   - `Capture/` has the Shortcuts actions that put payments in the inbox, and the screen that explains how to set them up.
   - `Tags/` has the tag chips in the entry editor, the Tags screen, and `Tags.displayName`, which shows the starter tags in the app's language.
   - `Components/` has views both tabs use: `NumberField`, which tidies typed amounts, and `IconBadge`.
@@ -92,7 +97,9 @@ Don't pipe the upload into `head`: closing the pipe early stops `xcodebuild` par
   - `LedgerDatabase` keeps the ledger with GRDB: one row per entry, asset and tag, as JSON with its format's version (`RecordVersion`), plus what syncing needs. Migrations only add, so an earlier version can still open the database after a later one.
   - `CloudSync` syncs it with `CKSyncEngine` while the app is open, and `CloudRecord` makes a row a CloudKit record. The later change wins; a record in a newer format is never replaced by an older one.
   - `LedgerFile` reads the JSON file builds before the database used (version 1 to 5), once, to move it into the database.
-  - `InboxStore` and `InboxFile` keep captured payments (`CapturedTransaction`). `TransactionText` reads a bank's message with rules, and `TransactionReader` with the model.
+  - `InboxStore` keeps captured payments (`CapturedTransaction`) and their history in `InboxDatabase`, and reads new ones. `InboxFile` reads the JSON file builds up to 8 used, once. `TransactionText` reads a bank's message with rules, and `TransactionReader` with the model.
+  - `ScreenshotReader` reads the text on a screenshot with Vision, and `ScreenshotText` finds the transactions in it.
+  - `MoneyFormatStyle` writes amounts, with ₫ after the number.
   - `Tags` tidies and matches tag names. `ExpenseTagger` asks the model on the device for a `TagSuggestion`, which is checked against the person's tags.
   - `AmountInput` tidies typed amounts in the device's number format, such as `1.250.000` in Vietnam.
   - `Currencies` lists the currencies and their digits and symbols.

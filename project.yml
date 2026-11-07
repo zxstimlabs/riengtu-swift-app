@@ -17,7 +17,7 @@ settings:
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "7"
+    CURRENT_PROJECT_VERSION: "12"
 
 packages:
   RiengtuKit:
@@ -35,6 +35,16 @@ targets:
     # iCloud sync (CloudSync), in the person's private database, and the pushes that tell it about
     # other devices' changes. The container is made the first time a signed build needs it, and
     # can't be deleted, so don't rename it.
+    # Reading the inbox goes on in the background, as a continued processing task
+    # (BackgroundReading), which iOS 26 allows for work the person started.
+    info:
+      path: App/Info.plist
+      properties:
+        BGTaskSchedulerPermittedIdentifiers:
+          - vn.riengtu.reading
+        # From the build settings, not XcodeGen's defaults.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
     entitlements:
       path: App/Riengtu.entitlements
       properties:

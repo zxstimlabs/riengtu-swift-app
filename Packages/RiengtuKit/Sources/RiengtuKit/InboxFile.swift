@@ -1,11 +1,7 @@
 import Foundation
 
-/// Where the inbox is kept on disk, as JSON, apart from the ledger.
-///
-/// Shortcuts automations can capture a payment while the device is locked, when the ledger's
-/// file can't be opened (complete file protection). So the inbox has its own file, protected
-/// until the person first unlocks the device after it starts: still encrypted, and readable
-/// after that first unlock. Items leave it once they're added or dismissed.
+/// The JSON file builds 8 and earlier kept the inbox in. `InboxStore` moves what's in it into the
+/// inbox's database (`InboxDatabase`) once, and deletes it.
 public struct InboxFile: Sendable {
     public enum LoadError: Error, Equatable {
         /// The file is from a later version of the app.
@@ -36,18 +32,6 @@ public struct InboxFile: Sendable {
         let contents = try JSONDecoder().decode(Contents.self, from: data)
         guard contents.version <= Self.currentVersion else { throw LoadError.newerVersion(contents.version) }
         return contents.items
-    }
-
-    public func save(_ items: [CapturedTransaction]) throws {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        let data = try encoder.encode(Contents(version: Self.currentVersion, items: items))
-        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        #if os(iOS)
-        try data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
-        #else
-        try data.write(to: url, options: [.atomic])
-        #endif
     }
 
     public func delete() throws {

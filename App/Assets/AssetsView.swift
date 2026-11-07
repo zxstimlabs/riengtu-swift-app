@@ -29,7 +29,7 @@ struct AssetsView: View {
             if !totals.isEmpty {
                 Section {
                     ForEach(totals) { total in
-                        Text(total.amount, format: .currency(code: total.currencyCode))
+                        Text(total.amount, format: .money(code: total.currencyCode))
                             .font(.system(.title, design: .rounded, weight: .semibold))
                             .monospacedDigit()
                             // A number reads wrong split over two lines.
@@ -85,6 +85,7 @@ struct AssetsView: View {
             }
         }
         .navigationTitle("Assets")
+        .settingsButton()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 AddAssetMenu(add: add) {
@@ -187,7 +188,7 @@ private struct AssetRow: View {
                 }
             }
             Spacer(minLength: 8)
-            Text(asset.worth, format: .currency(code: asset.currencyCode))
+            Text(asset.worth, format: .money(code: asset.currencyCode))
                 .monospacedDigit()
                 .multilineTextAlignment(.trailing)
         }

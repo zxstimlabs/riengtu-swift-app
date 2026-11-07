@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// How to set up Shortcuts automations that send payments to the inbox. iOS doesn't let an app
-/// read other apps' notifications, but Shortcuts can pass on a bank's emails and Apple Pay
-/// payments.
+/// read other apps' notifications, but Shortcuts can forward a bank app's notifications (iOS 27),
+/// a bank's emails, and Apple Pay payments.
 struct CaptureHelpView: View {
     /// The shortcut "When Any Card is tapped" → Add Payment to Inbox, with the tap's Amount and
     /// Merchant, shared from iCloud. From iOS 27 a shared shortcut carries its trigger, so adding
@@ -15,7 +15,21 @@ struct CaptureHelpView: View {
     var body: some View {
         Form {
             Section {
-                Text("Riengtu can’t see other apps’ notifications, but Shortcuts can send it your bank’s emails and your Apple Pay payments. They wait in the inbox until you add or dismiss them.")
+                Text("Riêng Tư can’t see other apps’ notifications itself, but Shortcuts can forward it your bank’s notifications and emails, and your Apple Pay payments. They wait in the inbox, where Riêng Tư reads them when you open it, until you add or dismiss them.")
+            }
+
+            if #available(iOS 27, *) {
+                Section {
+                    Step(1, "In Shortcuts, tap Automation, then the Add button, and choose Notification.")
+                    Step(2, "Choose your bank’s app. To leave out its offers, add a filter that only its transactions match, such as Title contains VND.")
+                    Step(3, "Choose Run Immediately, tap Next, then New Blank Automation, and add the action Add Bank Message to Inbox.")
+                    // The whole notification, as the user set it up: Shortcuts gives its title and body.
+                    Step(4, "Tap Message in the action, and choose Shortcut Input.")
+                } header: {
+                    Text("Bank App Notifications")
+                } footer: {
+                    Text("Set up one for each bank. With Apple Intelligence, Riêng Tư reads each one for the amount, whether it’s spending, income or a transfer, and its category.")
+                }
             }
 
             Section {
@@ -48,6 +62,14 @@ struct CaptureHelpView: View {
                 Text("Bank Emails")
             } footer: {
                 Text("For QR transfers, card payments and money received that your bank emails you about. The emails need to arrive in the Mail app.")
+            }
+
+            Section {
+                Text("To add transactions from before, take screenshots of your bank app’s transaction history, each transaction whole on at least one, with its day’s heading if you can. Then in the Inbox, tap the Add button and choose From Photos.")
+            } header: {
+                Text("Past Transactions")
+            } footer: {
+                Text("Riêng Tư reads the screenshots on this device, and leaves out transactions already in the inbox.")
             }
 
             Section {

@@ -31,6 +31,100 @@
         }
       }
     },
+    "%lld new to read" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld giao dịch mới cần đọc"
+          }
+        }
+      }
+    },
+    "%lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld trên %lld"
+          }
+        }
+      }
+    },
+    "%lld were already there." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld was already there."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld were already there."
+                }
+              }
+            }
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld giao dịch đã có sẵn."
+          }
+        }
+      }
+    },
+    "1 Day" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 ngày"
+          }
+        }
+      }
+    },
+    "1 Month" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 tháng"
+          }
+        }
+      }
+    },
+    "1 Week" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 tuần"
+          }
+        }
+      }
+    },
+    "About %@ left" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Còn khoảng %@"
+          }
+        }
+      }
+    },
     "Add" : {
       "localizations" : {
         "vi" : {
@@ -57,6 +151,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thêm ${message} vào Giao dịch chờ"
+          }
+        }
+      }
+    },
+    "Add All" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm tất cả"
+          }
+        }
+      }
+    },
+    "Add All adds what’s ready. Tap a transfer to choose its accounts, or swipe to dismiss one." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm tất cả sẽ thêm các khoản đã sẵn sàng. Chạm vào một khoản chuyển tiền để chọn tài khoản, hoặc vuốt để bỏ qua một khoản."
           }
         }
       }
@@ -121,6 +235,16 @@
         }
       }
     },
+    "Add from Photos or Files" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm từ Ảnh hoặc Tệp"
+          }
+        }
+      }
+    },
     "Add what you own, from money and stocks to gold and property. It stays on this device." : {
       "localizations" : {
         "vi" : {
@@ -151,12 +275,60 @@
         }
       }
     },
-    "Added to the inbox." : {
+    "Added" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Đã thêm vào Giao dịch chờ."
+            "value" : "Đã thêm"
+          }
+        }
+      }
+    },
+    "Added %@" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã thêm %@"
+          }
+        }
+      }
+    },
+    "Added %lld transactions to the inbox." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Added %lld transaction to the inbox."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Added %lld transactions to the inbox."
+                }
+              }
+            }
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã thêm %lld giao dịch vào Giao dịch chờ."
+          }
+        }
+      }
+    },
+    "Added to the Inbox" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã thêm vào Giao dịch chờ"
           }
         }
       }
@@ -191,12 +363,42 @@
         }
       }
     },
+    "Amount from Wallet" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Số tiền từ Ví"
+          }
+        }
+      }
+    },
+    "Apple Intelligence can’t read more just now. The rest are read when you try again or open Riêng Tư later." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence chưa thể đọc thêm lúc này. Phần còn lại sẽ được đọc khi bạn thử lại hoặc mở Riêng Tư sau."
+          }
+        }
+      }
+    },
     "Apple Intelligence is getting ready. Suggestions start once it’s downloaded." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence đang được chuẩn bị. Gợi ý sẽ có sau khi tải xong."
+          }
+        }
+      }
+    },
+    "Apple Intelligence reads them on this device, in about %@. The screen stays on until it’s done, so you can put your iPhone down." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence đọc chúng ngay trên thiết bị này, trong khoảng %@. Màn hình sẽ luôn sáng cho đến khi xong, nên bạn có thể đặt iPhone xuống."
           }
         }
       }
@@ -261,6 +463,16 @@
         }
       }
     },
+    "Bank App Notifications" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thông báo từ ứng dụng ngân hàng"
+          }
+        }
+      }
+    },
     "Bank Emails" : {
       "localizations" : {
         "vi" : {
@@ -301,6 +513,26 @@
         }
       }
     },
+    "Between Your Accounts" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giữa các tài khoản của bạn"
+          }
+        }
+      }
+    },
+    "Between your accounts, %@" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giữa các tài khoản của bạn, %@"
+          }
+        }
+      }
+    },
     "Bills" : {
       "localizations" : {
         "vi" : {
@@ -327,6 +559,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kinh doanh"
+          }
+        }
+      }
+    },
+    "Came Twice" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bị trùng"
+          }
+        }
+      }
+    },
+    "Came twice, %@" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bị trùng, %@"
           }
         }
       }
@@ -401,6 +653,16 @@
         }
       }
     },
+    "Check them, then tap Add All, or tap one to change it. Swipe to dismiss one." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiểm tra lại, rồi chạm vào Thêm tất cả, hoặc chạm vào một khoản để sửa. Vuốt để bỏ qua một khoản."
+          }
+        }
+      }
+    },
     "Choose" : {
       "localizations" : {
         "vi" : {
@@ -411,12 +673,32 @@
         }
       }
     },
+    "Choose Run Immediately, tap Next, then New Blank Automation, and add the action Add Bank Message to Inbox." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn Chạy ngay lập tức, chạm vào Tiếp, rồi Mục tự động hóa trống mới, và thêm tác vụ Thêm thông báo ngân hàng vào Giao dịch chờ."
+          }
+        }
+      }
+    },
     "Choose two different assets." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hãy chọn hai tài sản khác nhau."
+          }
+        }
+      }
+    },
+    "Choose your bank’s app. To leave out its offers, add a filter that only its transactions match, such as Title contains VND." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn ứng dụng của ngân hàng. Để bỏ qua thông báo khuyến mãi, thêm bộ lọc chỉ khớp với giao dịch, chẳng hạn Tiêu đề chứa VND."
           }
         }
       }
@@ -451,12 +733,42 @@
         }
       }
     },
+    "Couldn’t Delete" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không xóa được"
+          }
+        }
+      }
+    },
     "Couldn’t Erase" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Không thể xóa"
+          }
+        }
+      }
+    },
+    "Couldn’t Put It Back" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không đưa lại được"
+          }
+        }
+      }
+    },
+    "Couldn’t Read Them" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không đọc được"
           }
         }
       }
@@ -531,6 +843,16 @@
         }
       }
     },
+    "Delete History" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa lịch sử"
+          }
+        }
+      }
+    },
     "Delete Tag" : {
       "localizations" : {
         "vi" : {
@@ -551,6 +873,16 @@
         }
       }
     },
+    "Delete the inbox’s history?" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa lịch sử của Giao dịch chờ?"
+          }
+        }
+      }
+    },
     "Delete this tag?" : {
       "localizations" : {
         "vi" : {
@@ -561,12 +893,52 @@
         }
       }
     },
+    "Details" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chi tiết"
+          }
+        }
+      }
+    },
     "Dismiss" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bỏ qua"
+          }
+        }
+      }
+    },
+    "Dismissed" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã bỏ qua"
+          }
+        }
+      }
+    },
+    "Dismissed %@" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã bỏ qua %@"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xong"
           }
         }
       }
@@ -781,6 +1153,56 @@
         }
       }
     },
+    "From Files" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ Tệp"
+          }
+        }
+      }
+    },
+    "From Photos" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ Ảnh"
+          }
+        }
+      }
+    },
+    "From a File" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ một tệp"
+          }
+        }
+      }
+    },
+    "From a Screenshot" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ ảnh chụp màn hình"
+          }
+        }
+      }
+    },
+    "From the File" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nội dung trong tệp"
+          }
+        }
+      }
+    },
     "Fund Certificates" : {
       "localizations" : {
         "vi" : {
@@ -851,6 +1273,16 @@
         }
       }
     },
+    "Hide" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ẩn"
+          }
+        }
+      }
+    },
     "Household" : {
       "localizations" : {
         "vi" : {
@@ -881,6 +1313,16 @@
         }
       }
     },
+    "In Shortcuts, tap Automation, then the Add button, and choose Notification." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trong Phím tắt, chạm vào Tự động hóa, rồi nút Thêm, và chọn Thông báo."
+          }
+        }
+      }
+    },
     "In Shortcuts, tap Automation, then the Add button, and choose Transaction." : {
       "localizations" : {
         "vi" : {
@@ -897,6 +1339,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Giao dịch chờ"
+          }
+        }
+      }
+    },
+    "Inbox History" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lịch sử Giao dịch chờ"
           }
         }
       }
@@ -937,6 +1389,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đầu tư"
+          }
+        }
+      }
+    },
+    "It and the other side were left out, since a transfer between your accounts nets to zero. Putting it back puts both back, to add as an expense and income." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao dịch này và phía bên kia đã được bỏ qua, vì chuyển tiền giữa các tài khoản của bạn không làm thay đổi tổng. Đưa lại sẽ đưa cả hai về Giao dịch chờ, để thêm thành khoản chi và khoản thu."
+          }
+        }
+      }
+    },
+    "It was left out, since the same transaction came in another message." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao dịch này đã được bỏ qua, vì cùng giao dịch đó đã đến trong một tin nhắn khác."
+          }
+        }
+      }
+    },
+    "Keep History" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giữ lịch sử"
           }
         }
       }
@@ -1191,6 +1673,26 @@
         }
       }
     },
+    "No History" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có lịch sử"
+          }
+        }
+      }
+    },
+    "No New Transactions" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có giao dịch mới"
+          }
+        }
+      }
+    },
     "No Tags" : {
       "localizations" : {
         "vi" : {
@@ -1227,6 +1729,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ghi chú"
+          }
+        }
+      }
+    },
+    "Nothing Waiting" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có gì đang chờ"
           }
         }
       }
@@ -1297,6 +1809,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Trả từ"
+          }
+        }
+      }
+    },
+    "Past Transactions" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao dịch trước đây"
           }
         }
       }
@@ -1401,6 +1923,26 @@
         }
       }
     },
+    "Put Back in the Inbox" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đưa lại vào Giao dịch chờ"
+          }
+        }
+      }
+    },
+    "Puts a bank’s notification, email or message about money sent or received, such as a QR transfer, in the inbox. Riêng Tư reads it when you open the app, for you to add to the ledger." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đưa thông báo, email hoặc tin nhắn của ngân hàng về khoản tiền gửi đi hoặc nhận được, chẳng hạn chuyển khoản QR, vào Giao dịch chờ. Riêng Tư sẽ đọc khi bạn mở ứng dụng, để bạn thêm vào sổ thu chi."
+          }
+        }
+      }
+    },
     "Puts a payment in the inbox to add as an expense, such as one from an automation that runs when you pay with a card in Wallet." : {
       "localizations" : {
         "vi" : {
@@ -1421,12 +1963,42 @@
         }
       }
     },
-    "Reads a bank’s email or message about money sent or received, such as a QR transfer, and puts it in the inbox to add to the ledger." : {
+    "Reading Transactions" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Đọc email hoặc tin nhắn của ngân hàng về tiền gửi đi hoặc nhận được, như chuyển khoản QR, và đưa vào Giao dịch chờ để thêm vào sổ thu chi."
+            "value" : "Đang đọc giao dịch"
+          }
+        }
+      }
+    },
+    "Reading new messages…" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang đọc thông báo mới…"
+          }
+        }
+      }
+    },
+    "Reading screenshots…" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang đọc ảnh chụp màn hình…"
+          }
+        }
+      }
+    },
+    "Ready to Check" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sẵn sàng kiểm tra"
           }
         }
       }
@@ -1501,6 +2073,16 @@
         }
       }
     },
+    "Review" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem lại"
+          }
+        }
+      }
+    },
     "Riengtu Is Locked" : {
       "localizations" : {
         "vi" : {
@@ -1517,16 +2099,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riengtu không đọc được dữ liệu đã lưu trên thiết bị này. Có thể dữ liệu được lưu bởi phiên bản Riengtu mới hơn, nên hãy thử cập nhật ứng dụng."
-          }
-        }
-      }
-    },
-    "Riengtu can’t see other apps’ notifications, but Shortcuts can send it your bank’s emails and your Apple Pay payments. They wait in the inbox until you add or dismiss them." : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riengtu không thể xem thông báo của ứng dụng khác, nhưng Phím tắt có thể gửi cho Riengtu email của ngân hàng và các khoản thanh toán Apple Pay. Chúng sẽ nằm trong Giao dịch chờ cho đến khi bạn thêm hoặc bỏ qua."
           }
         }
       }
@@ -1571,6 +2143,26 @@
         }
       }
     },
+    "Riêng Tư can’t see other apps’ notifications itself, but Shortcuts can forward it your bank’s notifications and emails, and your Apple Pay payments. They wait in the inbox, where Riêng Tư reads them when you open it, until you add or dismiss them." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không tự xem được thông báo của ứng dụng khác, nhưng Phím tắt có thể chuyển tiếp thông báo và email của ngân hàng, cùng các khoản thanh toán Apple Pay. Chúng chờ trong Giao dịch chờ, nơi Riêng Tư đọc khi bạn mở ứng dụng, cho đến khi bạn thêm hoặc bỏ qua."
+          }
+        }
+      }
+    },
+    "Riêng Tư couldn’t delete the history. Try again." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không xóa được lịch sử. Hãy thử lại."
+          }
+        }
+      }
+    },
     "Riêng Tư couldn’t erase your data in iCloud, so nothing was erased. Check your connection and try again." : {
       "localizations" : {
         "vi" : {
@@ -1591,12 +2183,52 @@
         }
       }
     },
+    "Riêng Tư couldn’t put it back in the inbox. Try again." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không đưa lại được vào Giao dịch chờ. Hãy thử lại."
+          }
+        }
+      }
+    },
+    "Riêng Tư couldn’t read what you chose. Try again." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không đọc được những gì bạn đã chọn. Hãy thử lại."
+          }
+        }
+      }
+    },
+    "Riêng Tư found no transactions in them. Choose screenshots of your bank app’s transaction history, with each transaction whole, or a file of transactions, such as a bank’s export." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không tìm thấy giao dịch nào. Hãy chọn ảnh chụp màn hình lịch sử giao dịch trong ứng dụng ngân hàng, mỗi giao dịch hiện đầy đủ, hoặc một tệp giao dịch, chẳng hạn tệp xuất từ ngân hàng."
+          }
+        }
+      }
+    },
     "Riêng Tư has no account of its own. Your ledger and assets are on this device, in its backups, and in your iCloud account, encrypted end to end." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riêng Tư không cần tài khoản riêng. Sổ thu chi và tài sản của bạn nằm trên thiết bị này, trong bản sao lưu của thiết bị và trong tài khoản iCloud của bạn, được mã hóa đầu cuối."
+          }
+        }
+      }
+    },
+    "Riêng Tư reads the screenshots on this device, and leaves out transactions already in the inbox." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư đọc ảnh chụp màn hình ngay trên thiết bị này, và bỏ qua những giao dịch đã có trong Giao dịch chờ."
           }
         }
       }
@@ -1641,12 +2273,22 @@
         }
       }
     },
-    "Send your bank’s emails and your Apple Pay payments to the inbox with Shortcuts." : {
+    "Send your bank’s notifications and emails, and your Apple Pay payments, to the inbox with Shortcuts. What you add or dismiss stays in the history with its message, then it’s deleted." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gửi email ngân hàng và các khoản thanh toán Apple Pay vào Giao dịch chờ bằng Phím tắt."
+            "value" : "Gửi thông báo và email của ngân hàng, cùng các khoản thanh toán Apple Pay, vào Giao dịch chờ bằng Phím tắt. Những gì bạn thêm hoặc bỏ qua được giữ trong lịch sử cùng tin nhắn gốc, rồi sẽ bị xóa."
+          }
+        }
+      }
+    },
+    "Set Up Shortcuts" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thiết lập Phím tắt"
           }
         }
       }
@@ -1657,6 +2299,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đặt Số tiền và Người bán của tác vụ theo Số tiền và Người bán trong Đầu vào phím tắt."
+          }
+        }
+      }
+    },
+    "Set up one for each bank. With Apple Intelligence, Riêng Tư reads each one for the amount, whether it’s spending, income or a transfer, and its category." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tạo một mục cho mỗi ngân hàng. Với Apple Intelligence, Riêng Tư đọc từng thông báo để biết số tiền, đó là khoản chi, khoản thu hay chuyển tiền, và danh mục của nó."
           }
         }
       }
@@ -1741,12 +2393,32 @@
         }
       }
     },
+    "Start Reading" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bắt đầu đọc"
+          }
+        }
+      }
+    },
     "Start over with an empty ledger?" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bắt đầu lại với sổ thu chi trống?"
+          }
+        }
+      }
+    },
+    "Starting…" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang bắt đầu…"
           }
         }
       }
@@ -1911,32 +2583,52 @@
         }
       }
     },
-    "Tap one to add it to the ledger, or swipe to dismiss it." : {
+    "Text from the Screenshot" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chạm vào một khoản để thêm vào sổ thu chi, hoặc vuốt để bỏ qua."
+            "value" : "Chữ trên ảnh chụp màn hình"
           }
         }
       }
     },
-    "That’s already in the inbox." : {
+    "The messages are deleted. What you added stays in the ledger, and what waits in the inbox stays there." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Giao dịch này đã có trong Giao dịch chờ."
+            "value" : "Các tin nhắn sẽ bị xóa. Những gì bạn đã thêm vẫn ở trong sổ thu chi, và những gì đang chờ vẫn ở trong Giao dịch chờ."
           }
         }
       }
     },
-    "There was nothing to add." : {
+    "The screen stays on until it’s done. Keep Riêng Tư open while it reads." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Không có gì để thêm."
+            "value" : "Màn hình sẽ luôn sáng cho đến khi xong. Hãy để Riêng Tư mở trong khi đọc."
+          }
+        }
+      }
+    },
+    "The screen stays on until it’s done. To turn it off, press the side button: Riêng Tư goes on reading, more slowly on battery, and shows how far it’s got on the Lock Screen." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Màn hình sẽ luôn sáng cho đến khi xong. Để tắt màn hình, hãy bấm nút sườn: Riêng Tư vẫn tiếp tục đọc, chậm hơn khi dùng pin, và hiện tiến độ trên Màn hình khóa."
+          }
+        }
+      }
+    },
+    "They were all in the inbox or its history already." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tất cả đã có trong Giao dịch chờ hoặc lịch sử của nó."
           }
         }
       }
@@ -1987,6 +2679,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đến"
+          }
+        }
+      }
+    },
+    "To add transactions from before, take screenshots of your bank app’s transaction history, each transaction whole on at least one, with its day’s heading if you can. Then in the Inbox, tap the Add button and choose From Photos." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Để thêm các giao dịch trước đây, hãy chụp màn hình lịch sử giao dịch trong ứng dụng ngân hàng, mỗi giao dịch hiện đầy đủ trên ít nhất một ảnh, kèm tiêu đề ngày nếu được. Sau đó trong Giao dịch chờ, chạm vào nút Thêm và chọn Từ Ảnh."
           }
         }
       }
@@ -2221,6 +2923,16 @@
         }
       }
     },
+    "Waiting" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang chờ"
+          }
+        }
+      }
+    },
     "Weight" : {
       "localizations" : {
         "vi" : {
@@ -2237,6 +2949,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Số tiền bạn có thể bán được hôm nay."
+          }
+        }
+      }
+    },
+    "What you add or dismiss from the inbox stays here with its message for a while, then it’s deleted." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Những gì bạn thêm hoặc bỏ qua từ Giao dịch chờ được giữ ở đây cùng tin nhắn gốc một thời gian, rồi sẽ bị xóa."
           }
         }
       }
@@ -2267,6 +2989,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hôm qua"
+          }
+        }
+      }
+    },
+    "Your bank’s notifications and emails, and your Apple Pay payments, wait here once Shortcuts sends them, for you to check and add. You can add past transactions from screenshots too." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thông báo và email của ngân hàng, cùng các khoản thanh toán Apple Pay, sẽ chờ ở đây khi Phím tắt gửi đến, để bạn kiểm tra và thêm. Bạn cũng có thể thêm giao dịch trước đây từ ảnh chụp màn hình."
           }
         }
       }

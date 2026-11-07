@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var eraseFailed = false
     @State private var iCloudEraseFailed = false
     @AppStorage(Self.suggestsTagsKey) private var suggestsTags = true
+    @AppStorage(InboxHistoryDuration.key) private var historyDays = InboxHistoryDuration.standard.rawValue
 
     /// Whether Apple Intelligence suggests tags and categories for expenses in the editor. A setting,
     /// not spending data, so it can live in `UserDefaults`.
@@ -62,8 +63,21 @@ struct SettingsView: View {
                 NavigationLink("Capture Payments") {
                     CaptureHelpView()
                 }
+                NavigationLink("Inbox History") {
+                    InboxHistoryView()
+                }
+                Picker("Keep History", selection: $historyDays) {
+                    ForEach(InboxHistoryDuration.allCases) { duration in
+                        Text(duration.name).tag(duration.rawValue)
+                    }
+                }
+            } header: {
+                Text("Inbox")
             } footer: {
-                Text("Send your bank’s emails and your Apple Pay payments to the inbox with Shortcuts.")
+                Text("Send your bank’s notifications and emails, and your Apple Pay payments, to the inbox with Shortcuts. What you add or dismiss stays in the history with its message, then it’s deleted.")
+            }
+            .onChange(of: historyDays) { _, days in
+                try? inbox.deleteHistory(handledBefore: InboxHistoryDuration.days(days).cutoff(from: .now))
             }
 
             Section {

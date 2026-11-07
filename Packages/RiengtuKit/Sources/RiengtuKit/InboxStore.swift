@@ -2,8 +2,13 @@ import Foundation
 import Observation
 import os
 
-/// The money in and out waiting to be added to the ledger, newest first, saved to its own file
-/// after every change.
+/// The money in and out waiting to be added to the ledger, and the history of what was added or
+/// dismissed, newest first, saved to the inbox's database (`InboxDatabase`) with every change.
+///
+/// The Shortcuts actions only forward: a bank's notification or email goes in as it came, and is
+/// read in the app (`readNewItems()`), by Apple Intelligence where it's available. Once added or
+/// dismissed, an item stays in the history with its message, so the person can check what was
+/// read from it, until the app deletes the history after the time the person chose.
 ///
 /// On the main actor, because the app and its Shortcuts actions share one store: an action can
 /// run while the app is open.
@@ -12,152 +17,567 @@ import os
 public final class InboxStore {
     public enum CaptureResult: Equatable, Sendable {
         case added
-        /// The same message is already in the inbox.
+        /// The same message is already in the inbox or its history.
         case duplicate
         /// There was nothing in the message.
         case empty
     }
 
-    public private(set) var items: [CapturedTransaction]
+    /// Where the inbox's database is, and the file builds before it kept the inbox in.
+    public struct Location: Sendable {
+        public var directory: URL
+        public var legacyFile: InboxFile?
 
-    @ObservationIgnored private let file: InboxFile?
-    @ObservationIgnored private var isLoaded: Bool
+        public init(directory: URL, legacyFile: InboxFile?) {
+            self.directory = directory
+            self.legacyFile = legacyFile
+        }
+
+        /// The `Inbox` folder in the app's Application Support folder.
+        public static var applicationSupport: Location {
+            Location(directory: .applicationSupportDirectory.appending(path: "Inbox"), legacyFile: .applicationSupport)
+        }
+    }
+
+    /// Everything in the inbox and its history, newest first.
+    public private(set) var items: [CapturedTransaction] = []
+    /// Whether new items are being read.
+    public private(set) var isReading = false
+    /// The item being read now.
+    public private(set) var readingItemID: CapturedTransaction.ID?
+    /// How many have been read since reading started, and when it started, for how long is left.
+    public private(set) var readCount = 0
+    public private(set) var readingStartedAt: Date?
+    /// Whether reading stopped because the model can't read now, such as when iOS limits it for
+    /// an app in the background. It goes on next time it starts.
+    public private(set) var isWaitingForModel = false
+
+    @ObservationIgnored private var readingTask: Task<Void, Never>?
+    @ObservationIgnored private var readingID: UUID?
+
+    @ObservationIgnored private let location: Location?
+    /// Opened when it's first needed, since it can't be before the device's first unlock.
+    @ObservationIgnored private var database: InboxDatabase?
 
     private static let logger = Logger(subsystem: "vn.riengtu", category: "InboxStore")
 
     /// The longest message kept: enough for any notice, without a long email's footer.
     static let maximumTextLength = 5_000
 
-    public init(file: InboxFile) {
-        self.file = file
-        items = []
-        isLoaded = false
+    public init(location: Location) {
+        self.location = location
     }
 
-    /// A store that keeps `items` in memory and saves nothing, for previews and tests.
+    /// A store with a database in memory, for previews and tests.
     public init(inMemory items: [CapturedTransaction] = []) {
-        file = nil
-        self.items = items
-        isLoaded = true
+        location = nil
+        // An in-memory database can't fail to open.
+        let database = try! InboxDatabase()
+        try! database.save(items)
+        self.database = database
+        self.items = (try? database.items()) ?? []
     }
 
-    /// Reads the file again, since Shortcuts may have added to it. If it can't be read now, the
-    /// next call tries again. If it's damaged, it's set aside and the inbox starts empty: nothing
-    /// in it is an expense yet.
+    /// What waits to be added or dismissed, the latest transaction first.
+    public var pending: [CapturedTransaction] {
+        items.filter(\.isPending).sorted { $0.date > $1.date }
+    }
+
+    /// How many wait to be read.
+    public var unreadCount: Int {
+        items.count { $0.isPending && !$0.wasRead }
+    }
+
+    /// What was added or dismissed, most recently first.
+    public var history: [CapturedTransaction] {
+        items.filter { !$0.isPending }.sorted { $0.handledAt! > $1.handledAt! }
+    }
+
+    /// The item an entry was added from, while it's in the history.
+    public func item(forEntry id: Entry.ID) -> CapturedTransaction? {
+        items.first { $0.entryID == id }
+    }
+
+    /// Reads the database again, since Shortcuts may have added to it. If it can't be opened now,
+    /// the next call tries again.
     public func load() {
-        guard let file else { return }
         do {
-            items = try file.load()
-            isLoaded = true
-        } catch is DecodingError {
-            Self.logger.error("The inbox file is damaged. Starting an empty inbox.")
-            try? FileManager.default.removeItem(at: file.url)
-            items = []
-            isLoaded = true
+            try loadIfNeeded()
+            if let database { items = try database.items() }
         } catch {
-            Self.logger.error("Can't read the inbox file yet: \(error.localizedDescription, privacy: .public)")
+            Self.logger.error("Can't read the inbox yet: \(error.localizedDescription, privacy: .public)")
         }
     }
 
-    /// Puts the transaction a bank's message describes in the inbox, whether money went out or
-    /// came in. One that doesn't say is taken as money out.
-    public func capture(message text: String, now: Date = .now, timeZone: TimeZone = .current) throws -> CaptureResult {
+    /// Puts a bank's notification, email or message in the inbox as it came, to be read in the
+    /// app. Only forwards, so the action is quick, and works while the device is locked.
+    public func capture(message text: String, now: Date = .now) throws -> CaptureResult {
         let text = String(text.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maximumTextLength))
         guard !text.isEmpty else { return .empty }
-        let reading = TransactionText.read(text, timeZone: timeZone)
-
         try loadIfNeeded()
-        if items.contains(where: { $0.text == text }) { return .duplicate }
+        if items.contains(where: { $0.source == .bankMessage && $0.text == text }) { return .duplicate }
         let item = CapturedTransaction(
-            source: .bankMessage,
-            capturedAt: now,
-            date: reading.date ?? now,
-            amount: reading.amount,
-            currencyCode: reading.currencyCode,
-            isMoneyIn: reading.direction == .moneyIn,
-            description: reading.description,
-            text: text
+            source: .bankMessage, capturedAt: now, date: now, amount: nil, currencyCode: nil, description: "", text: text
         )
-        try commit { $0.insert(item, at: 0) }
+        try insert(item)
         return .added
     }
 
-    /// Puts a card payment, such as one from Apple Pay, in the inbox. Without an amount, as when
-    /// Wallet doesn't pass one on, it's still added, and the amount is typed in when it's added
-    /// to the ledger.
-    public func capturePayment(amount: Decimal?, currencyCode: String?, merchant: String, now: Date = .now) throws -> CaptureResult {
-        if let amount, amount <= 0 { return .empty }
+    /// Puts a card payment, such as one from Apple Pay, in the inbox. `amount` is the text the
+    /// automation passes on, such as Wallet's "45.000 ₫" (`TransactionText.amount`). Without an
+    /// amount, as when Wallet doesn't pass one on, it's still added, and the amount is typed in
+    /// when it's added to the ledger. Text that isn't an amount is kept for the person to see.
+    public func capturePayment(amount text: String?, merchant: String, now: Date = .now) throws -> CaptureResult {
+        let text = String((text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maximumAmountTextLength))
+        let amount = TransactionText.amount(text)
+        // Such as a transit card's tap.
+        if let amount, amount.value <= 0 { return .empty }
         try loadIfNeeded()
         let item = CapturedTransaction(
             source: .payment,
             capturedAt: now,
             date: now,
-            amount: amount,
-            currencyCode: amount == nil ? nil : currencyCode,
-            description: Tags.tidy(merchant)
+            amount: amount?.value,
+            currencyCode: amount?.currencyCode,
+            description: Tags.tidy(merchant),
+            text: amount == nil ? text : ""
         )
-        try commit { $0.insert(item, at: 0) }
+        try insert(item)
         return .added
     }
 
-    public func remove(id: CapturedTransaction.ID) throws {
-        try loadIfNeeded()
-        try commit { $0.removeAll { $0.id == id } }
-    }
+    static let maximumAmountTextLength = 100
 
-    /// Empties the inbox, and deletes its file.
-    public func removeAll() throws {
-        try file?.delete()
-        items = []
-        isLoaded = true
-    }
+    public struct ImportResult: Equatable, Sendable {
+        public var added: Int
+        /// Already in the inbox or its history, from another screenshot or a notification.
+        public var alreadyThere: Int
 
-    /// Reads new bank messages with Apple Intelligence, for a cleaner description and any amount
-    /// the rules missed. Each is read once, while the app is open.
-    public func readNewMessages() async {
-        guard ExpenseTagger.availability == .available else { return }
-        let unread = items.filter { $0.source == .bankMessage && !$0.wasRead && !$0.text.isEmpty }
-        for item in unread {
-            let reading: TransactionText.Reading?
-            do {
-                reading = try await TransactionReader.read(item.text)
-            } catch is CancellationError {
-                return
-            } catch {
-                // Such as a language the model doesn't support. The rules' reading stays.
-                reading = nil
-            }
-            guard !Task.isCancelled else { return }
-            // The person may have added or dismissed it meanwhile.
-            guard let index = items.firstIndex(where: { $0.id == item.id }) else { continue }
-            var updated = items[index]
-            updated.wasRead = true
-            if let reading {
-                if !reading.description.isEmpty { updated.description = reading.description }
-                if updated.amount == nil, let amount = reading.amount {
-                    updated.amount = amount
-                    updated.currencyCode = updated.currencyCode ?? reading.currencyCode
-                }
-            }
-            try? commit { $0[index] = updated }
+        public init(added: Int, alreadyThere: Int) {
+            self.added = added
+            self.alreadyThere = alreadyThere
         }
     }
 
-    private func loadIfNeeded() throws {
-        guard !isLoaded, let file else { return }
-        items = try file.load()
-        isLoaded = true
+    /// Puts the transactions in files the person picked in the inbox (`FileText`), to be read as
+    /// forwarded messages are. One already there, with the same text, is left out; a file's rows
+    /// can't be told apart from a notification's otherwise, since a file often gives only the day.
+    public func importFile(_ messages: [String], now: Date = .now, timeZone: TimeZone = .current) throws -> ImportResult {
+        try loadIfNeeded()
+        var added: [CapturedTransaction] = []
+        for message in messages {
+            let text = String(message.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maximumTextLength))
+            guard !text.isEmpty, !(items + added).contains(where: { $0.text == text }) else { continue }
+            let date = TransactionText.read(text, timeZone: timeZone).date ?? now
+            added.append(CapturedTransaction(
+                source: .file, capturedAt: now, date: date, amount: nil, currencyCode: nil, description: "", text: text
+            ))
+        }
+        try database?.save(added.sorted { $0.date < $1.date })
+        items = added.sorted { $0.date > $1.date } + items
+        return ImportResult(added: added.count, alreadyThere: messages.count - added.count)
     }
 
-    private func commit(_ change: (inout [CapturedTransaction]) -> Void) throws {
-        var changed = items
-        change(&changed)
+    /// Puts transactions found on screenshots in the inbox, to be read as forwarded messages
+    /// are. One that's already there, or in the history, is left out: the same transaction on
+    /// another screenshot, or a notification for it.
+    public func importScreenshots(
+        _ transactions: [ScreenshotText.Transaction], now: Date = .now, timeZone: TimeZone = .current
+    ) throws -> ImportResult {
+        try loadIfNeeded()
+        // Ones dated by a heading first, so they're kept over the same ones with a guessed day.
+        let ordered = transactions.filter { !$0.isDayGuessed } + transactions.filter(\.isDayGuessed)
+        var added: [CapturedTransaction] = []
+        for transaction in ordered {
+            let item = CapturedTransaction(
+                source: .screenshot, capturedAt: now, date: transaction.date, amount: nil, currencyCode: nil,
+                description: "", text: String(transaction.text.prefix(Self.maximumTextLength))
+            )
+            guard !(items + added).contains(where: { $0.isSameTransaction(as: item, timeZone: timeZone) }) else { continue }
+            added.append(item)
+        }
+        // Saved oldest first, so the newest comes first when they're loaded again.
+        try database?.save(added.sorted { $0.date < $1.date })
+        items = added.sorted { $0.date > $1.date } + items
+        return ImportResult(added: added.count, alreadyThere: transactions.count - added.count)
+    }
+
+    /// Moves an item to the history once it's been added to the ledger as `entryID`.
+    public func markAdded(id: CapturedTransaction.ID, as entryID: Entry.ID, now: Date = .now) throws {
+        try update(id: id) {
+            $0.handledAt = now
+            $0.entryID = entryID
+        }
+    }
+
+    /// Moves an item to the history without adding it.
+    public func dismiss(id: CapturedTransaction.ID, now: Date = .now) throws {
+        try update(id: id) { $0.handledAt = now }
+    }
+
+    /// Deletes an item, from the inbox or its history.
+    public func remove(id: CapturedTransaction.ID) throws {
+        try loadIfNeeded()
+        try database?.delete(ids: [id])
+        items.removeAll { $0.id == id }
+    }
+
+    /// Deletes what was added or dismissed before `date`, or everything in the history when
+    /// it's `nil`. What waits in the inbox stays.
+    public func deleteHistory(handledBefore date: Date? = nil) throws {
+        try loadIfNeeded()
+        guard let database else { return }
+        try database.deleteHistory(handledBefore: date)
+        items = try database.items()
+    }
+
+    /// Empties the inbox and its history.
+    public func removeAll() throws {
+        try loadIfNeeded()
+        try database?.deleteAll()
+        items = []
+    }
+
+    /// Starts reading what's new, unless it's reading already. It goes on until nothing new is
+    /// left, including what arrives meanwhile.
+    public func startReading() {
+        guard readingTask == nil else { return }
+        let id = UUID()
+        readingID = id
+        isReading = true
+        isWaitingForModel = false
+        readCount = 0
+        readingStartedAt = .now
+        readingTask = Task {
+            await readNewItems()
+            // Then the whole inbox, together.
+            try? joinPairs()
+            // Unless it was stopped, and maybe started again, meanwhile.
+            guard readingID == id else { return }
+            readingTask = nil
+            isReading = false
+        }
+    }
+
+    /// Looks at everything read that waits in the inbox together, once each has been read on its
+    /// own, for two messages about the same money, and keeps one:
+    ///
+    /// - The two sides of a transfer between the person's own accounts: money out of one account,
+    ///   and the same amount into another, within 10 minutes, or 30 when both carry the same
+    ///   reference code. It nets to zero, so by the user's choice both are left out, to the
+    ///   history. Not when both name the same account, as when money is passed on.
+    /// - A transaction that came twice, such as a payment from Wallet and the bank's message about
+    ///   it: the same amount the same way within 2 minutes, from different sources or with the
+    ///   same balance. The fuller message is kept.
+    ///
+    /// What's left out moves to the history, joined to the other (`pairedID`), where the person
+    /// can put it back (`split`). Returns how many pairs.
+    @discardableResult
+    public func joinPairs(now: Date = .now) throws -> Int {
+        try loadIfNeeded()
+        var candidates = pending.filter { $0.wasRead && $0.amount != nil && $0.pairedID == nil }
+            .sorted { $0.date < $1.date }
+        var joined = 0
+        func same(_ a: CapturedTransaction, _ b: CapturedTransaction) -> Bool {
+            a.amount == b.amount && (a.currencyCode ?? "VND") == (b.currencyCode ?? "VND")
+        }
+        func seconds(_ a: CapturedTransaction, _ b: CapturedTransaction) -> TimeInterval {
+            abs(a.date.timeIntervalSince(b.date))
+        }
+        func join(keeping kept: CapturedTransaction, hiding other: CapturedTransaction, asTransfer: Bool) throws {
+            try update(id: kept.id) {
+                $0.pairedID = other.id
+                if asTransfer {
+                    $0.isTransfer = true
+                    $0.handledAt = now
+                }
+            }
+            try update(id: other.id) {
+                $0.pairedID = kept.id
+                $0.handledAt = now
+            }
+            candidates.removeAll { $0.id == kept.id || $0.id == other.id }
+            joined += 1
+        }
+
+        // Transfers between the person's own accounts.
+        for out in candidates where !out.isMoneyIn {
+            guard candidates.contains(where: { $0.id == out.id }) else { continue }
+            let outCodes = TransactionText.codes(in: out.text)
+            let outAccounts = TransactionText.accounts(in: out.text)
+            let match = candidates
+                .filter { item in
+                    guard item.isMoneyIn, same(out, item) else { return false }
+                    let accounts = TransactionText.accounts(in: item.text)
+                    if !accounts.isEmpty, !outAccounts.isDisjoint(with: accounts) { return false }
+                    let sharesCode = !outCodes.isDisjoint(with: TransactionText.codes(in: item.text))
+                    return seconds(out, item) <= (sharesCode ? 1_800 : 600)
+                }
+                .min { seconds(out, $0) < seconds(out, $1) }
+            if let match { try join(keeping: out, hiding: match, asTransfer: true) }
+        }
+
+        // A transaction that came twice.
+        for item in candidates {
+            guard candidates.contains(where: { $0.id == item.id }) else { continue }
+            let balances = TransactionText.balances(in: item.text)
+            let match = candidates.first { other in
+                guard other.id != item.id, other.isMoneyIn == item.isMoneyIn, same(item, other), seconds(item, other) <= 120
+                else { return false }
+                let otherBalances = TransactionText.balances(in: other.text)
+                return other.source != item.source || (!balances.isEmpty && !balances.isDisjoint(with: otherBalances))
+            }
+            guard let match else { continue }
+            // The bank's message over a payment, or the longer one.
+            let keepsItem = item.source != .payment && (match.source == .payment || item.text.count >= match.text.count)
+            try join(keeping: keepsItem ? item : match, hiding: keepsItem ? match : item, asTransfer: false)
+        }
+        return joined
+    }
+
+    /// Puts an item that was dismissed or left out back in the inbox, with the other message it
+    /// was joined to. Not one that was added, which would add it twice.
+    public func putBack(id: CapturedTransaction.ID) throws {
+        try loadIfNeeded()
+        guard let item = items.first(where: { $0.id == id }), item.entryID == nil else { return }
+        if item.pairedID != nil {
+            try split(id: id)
+        } else {
+            try update(id: id) { $0.handledAt = nil }
+        }
+    }
+
+    /// Whether an item was left out as one side of a transfer between the person's own accounts.
+    public func isOwnTransferSide(_ item: CapturedTransaction) -> Bool {
+        guard let otherID = item.pairedID, let other = items.first(where: { $0.id == otherID }) else { return false }
+        return item.isMoneyIn != other.isMoneyIn
+    }
+
+    /// Undoes a join, from either message: they're two transactions, each waiting in the inbox
+    /// again, and a transfer's sides are expense and income again.
+    public func split(id: CapturedTransaction.ID) throws {
+        try loadIfNeeded()
+        guard let item = items.first(where: { $0.id == id }), let otherID = item.pairedID else { return }
+        let wasTransfer = isOwnTransferSide(item)
+        for id in [id, otherID] {
+            try update(id: id) {
+                $0.pairedID = nil
+                $0.handledAt = nil
+                if wasTransfer { $0.isTransfer = false }
+            }
+        }
+    }
+
+    /// Stops reading, such as when the app goes to the background. What wasn't read yet is read
+    /// next time.
+    public func stopReading() {
+        readingTask?.cancel()
+        readingTask = nil
+        readingID = nil
+        isReading = false
+    }
+
+    /// Reads what's new in the inbox, one item at a time, saving each. With Apple Intelligence
+    /// (`usingModel`), the model reads each message: the amount, what kind it is, where income
+    /// came from, and what for; then it picks an expense's category. The rules
+    /// (`TransactionText`) check the model's amount, and read the message on their own where the
+    /// model isn't available or can't answer.
+    func readNewItems(
+        usingModel: Bool = ExpenseTagger.availability == .available, timeZone: TimeZone = .current
+    ) async {
+        defer { readingItemID = nil }
+        while let item = pending.last(where: { !$0.wasRead }) {
+            // Oldest first, as the person would have added them.
+            readingItemID = item.id
+            var read = item
+            if item.source != .payment {
+                var answer: TransactionReader.Answer?
+                if usingModel {
+                    do {
+                        answer = try await TransactionReader.read(item.text)
+                    } catch is CancellationError {
+                        return
+                    } catch is TransactionReader.TryLaterError {
+                        // It stays unread, for when the model can read it.
+                        isWaitingForModel = true
+                        return
+                    } catch {
+                        // Such as a language the model doesn't support. The rules read it.
+                    }
+                }
+                read.fill(from: answer, timeZone: timeZone)
+            }
+            // Not for a payment whose description is only the sender's name, which the model
+            // would guess a category for.
+            if usingModel, !read.isMoneyIn, !read.isTransfer, !read.description.isEmpty,
+               !TransactionText.isDefaultTransferContent(read.description) {
+                do {
+                    read.expenseCategory = try await ExpenseTagger.suggest(
+                        note: read.description, amount: read.amount, currencyCode: read.currencyCode ?? "VND", tags: []
+                    ).category
+                } catch where TransactionReader.isTemporary(error) {
+                    isWaitingForModel = true
+                    return
+                } catch {
+                    // No category, so it's "other".
+                }
+            }
+            guard !Task.isCancelled else { return }
+            read.wasRead = true
+            // The person may have added or dismissed it meanwhile.
+            guard items.contains(where: { $0.id == item.id && $0.isPending }) else { continue }
+            do {
+                try update(id: item.id) { $0 = read }
+            } catch {
+                return
+            }
+            readCount += 1
+        }
+    }
+
+    /// Opens the database the first time it's needed, moving in the file builds before it kept
+    /// the inbox in. A damaged database is deleted and the inbox starts empty: nothing in it is in
+    /// the ledger yet.
+    private func loadIfNeeded() throws {
+        guard database == nil, let location else { return }
+        let database: InboxDatabase
         do {
-            try file?.save(changed)
+            database = try InboxDatabase(directory: location.directory)
+        } catch where LedgerDatabase.isDamaged(error) {
+            Self.logger.error("The inbox's database is damaged. Starting an empty inbox.")
+            try FileManager.default.removeItem(at: InboxDatabase.file(in: location.directory))
+            database = try InboxDatabase(directory: location.directory)
+        }
+        if let legacy = location.legacyFile {
+            do {
+                try database.save(try legacy.load())
+                try legacy.delete()
+            } catch is DecodingError {
+                Self.logger.error("The inbox file is damaged. Leaving it out.")
+                try legacy.delete()
+            } catch InboxFile.LoadError.newerVersion {
+                // From a later build, which has a database too. Left as it is.
+            }
+        }
+        items = try database.items()
+        self.database = database
+    }
+
+    private func insert(_ item: CapturedTransaction) throws {
+        try database?.save([item])
+        items.insert(item, at: 0)
+    }
+
+    private func update(id: CapturedTransaction.ID, _ change: (inout CapturedTransaction) -> Void) throws {
+        try loadIfNeeded()
+        guard let index = items.firstIndex(where: { $0.id == id }) else { return }
+        var item = items[index]
+        change(&item)
+        do {
+            try database?.save([item])
         } catch {
             Self.logger.error("Can't save the inbox: \(error.localizedDescription, privacy: .public)")
             throw error
         }
-        items = changed
+        items[index] = item
+    }
+}
+
+extension CapturedTransaction {
+    /// Whether two are the same transaction. On two screenshots, the same one has the same time
+    /// and amounts, the balance among them, whatever day was guessed for it; otherwise, the same
+    /// amount within two minutes, such as a screenshot of one a notification was forwarded for.
+    func isSameTransaction(as other: CapturedTransaction, timeZone: TimeZone) -> Bool {
+        // A file's rows often give only the day, so two the same that day are two.
+        if source == .file || other.source == .file { return text == other.text }
+        if source == .screenshot, other.source == .screenshot {
+            if text == other.text { return true }
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = timeZone
+            let time = calendar.dateComponents([.hour, .minute], from: date)
+            return time == calendar.dateComponents([.hour, .minute], from: other.date)
+                && TransactionText.amounts(in: text).map(\.value) == TransactionText.amounts(in: other.text).map(\.value)
+        }
+        guard let amount = amount ?? TransactionText.read(text, timeZone: timeZone).amount,
+              amount == other.amount ?? TransactionText.read(other.text, timeZone: timeZone).amount
+        else { return false }
+        return abs(date.timeIntervalSince(other.date)) <= 120
+    }
+
+    /// When the money moved: what the message says, or when it arrived. A message that gives
+    /// only the day, such as "Ngay 05/11/2026", is read as midnight, so on the day it arrived,
+    /// the time it arrived is closer.
+    static func date(_ read: Date?, capturedAt: Date, timeZone: TimeZone) -> Date {
+        guard let read else { return capturedAt }
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        if read == calendar.startOfDay(for: read), calendar.isDate(read, inSameDayAs: capturedAt) {
+            return capturedAt
+        }
+        return read
+    }
+
+    /// Fills in what a bank's message says, from what Apple Intelligence read (`answer`), checked
+    /// with the rules, or from the rules alone without it.
+    ///
+    /// The model sometimes gives the balance as the amount, so its amount is used only if it's
+    /// one the message gives and not the balance; otherwise the rules' is. A + or − in front of
+    /// the amount says plainly which way it went, over the kind the model read.
+    mutating func fill(from answer: TransactionReader.Answer?, timeZone: TimeZone) {
+        let rules = TransactionText.read(text, timeZone: timeZone)
+        let amounts = TransactionText.amounts(in: text)
+        // A screenshot's or a file's transaction is dated by what it says, not when it was imported.
+        date = Self.date(rules.date, capturedAt: source == .screenshot || source == .file ? date : capturedAt, timeZone: timeZone)
+        guard let answer else {
+            amount = rules.amount
+            currencyCode = rules.currencyCode
+            isMoneyIn = rules.direction == .moneyIn
+            description = rules.description
+            return
+        }
+
+        let moved = amounts.filter { !$0.isBalance }
+        // Where the rules found no amount, the model's must still be a number in the message.
+        if let value = answer.amount,
+           !amounts.contains(where: { $0.isBalance && $0.value == value }),
+           moved.isEmpty ? TransactionText.numbers(in: text).contains(value) : moved.contains(where: { $0.value == value }) {
+            amount = value
+            currencyCode = moved.first { $0.value == value }?.currencyCode ?? answer.currencyCode ?? rules.currencyCode
+        } else {
+            amount = rules.amount
+            currencyCode = rules.currencyCode
+        }
+        if let signed = amounts.first(where: { $0.isSigned && $0.value == amount }) {
+            isMoneyIn = signed.direction == .moneyIn
+        } else {
+            switch answer.kind {
+            case .income: isMoneyIn = true
+            case .spending: isMoneyIn = false
+            case .transfer: isMoneyIn = rules.direction == .moneyIn
+            }
+        }
+        isTransfer = answer.kind == .transfer
+        // The rules copy the words a label such as "Nội dung" gives, as the model is asked to,
+        // and the model sometimes gives other words, or makes some up. So its description is
+        // used where no label gives one, and only if it's from the message; it's tidier than the
+        // whole line the rules take after the balance.
+        if let labeled = TransactionText.labeledDescription(in: text).map(TransactionText.clean), !labeled.isEmpty {
+            description = labeled
+        } else if TransactionText.isWritten(answer.description, in: text) {
+            description = answer.description
+        } else {
+            description = rules.description
+        }
+        // A refund says so plainly, and money from someone whose transfer says only their name
+        // doesn't say what it was for.
+        if !isMoneyIn || isTransfer {
+            incomeCategory = nil
+        } else if TransactionText.isRefund(text) {
+            incomeCategory = .refunds
+        } else if TransactionText.isDefaultTransferContent(description) {
+            incomeCategory = .other
+        } else {
+            incomeCategory = answer.incomeCategory ?? .other
+        }
     }
 }

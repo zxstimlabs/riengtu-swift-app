@@ -31,6 +31,12 @@ public enum Currencies {
         currencyFormatter(code: code, locale: locale).currencySymbol
     }
 
+    /// Whether the currency's symbol goes after an amount in every language, as Vietnamese write
+    /// đồng: "45.000 ₫", not "₫45,000".
+    public static func writesSymbolAfter(_ code: String) -> Bool {
+        code == "VND"
+    }
+
     private static func isValidCode(_ code: String) -> Bool {
         // XXX is ISO 4217's "no currency".
         code.count == 3 && code.allSatisfy(\.isUppercase) && code != "XXX"

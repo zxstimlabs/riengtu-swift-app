@@ -113,3 +113,47 @@ struct LedgerTests {
         #expect(categories == [.food, .other])
     }
 }
+
+/// What Add All saves for each item in the inbox.
+struct AddAllTests {
+    static func item(amount: Decimal? = 45_000, currencyCode: String? = "VND", isMoneyIn: Bool = false) -> CapturedTransaction {
+        CapturedTransaction(
+            source: .bankMessage, capturedAt: AssetTests.date, date: AssetTests.date, amount: amount,
+            currencyCode: currencyCode, isMoneyIn: isMoneyIn, expenseCategory: .food, incomeCategory: .salary,
+            description: "Phở", text: "-45,000 VND", wasRead: true
+        )
+    }
+
+    @Test func addsAnExpenseFromTheLastAccount() throws {
+        var ledger = Ledger()
+        ledger.save(EntryTests.bank)
+        ledger.save(Entry(kind: .expense(.drinks, account: EntryTests.bank.id), amount: 30_000, currencyCode: "VND", date: AssetTests.date))
+        let entry = try #require(ledger.entry(adding: Self.item(), currencyCode: "USD"))
+        #expect(entry.kind == .expense(.food, account: EntryTests.bank.id))
+        #expect(entry.amount == 45_000)
+        #expect(entry.currencyCode == "VND")
+        #expect(entry.date == AssetTests.date)
+        #expect(entry.note == "Phở")
+        #expect(entry.tags.isEmpty)
+    }
+
+    @Test func addsIncomeWithoutAnAccountInAnotherCurrency() throws {
+        var ledger = Ledger()
+        ledger.save(EntryTests.dollars)
+        ledger.save(Entry(kind: .income(.gifts, account: EntryTests.dollars.id), amount: 20, currencyCode: "USD", date: AssetTests.date))
+        let entry = try #require(ledger.entry(adding: Self.item(isMoneyIn: true), currencyCode: "USD"))
+        #expect(entry.kind == .income(.salary, account: nil))
+    }
+
+    @Test func addsOnlyWhatsReady() {
+        var unread = Self.item()
+        unread.wasRead = false
+        var transfer = Self.item()
+        transfer.isTransfer = true
+        var handled = Self.item()
+        handled.handledAt = .now
+        for item in [unread, transfer, handled, Self.item(amount: nil)] {
+            #expect(Ledger().entry(adding: item, currencyCode: "VND") == nil)
+        }
+    }
+}

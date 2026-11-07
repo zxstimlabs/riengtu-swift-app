@@ -57,7 +57,8 @@ struct EntryEditor: View {
         self.init(entry: entry, captured: nil, currencyCode: defaultCurrencyCode)
     }
 
-    /// A new entry from the inbox: income if the money came in, otherwise an expense.
+    /// A new entry from the inbox, as it was read: a transfer, income, or an expense, in the
+    /// category Apple Intelligence chose.
     init(capturing item: CapturedTransaction, currencyCode defaultCurrencyCode: String) {
         self.init(entry: nil, captured: item, currencyCode: defaultCurrencyCode)
     }
@@ -76,10 +77,11 @@ struct EntryEditor: View {
         _tags = State(initialValue: entry?.tags ?? [])
         _categoryWasPicked = State(initialValue: entry != nil)
 
-        var mode = captured?.isMoneyIn == true ? Mode.income : .expense
-        var expenseCategory = ExpenseCategory.food
-        // Money that came in from the inbox is often someone paying back, not pay.
-        var incomeCategory = captured == nil ? IncomeCategory.salary : .other
+        var mode = captured?.isTransfer == true ? Mode.transfer : captured?.isMoneyIn == true ? .income : .expense
+        // From the inbox, a category that wasn't chosen is "other", as Add All saves it. Money
+        // that came in from the inbox is often someone paying back, not pay.
+        var expenseCategory = captured.map { $0.expenseCategory ?? .other } ?? .food
+        var incomeCategory = captured.map { $0.incomeCategory ?? .other } ?? .salary
         var account: Asset.ID?
         var from: Entry.Leg?, to: Entry.Leg?
         switch entry?.kind {
@@ -111,6 +113,12 @@ struct EntryEditor: View {
     }
 
     // MARK: Values
+
+    /// The bank's message or payment the entry came from: the one being added, or for an entry
+    /// added from the inbox, the one in the inbox's history, until that's deleted.
+    private var message: CapturedTransaction? {
+        captured ?? original.flatMap { inbox.item(forEntry: $0.id) }
+    }
 
     private var amount: Decimal? {
         NumberField.number(in: amountText).flatMap { $0 > 0 ? $0 : nil }
@@ -210,13 +218,21 @@ struct EntryEditor: View {
                     }
                 }
 
-                if let captured, !captured.text.isEmpty {
+                if let message, !message.text.isEmpty {
                     Section {
-                        DisclosureGroup("Bank Message") {
-                            Text(verbatim: captured.text)
+                        DisclosureGroup {
+                            Text(verbatim: message.text)
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                                 .textSelection(.enabled)
+                        } label: {
+                            switch message.source {
+                            case .bankMessage: Text("Bank Message")
+                            // What Wallet passed as the amount, when it couldn't be read.
+                            case .payment: Text("Amount from Wallet")
+                            case .screenshot: Text("Text from the Screenshot")
+                            case .file: Text("From the File")
+                            }
                         }
                     }
                 }
@@ -286,14 +302,14 @@ struct EntryEditor: View {
 
     private var amountSection: some View {
         Section {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(Currencies.symbol(for: currencyCode, locale: NumberField.locale))
-                    .foregroundStyle(.secondary)
+            AmountWithSymbol(code: currencyCode) {
                 NumberField(title: Text("Amount"), text: $amountText, fractionDigits: fractionDigits)
                     .focused($amountIsFocused)
             }
             .font(.system(.largeTitle, design: .rounded, weight: .semibold))
             .monospacedDigit()
+            .contentShape(.rect)
+            .onTapGesture { amountIsFocused = true }
 
             // An account's or an asset's money is in its currency.
             if mode == .transfer ? fromAsset == nil : asset(account) == nil {
@@ -401,9 +417,7 @@ struct EntryEditor: View {
             }
         case .money(let asset):
             LabeledContent {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text(Currencies.symbol(for: asset.currencyCode, locale: NumberField.locale))
-                        .foregroundStyle(.secondary)
+                AmountWithSymbol(code: asset.currencyCode, spacing: 4) {
                     NumberField(title: Text("Received"), text: text, fractionDigits: Currencies.fractionDigits(for: asset.currencyCode))
                         .multilineTextAlignment(.trailing)
                 }
@@ -498,7 +512,7 @@ struct EntryEditor: View {
             if let captured {
                 // The entry is saved either way. If this fails, the transaction stays in the
                 // inbox.
-                try? inbox.remove(id: captured.id)
+                try? inbox.markAdded(id: captured.id, as: entry.id)
             }
             savedCount += 1
             dismiss()

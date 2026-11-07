@@ -112,6 +112,27 @@ public struct Ledger: Equatable, Sendable {
         return nil
     }
 
+    /// The entry Add All saves for an item from the inbox, as its editor would open it: an expense
+    /// or income in the category Apple Intelligence chose, or "other", from or into the account
+    /// the last one used, if that's in the item's currency. `nil` for an item that isn't ready
+    /// (`CapturedTransaction.isReadyToAdd`).
+    public func entry(adding item: CapturedTransaction, currencyCode defaultCurrencyCode: String) -> Entry? {
+        guard item.isReadyToAdd, let amount = item.amount else { return nil }
+        let currencyCode = item.currencyCode ?? defaultCurrencyCode
+        let account = lastAccount(for: item.isMoneyIn ? .moneyIn : .moneyOut)
+            .flatMap { asset(id: $0) }
+            .flatMap { $0.currencyCode == currencyCode ? $0.id : nil }
+        return Entry(
+            kind: item.isMoneyIn
+                ? .income(item.incomeCategory ?? .other, account: account)
+                : .expense(item.expenseCategory ?? .other, account: account),
+            amount: amount,
+            currencyCode: currencyCode,
+            date: item.date,
+            note: item.description
+        )
+    }
+
     /// The entries grouped by the day they're on in `calendar`, newest day first: only the ones
     /// during `interval`, and with `tag`, when they're given.
     public func days(in calendar: Calendar, during interval: DateInterval? = nil, taggedWith tag: String? = nil) -> [Day] {

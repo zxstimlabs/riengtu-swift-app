@@ -6,7 +6,6 @@ import SwiftUI
 /// totaled on top, each currency on its own. A tag shows only the entries that have it.
 struct LedgerView: View {
     @Environment(LedgerStore.self) private var store
-    @Environment(InboxStore.self) private var inbox
     @Environment(\.calendar) private var calendar
     @State private var editor: Editor?
     @State private var saveFailed = false
@@ -19,7 +18,6 @@ struct LedgerView: View {
     private enum Editor: Identifiable {
         case new
         case edit(Entry)
-        case capture(CapturedTransaction)
         /// The asset whose change an adjustment records.
         case asset(Asset)
 
@@ -27,7 +25,6 @@ struct LedgerView: View {
             switch self {
             case .new: nil
             case .edit(let entry): entry.id
-            case .capture(let item): item.id
             case .asset(let asset): asset.id
             }
         }
@@ -37,7 +34,6 @@ struct LedgerView: View {
         let ledger = store.ledger
         let interval = calendar.dateInterval(of: .month, for: shownMonth)!
         let days = ledger.days(in: calendar, during: interval, taggedWith: tagFilter)
-        let showsInbox = month == nil && tagFilter == nil && !inbox.items.isEmpty
         List {
             if ledger.unreadableRecordCount > 0 {
                 Section {
@@ -53,27 +49,6 @@ struct LedgerView: View {
                     previous: canStep(by: -1) ? { step(by: -1) } : nil,
                     next: canStep(by: 1) ? { step(by: 1) } : nil
                 )
-            }
-            if showsInbox {
-                Section {
-                    ForEach(inbox.items) { item in
-                        Button {
-                            editor = .capture(item)
-                        } label: {
-                            CapturedRow(item: item)
-                        }
-                        .foregroundStyle(.primary)
-                        .swipeActions(allowsFullSwipe: false) {
-                            Button("Dismiss", systemImage: "xmark", role: .destructive) {
-                                dismiss(item)
-                            }
-                        }
-                    }
-                } header: {
-                    Text("Inbox")
-                } footer: {
-                    Text("Tap one to add it to the ledger, or swipe to dismiss it.")
-                }
             }
             if days.isEmpty, !ledger.entries.isEmpty {
                 Section {
@@ -108,7 +83,7 @@ struct LedgerView: View {
             }
         }
         .overlay {
-            if ledger.entries.isEmpty, !showsInbox {
+            if ledger.entries.isEmpty {
                 ContentUnavailableView {
                     Label("No Transactions", systemImage: "book.closed")
                 } description: {
@@ -120,9 +95,10 @@ struct LedgerView: View {
             }
         }
         .navigationTitle(tagFilter.map { Text(verbatim: Tags.displayName($0)) } ?? Text("Ledger"))
+        .settingsButton()
         .toolbar {
             if !ledger.tags.isEmpty {
-                ToolbarItem(placement: .navigation) {
+                ToolbarItem(placement: .primaryAction) {
                     Menu {
                         Picker("Tag", selection: $tagFilter) {
                             Text("All Transactions").tag(String?.none)
@@ -148,8 +124,6 @@ struct LedgerView: View {
                 EntryEditor(editing: nil, currencyCode: preferredCurrencyCode)
             case .edit(let entry):
                 EntryEditor(editing: entry, currencyCode: preferredCurrencyCode)
-            case .capture(let item):
-                EntryEditor(capturing: item, currencyCode: preferredCurrencyCode)
             case .asset(let asset):
                 AssetEditor(editing: asset, kind: asset.kind, currencyCode: asset.currencyCode)
             }
@@ -220,13 +194,6 @@ struct LedgerView: View {
         }
     }
 
-    private func dismiss(_ item: CapturedTransaction) {
-        do {
-            try inbox.remove(id: item.id)
-        } catch {
-            saveFailed = true
-        }
-    }
 }
 
 /// The month shown, with buttons to step through months, and the money that came in and went
@@ -259,14 +226,14 @@ private struct MonthSummary: View {
 
             ForEach(flows) { flow in
                 LabeledContent("Money In") {
-                    Text(flow.moneyIn, format: .currency(code: flow.currencyCode))
+                    Text(flow.moneyIn, format: .money(code: flow.currencyCode))
                         .foregroundStyle(flow.moneyIn > 0 ? AnyShapeStyle(.green) : AnyShapeStyle(.secondary))
                 }
                 LabeledContent("Money Out") {
-                    Text(-flow.moneyOut, format: .currency(code: flow.currencyCode))
+                    Text(-flow.moneyOut, format: .money(code: flow.currencyCode))
                 }
                 LabeledContent("Net") {
-                    Text(flow.net, format: .currency(code: flow.currencyCode).sign(strategy: .always()))
+                    Text(flow.net, format: .money(code: flow.currencyCode).showingPlus())
                         .fontWeight(.semibold)
                         .foregroundStyle(.primary)
                 }
@@ -279,53 +246,6 @@ private struct MonthSummary: View {
                 Text("Transfers and changes to assets’ values aren’t counted.")
             }
         }
-    }
-}
-
-/// A transaction waiting in the inbox: what it was for, when, and how much, with a plus for
-/// money that came in.
-private struct CapturedRow: View {
-    let item: CapturedTransaction
-
-    var body: some View {
-        HStack(spacing: 12) {
-            IconBadge(
-                symbolName: item.source == .payment ? "creditcard.fill" : "envelope.fill",
-                color: item.isMoneyIn ? .green : .accentColor
-            )
-            VStack(alignment: .leading, spacing: 2) {
-                if !item.description.isEmpty {
-                    Text(verbatim: item.description)
-                        .lineLimit(2)
-                } else if item.isMoneyIn {
-                    Text("Money Received")
-                } else {
-                    Text(item.source == .payment ? "Payment" : "Bank Message")
-                }
-                Text(item.date, format: .dateTime.day().month().hour().minute())
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer(minLength: 8)
-            if let amount = item.amount {
-                let code = item.currencyCode ?? Currencies.code(for: .autoupdatingCurrent)
-                Group {
-                    if item.isMoneyIn {
-                        Text(amount, format: .currency(code: code).sign(strategy: .always()))
-                            .foregroundStyle(.green)
-                    } else {
-                        Text(-amount, format: .currency(code: code))
-                    }
-                }
-                .monospacedDigit()
-                .multilineTextAlignment(.trailing)
-            } else {
-                Text("No Amount")
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .contentShape(.rect)
-        .accessibilityElement(children: .combine)
     }
 }
 

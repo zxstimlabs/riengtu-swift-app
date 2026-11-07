@@ -75,6 +75,7 @@ extension View {
         return environment(store)
             .environment(CloudSync(store: store, defaults: UserDefaults(suiteName: "preview")!))
             .environment(InboxStore(inMemory: inbox))
+            .environment(BackgroundReading())
             .environment(AppLock(defaults: UserDefaults(suiteName: "preview")!))
     }
 }

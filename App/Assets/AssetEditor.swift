@@ -189,14 +189,14 @@ struct AssetEditor: View {
 
     private var amountSection: some View {
         Section {
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(verbatim: isBelowZero ? "−" + currencySymbol : currencySymbol)
-                    .foregroundStyle(isBelowZero ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
+            AmountWithSymbol(code: currencyCode, isBelowZero: isBelowZero) {
                 NumberField(title: kind.group == .money ? Text("Balance") : Text("Value"), text: $amountText, fractionDigits: moneyDigits)
                     .focused($focus, equals: .amount)
             }
             .font(.system(.largeTitle, design: .rounded, weight: .semibold))
             .monospacedDigit()
+            .contentShape(.rect)
+            .onTapGesture { focus = .amount }
 
             currencyRow
         } header: {
@@ -261,10 +261,10 @@ struct AssetEditor: View {
     private var priceRow: some View {
         LabeledContent {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(currencySymbol)
-                    .foregroundStyle(.secondary)
-                NumberField(title: Text("Price"), text: $priceText, fractionDigits: moneyDigits)
-                    .multilineTextAlignment(.trailing)
+                AmountWithSymbol(code: currencyCode, spacing: 4) {
+                    NumberField(title: Text("Price"), text: $priceText, fractionDigits: moneyDigits)
+                        .multilineTextAlignment(.trailing)
+                }
                 if kind.valuation == .gold {
                     Picker("Price Unit", selection: $priceUnit) {
                         ForEach(GoldUnit.allCases, id: \.self) { unit in
@@ -294,7 +294,7 @@ struct AssetEditor: View {
         if let value {
             let asset = Asset(kind: kind, currencyCode: currencyCode, value: value, valuedAt: .now)
             LabeledContent("Value") {
-                Text(asset.worth, format: .currency(code: currencyCode))
+                Text(asset.worth, format: .money(code: currencyCode))
                     .monospacedDigit()
             }
         }
@@ -309,10 +309,6 @@ struct AssetEditor: View {
 
     private var moneyDigits: Int {
         Currencies.fractionDigits(for: currencyCode)
-    }
-
-    private var currencySymbol: String {
-        Currencies.symbol(for: currencyCode, locale: NumberField.locale)
     }
 
     /// The region's currency, the ones assets are already in, and the ones spent in recently.
