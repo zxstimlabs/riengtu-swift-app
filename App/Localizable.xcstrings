@@ -205,6 +205,16 @@
         }
       }
     },
+    "Add It Yourself" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tự thêm"
+          }
+        }
+      }
+    },
     "Add Payment to Inbox" : {
       "localizations" : {
         "vi" : {
@@ -373,12 +383,42 @@
         }
       }
     },
+    "Apple Intelligence can’t read it just now." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence chưa thể đọc lúc này."
+          }
+        }
+      }
+    },
     "Apple Intelligence can’t read more just now. The rest are read when you try again or open Riêng Tư later." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence chưa thể đọc thêm lúc này. Phần còn lại sẽ được đọc khi bạn thử lại hoặc mở Riêng Tư sau."
+          }
+        }
+      }
+    },
+    "Apple Intelligence didn’t answer in time." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence không trả lời kịp."
+          }
+        }
+      }
+    },
+    "Apple Intelligence didn’t answer in time. Try again, or read the rest without it." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence không trả lời kịp. Hãy thử lại, hoặc đọc phần còn lại mà không cần Apple Intelligence."
           }
         }
       }
@@ -393,12 +433,32 @@
         }
       }
     },
+    "Apple Intelligence is reading it…" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence đang đọc…"
+          }
+        }
+      }
+    },
     "Apple Intelligence reads them on this device, in about %@. The screen stays on until it’s done, so you can put your iPhone down." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence đọc chúng ngay trên thiết bị này, trong khoảng %@. Màn hình sẽ luôn sáng cho đến khi xong, nên bạn có thể đặt iPhone xuống."
+          }
+        }
+      }
+    },
+    "Apple Intelligence reads what you add with the message, on this device." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence đọc những gì bạn thêm cùng với tin nhắn, ngay trên thiết bị này."
           }
         }
       }
@@ -649,6 +709,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Từ thiện"
+          }
+        }
+      }
+    },
+    "Check and Add" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kiểm tra và thêm"
           }
         }
       }
@@ -1273,6 +1343,16 @@
         }
       }
     },
+    "Help Read It" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giúp đọc giao dịch"
+          }
+        }
+      }
+    },
     "Hide" : {
       "localizations" : {
         "vi" : {
@@ -1403,6 +1483,16 @@
         }
       }
     },
+    "It was left out, since it isn’t about money that moved, such as an ad or a one-time code. Put it back to read it again or add it yourself." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tin nhắn này đã được bỏ qua, vì không phải là giao dịch, chẳng hạn như quảng cáo hay mã OTP. Hãy đưa lại vào Giao dịch chờ để đọc lại hoặc tự thêm."
+          }
+        }
+      }
+    },
     "It was left out, since the same transaction came in another message." : {
       "localizations" : {
         "vi" : {
@@ -1529,6 +1619,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tin nhắn"
+          }
+        }
+      }
+    },
+    "Message Received" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tin nhắn đã nhận"
           }
         }
       }
@@ -1719,6 +1819,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Không chọn"
+          }
+        }
+      }
+    },
+    "Not a Transaction" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không phải giao dịch"
+          }
+        }
+      }
+    },
+    "Not a transaction, %@" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không phải giao dịch, %@"
+          }
+        }
+      }
+    },
+    "Not read yet." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa được đọc."
           }
         }
       }
@@ -1963,6 +2093,46 @@
         }
       }
     },
+    "Read Again" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đọc lại"
+          }
+        }
+      }
+    },
+    "Read Without Apple Intelligence" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đọc không cần Apple Intelligence"
+          }
+        }
+      }
+    },
+    "Read, and ready to check." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã đọc xong, sẵn sàng để kiểm tra."
+          }
+        }
+      }
+    },
+    "Read, but no amount was found." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã đọc, nhưng không tìm thấy số tiền."
+          }
+        }
+      }
+    },
     "Reading Transactions" : {
       "localizations" : {
         "vi" : {
@@ -2009,6 +2179,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nhận được"
+          }
+        }
+      }
+    },
+    "Received %@" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhận lúc %@"
           }
         }
       }
@@ -2439,6 +2619,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gói đăng ký"
+          }
+        }
+      }
+    },
+    "Such as what it was for, or the amount" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ví dụ: chi cho việc gì, hoặc số tiền"
           }
         }
       }
@@ -2929,6 +3119,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đang chờ"
+          }
+        }
+      }
+    },
+    "Waiting to be read." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang chờ đọc."
           }
         }
       }

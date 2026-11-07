@@ -53,6 +53,12 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
     /// person's own accounts, the side that came in, joined to the side that went out; for one that
     /// came twice, the one that was kept. The one joined or left out is in the history.
     public var pairedID: CapturedTransaction.ID?
+    /// Whether reading found it isn't about money that moved, such as a bank's ad or a one-time
+    /// code (`InboxStore.readNewItems`), so it went to the history.
+    public var isNotTransaction: Bool
+    /// What the person added to help read it, such as what it was for, when they asked for it to
+    /// be read again (`InboxStore.readAgain`). Apple Intelligence reads it with the message.
+    public var hint: String
 
     public init(
         id: UUID = UUID(),
@@ -70,7 +76,9 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
         wasRead: Bool = false,
         handledAt: Date? = nil,
         entryID: Entry.ID? = nil,
-        pairedID: CapturedTransaction.ID? = nil
+        pairedID: CapturedTransaction.ID? = nil,
+        isNotTransaction: Bool = false,
+        hint: String = ""
     ) {
         self.id = id
         self.source = source
@@ -88,6 +96,8 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
         self.handledAt = handledAt
         self.entryID = entryID
         self.pairedID = pairedID
+        self.isNotTransaction = isNotTransaction
+        self.hint = hint
     }
 
     /// Whether it's waiting in the inbox, rather than in the history.
@@ -123,6 +133,9 @@ extension CapturedTransaction: Codable {
         wasRead = try container.decodeIfPresent(Bool.self, forKey: .wasRead) ?? false
         handledAt = try container.decodeIfPresent(Date.self, forKey: .handledAt)
         entryID = try container.decodeIfPresent(UUID.self, forKey: .entryID)
+        // The file earlier builds kept had neither.
+        isNotTransaction = false
+        hint = ""
     }
 
     public func encode(to encoder: any Encoder) throws {

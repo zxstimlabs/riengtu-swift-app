@@ -84,7 +84,7 @@ Don't pipe the upload into `head`: closing the pipe early stops `xcodebuild` par
   - `RootView` holds the tabs, loads the ledger when the app becomes active, and locks it in the background.
   - `Ledger/` has the Ledger tab (`LedgerView`, a month of entries grouped by day under the month's totals), the rows (`EntryRow`), the editor sheet for expenses, income and transfers (`EntryEditor`), the category grid and the currency picker. Each category's name, symbol and color is in `ExpenseCategory+Display.swift` and `IncomeCategory+Display.swift`.
   - `Assets/` has the Assets tab (`AssetsView`) and its editor sheet. Each kind of asset's name, symbol and color is in `AssetKind+Display.swift`.
-  - `Inbox/` has the Inbox tab (`InboxView`), the first: what waits to be added, Add All, and Add from Screenshots. Also the reading screen (`ReadingView`), reading in the background (`BackgroundReading`), and the inbox's history.
+  - `Inbox/` has the Inbox tab (`InboxView`), the first: what waits to be added, Add All, and Add from Screenshots. Also the reading screen (`ReadingView`), reading in the background (`BackgroundReading`), an unread item's message with Read Again (`CapturedMessageView`), and the inbox's history.
   - `Capture/` has the Shortcuts actions that put payments in the inbox, and the screen that explains how to set them up.
   - `Tags/` has the tag chips in the entry editor, the Tags screen, and `Tags.displayName`, which shows the starter tags in the app's language.
   - `Components/` has views both tabs use: `NumberField`, which tidies typed amounts, and `IconBadge`.

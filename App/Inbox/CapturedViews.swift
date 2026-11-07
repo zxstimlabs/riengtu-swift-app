@@ -8,6 +8,9 @@ struct CapturedTitle: View {
     var body: some View {
         if !item.description.isEmpty {
             Text(verbatim: item.description)
+        } else if !item.wasRead, !item.text.isEmpty {
+            // The message as it came, on as few lines as it fits, until it's read.
+            Text(verbatim: item.text.split(whereSeparator: \.isWhitespace).joined(separator: " "))
         } else if item.isTransfer {
             Text("Transfer")
         } else if item.isMoneyIn {

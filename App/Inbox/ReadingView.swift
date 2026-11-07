@@ -107,7 +107,9 @@ struct ReadingCard: View {
                 }
                 .font(.subheadline)
                 Group {
-                    if inbox.isWaitingForModel, !inbox.isReading {
+                    if inbox.modelDidNotAnswer, !inbox.isReading {
+                        Text("Apple Intelligence didn’t answer in time. Try again, or read the rest without it.")
+                    } else if inbox.isWaitingForModel, !inbox.isReading {
                         Text("Apple Intelligence can’t read more just now. The rest are read when you try again or open Riêng Tư later.")
                     } else if isDone {
                         EmptyView()
@@ -128,6 +130,11 @@ struct ReadingCard: View {
                         Button("Details", action: showsDetails)
                             .buttonStyle(.bordered)
                     }
+                }
+                if inbox.isWaitingForModel, !inbox.isReading {
+                    // The rules read the rest at once, and the person checks them.
+                    Button("Read Without Apple Intelligence") { inbox.startReading(usingModel: false) }
+                        .buttonStyle(.bordered)
                 }
             }
         }
@@ -170,14 +177,9 @@ private struct ReadingRow: View {
         HStack(spacing: 12) {
             CapturedIcon(item: item)
             VStack(alignment: .leading, spacing: 2) {
-                if item.wasRead {
-                    CapturedTitle(item: item)
-                        .lineLimit(2)
-                } else {
-                    Text(verbatim: firstLine)
-                        .lineLimit(1)
-                        .foregroundStyle(.secondary)
-                }
+                CapturedTitle(item: item)
+                    .lineLimit(2)
+                    .foregroundStyle(item.wasRead ? .primary : .secondary)
                 Text(item.date, format: .dateTime.day().month().hour().minute())
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -199,11 +201,6 @@ private struct ReadingRow: View {
             }
         }
         .accessibilityElement(children: .combine)
-    }
-
-    /// The message's first line, such as a notification's amount, until it's read.
-    private var firstLine: String {
-        item.text.split(whereSeparator: \.isNewline).first.map(String.init) ?? ""
     }
 }
 

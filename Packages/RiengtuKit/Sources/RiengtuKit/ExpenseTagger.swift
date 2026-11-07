@@ -23,6 +23,11 @@ public enum ExpenseTagger {
     /// Thrown by `suggest` where the model isn't available.
     public struct UnavailableError: Error {}
 
+    /// How long the model gets to answer one question, here and in `TransactionReader`, before
+    /// `TimedOutError`. It answers in a second or two, and a few more the first time, while it
+    /// loads; one that hasn't answered by then may never.
+    public static let timeLimit: Duration = .seconds(20)
+
     public static var availability: Availability {
         #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, *) {
@@ -44,20 +49,22 @@ public enum ExpenseTagger {
 
     /// Suggests a category for the expense, tags from `list` that fit what it was for, and maybe
     /// a new tag. Throws if the model isn't available or can't answer, such as for a note in a
-    /// language it doesn't support.
+    /// language it doesn't support, and `TimedOutError` if it doesn't answer in `timeLimit`.
     public static func suggest(
         note: String, amount: Decimal?, currencyCode: String, tags list: [String]
     ) async throws -> TagSuggestion {
         #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, *) {
-            let session = LanguageModelSession(model: model, instructions: instructions)
-            let response = try await session.respond(
-                to: prompt(note: note, amount: amount, currencyCode: currencyCode),
-                schema: try schema(tags: list),
-                // The same note gets the same suggestion.
-                options: GenerationOptions(samplingMode: .greedy)
-            )
-            let content = response.content
+            let prompt = prompt(note: note, amount: amount, currencyCode: currencyCode)
+            let schema = try schema(tags: list)
+            let content = try await withTimeLimit(timeLimit) {
+                try await LanguageModelSession(model: model, instructions: instructions).respond(
+                    to: prompt,
+                    schema: schema,
+                    // The same note gets the same suggestion, and a runaway answer stops.
+                    options: TransactionReader.options(maximumTokens: 150)
+                ).content
+            }
             return TagSuggestion(
                 category: try? content.value(String.self, forProperty: "category"),
                 tags: list.isEmpty ? [] : (try? content.value([String].self, forProperty: "tags")) ?? [],

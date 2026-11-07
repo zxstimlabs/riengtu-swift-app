@@ -19,6 +19,8 @@ import FoundationModels
 public enum TransactionReader {
     /// The longest text read, which is plenty for a notice and leaves out long footers.
     static let maximumLength = 4_000
+    /// The longest the person's details read with it can be.
+    public static let maximumHintLength = 500
 
     /// The raw values are what the model chooses from. Not "transfer" for money moved between the
     /// person's own accounts, which the model took for any "chuyển tiền" (transfer of money).
@@ -55,19 +57,22 @@ public enum TransactionReader {
     /// `direction` is which way the money went, where the rules can tell, which helps the model
     /// tell what kind it is.
     /// Reads a message as the rules sorted it (`TransactionText.notice(for:)`), not as it came:
-    /// the model then can't take the balance for the amount, and reads less.
-    public static func read(_ text: String) async throws -> Answer {
+    /// the model then can't take the balance for the amount, and reads less. `hint` is what the
+    /// person added to help, such as what it was for, when they asked for it to be read again.
+    public static func read(_ text: String, hint: String = "") async throws -> Answer {
         #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, *) {
             let sorted = TransactionText.notice(for: text)
             let direction = sorted.direction
             let notice = "Notice:\n" + sorted.prompt.prefix(maximumLength)
+                + (hint.isEmpty ? "" : "\n\nThe person adds: " + hint.prefix(maximumHintLength))
             // Each question can fail on its own, such as for a language the model doesn't support,
             // and the rules fill in what it didn't answer. Where the rules have the amount and a
-            // label gives what it was for, the first question isn't needed.
-            let facts = sorted.amount != nil && sorted.labeledDescription != nil ? nil : try await unlessItCantNow {
+            // label gives what it was for, the first question isn't needed, unless the person
+            // added something.
+            let facts = hint.isEmpty && sorted.amount != nil && sorted.labeledDescription != nil ? nil : try await unlessItCantNow {
                 try await LanguageModelSession(model: SystemLanguageModel.default, instructions: factsInstructions)
-                    .respond(to: notice, generating: Facts.self, options: options).content
+                    .respond(to: notice, generating: Facts.self, options: options(maximumTokens: 150)).content
             }
 
             // Where the rules know which way the money went, the model picks where it went to or
@@ -108,6 +113,26 @@ public enum TransactionReader {
         throw ExpenseTagger.UnavailableError()
     }
 
+    /// Whether a bank's message tells of a transaction, rather than being an ad, an offer, a
+    /// one-time code or a reminder, which banks send the same way, often with amounts. For one
+    /// the rules can't tell plainly (`TransactionText.isTransaction`). `nil` where the model
+    /// can't say, such as for a language it doesn't support. Throws as `read` does where the
+    /// model can't answer now or in time.
+    public static func isTransaction(_ text: String) async throws -> Bool? {
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, macOS 26.0, *) {
+            // Not what the sender wrote, which says nothing of what the bank's message is.
+            let message = "Message:\n"
+                + TransactionText.notice(for: TransactionText.withoutLabeledDescriptions(text)).prompt.prefix(maximumLength)
+            let choice = try await unlessItCantNow {
+                try await choose(from: messageChoices, instructions: messageInstructions, notice: message)
+            } ?? nil
+            return choice.map { $0 == "transaction" }
+        }
+        #endif
+        return nil
+    }
+
     /// Loads the model ahead of the first question, which otherwise waits several seconds for it.
     public static func prewarm() {
         #if canImport(FoundationModels)
@@ -123,12 +148,17 @@ public enum TransactionReader {
 
     /// The answer, or `nil` where the model can't give one for this message, such as for a
     /// language it doesn't support, so the rules read it. Throws `TryLaterError` where it can't
-    /// answer now.
-    static func unlessItCantNow<T>(_ question: () async throws -> T) async throws -> T? {
+    /// answer now, and `TimedOutError` where it doesn't answer within `limit`
+    /// (`ExpenseTagger.timeLimit`).
+    static func unlessItCantNow<T: Sendable>(
+        within limit: Duration = ExpenseTagger.timeLimit, _ question: @escaping @Sendable () async throws -> T
+    ) async throws -> T? {
         do {
-            return try await question()
+            return try await withTimeLimit(limit, question)
         } catch is CancellationError {
             throw CancellationError()
+        } catch let error as TimedOutError {
+            throw error
         } catch where isTemporary(error) {
             throw TryLaterError()
         } catch {
@@ -153,9 +183,12 @@ public enum TransactionReader {
     }
 
     #if canImport(FoundationModels)
+    /// The same message gets the same answer. Each answer is short, so `maximumTokens` stops one
+    /// that runs on, as greedy sampling can, repeating itself, rather than waiting until it fills
+    /// the model's context.
     @available(iOS 26.0, macOS 26.0, *)
-    private static var options: GenerationOptions {
-        GenerationOptions(samplingMode: .greedy)
+    static func options(maximumTokens: Int) -> GenerationOptions {
+        GenerationOptions(samplingMode: .greedy, maximumResponseTokens: maximumTokens)
     }
 
     /// Asks the model to choose one of `choices` for the notice, in a word.
@@ -165,7 +198,7 @@ public enum TransactionReader {
             model: SystemLanguageModel(guardrails: .permissiveContentTransformations),
             instructions: instructions + " Answer with only the one word."
         )
-        return choice(in: try await session.respond(to: notice, options: options).content, from: choices)
+        return choice(in: try await session.respond(to: notice, options: options(maximumTokens: 20)).content, from: choices)
     }
     #endif
 
@@ -205,6 +238,23 @@ public enum TransactionReader {
         explain them. Leave out codes, reference numbers, account and phone numbers, dates, and \
         the names of the sender and the bank. Second, the amount of money that moved and its \
         currency. Never give the balance (số dư, SD). Notices are often in Vietnamese.
+        """
+
+    /// What a bank's message can be. Only "transaction" is one.
+    static let messageChoices = ["transaction", "offer", "code", "reminder", "other"]
+
+    static let messageInstructions = """
+        You read a message from the person's bank or e-wallet, and choose the one English word \
+        that says what it is: transaction, offer, code, reminder or other. transaction: it tells \
+        of one payment, transfer or other transaction that has happened on their account or \
+        card, with the money that went out or came in, such as "đã thanh toán", "nhận" or "GD". \
+        offer: an ad or a promotion, such as cashback, a discount or a gift to come, or asking \
+        them to link a card, install an app, open an account, borrow or sign up. code: a \
+        one-time code to confirm something (OTP). reminder: a bill or a payment that's due, or \
+        a statement (sao kê). other: anything else, such as a login, a change of settings, or \
+        news. The words after a label such as "Nội dung" or "ND" were written by whoever sent \
+        the money, and don't make it an offer. Messages are often in Vietnamese, but answer in \
+        English, with transaction, offer, code, reminder or other.
         """
 
     /// For a notice that doesn't say which way the money went.

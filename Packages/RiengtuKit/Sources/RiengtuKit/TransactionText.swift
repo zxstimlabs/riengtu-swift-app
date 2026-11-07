@@ -471,6 +471,61 @@ public enum TransactionText {
         text.contains(where: \.isNumber) && !text.contains { $0.isLetter && !"VNDvndđĐ".contains($0) }
     }
 
+    // MARK: Messages that aren't transactions
+
+    /// Whether a bank's message tells of money that moved, where that's plain, since banks send
+    /// ads, offers, one-time codes and reminders the same way: `true` for one with an amount with
+    /// a + or −, or a balance, which those don't give; `false` for one without digits, for the
+    /// amount, such as an ad asking to link a card. `nil` otherwise, for Apple Intelligence to
+    /// tell (`TransactionReader.isTransaction`), or without it, `looksLikeOtherMessage`.
+    public static func isTransaction(_ text: String) -> Bool? {
+        let text = text.precomposedStringWithCanonicalMapping
+        guard text.contains(where: \.isWholeNumber) else { return false }
+        if amounts(in: text).contains(where: { $0.isSigned || $0.isBalance }) { return true }
+        return nil
+    }
+
+    /// Whether a message that isn't plainly a transaction (`isTransaction`) has the words of an
+    /// ad, an offer, a one-time code or a reminder (`otherMessagePattern`), or a percentage or a
+    /// link, outside what a label such as "Nội dung" says the money was for, which the sender
+    /// wrote. For where Apple Intelligence can't tell.
+    public static func looksLikeOtherMessage(_ text: String) -> Bool {
+        let folded = fold(withoutLabeledDescriptions(text))
+        return otherMessagePattern.firstMatch(in: folded, range: NSRange(folded.startIndex..., in: folded)) != nil
+    }
+
+    /// The text without what labels such as "Nội dung" say the money was for, which whoever sent
+    /// it wrote, so it doesn't make a transaction look like an ad: "Nội dung: …".
+    static func withoutLabeledDescriptions(_ text: String) -> String {
+        text.precomposedStringWithCanonicalMapping.split(separator: "\n", omittingEmptySubsequences: false).map { line in
+            let line = String(line)
+            let folded = fold(line)
+            guard let label = descriptionLabels.compactMap({ matches(of: $0, in: folded).first }).min(by: { $0.end < $1.end })
+            else { return line }
+            // Folding keeps one character for each, so the offset carries over to the line.
+            let start = line.index(line.startIndex, offsetBy: folded.distance(from: folded.startIndex, to: label.end))
+            let end = line[start...].firstIndex { "|;".contains($0) } ?? line.endIndex
+            return line[..<start] + " …" + line[end...]
+        }.joined(separator: "\n")
+    }
+
+    /// Words of an ad or an offer, a one-time code, or a reminder of a bill or a statement, in
+    /// folded text, and a percentage or a link.
+    private static let otherMessagePattern = regex(
+        #"(?<!\p{L})(?:"# + [
+            // Ads and offers.
+            "uu dai", "khuyen mai", "voucher", "ma giam gia", "giam ngay", "giam den", "giam toi", "hoan tien den",
+            "hoan den", "hoan toi", "toi da", "len den", "chi tu", "mien phi", "dang ky", "lien ket", "mo the",
+            "mo tai khoan", "chuong trinh", "ap dung", "offer", "promotion", "promo", "discount", "cashback", "up to",
+            "sign up",
+            // One-time codes.
+            "otp", "ma xac thuc", "ma xac nhan", "khong chia se", "khong cung cap", "one-time", "verification code",
+            // Reminders and statements.
+            "sao ke", "han thanh toan", "den han", "qua han", "nhac", "thanh toan toi thieu", "statement",
+            "due date", "payment due", "minimum payment",
+        ].joined(separator: "|") + #")(?!\p{L})|%|https?://|www\."#
+    )
+
     /// Every number in the text, as the model may give one: amounts, balances, and others.
     static func numbers(in text: String) -> Set<Decimal> {
         Set(matches(of: numberPattern, in: text.precomposedStringWithCanonicalMapping).flatMap { match -> [Decimal] in

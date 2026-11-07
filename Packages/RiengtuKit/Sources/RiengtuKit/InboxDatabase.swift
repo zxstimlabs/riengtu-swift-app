@@ -76,6 +76,14 @@ public final class InboxDatabase: Sendable {
                 table.add(column: "pair", .text)
             }
         }
+        migrator.registerMigration("v3") { db in
+            // `CapturedTransaction.isNotTransaction`, which earlier versions show as dismissed, and
+            // `hint`, which they don't read.
+            try db.alter(table: "item") { table in
+                table.add(column: "notTransaction", .boolean).notNull().defaults(to: false)
+                table.add(column: "hint", .text).notNull().defaults(to: "")
+            }
+        }
         return migrator
     }
 
@@ -157,7 +165,9 @@ extension CapturedTransaction: FetchableRecord, PersistableRecord {
             wasRead: row["wasRead"],
             handledAt: (row["handledAt"] as Double?).map(Date.init(timeIntervalSinceReferenceDate:)),
             entryID: entry.flatMap(UUID.init(uuidString:)),
-            pairedID: pair.flatMap(UUID.init(uuidString:))
+            pairedID: pair.flatMap(UUID.init(uuidString:)),
+            isNotTransaction: row["notTransaction"],
+            hint: row["hint"]
         )
     }
 
@@ -178,5 +188,7 @@ extension CapturedTransaction: FetchableRecord, PersistableRecord {
         container["handledAt"] = handledAt?.timeIntervalSinceReferenceDate
         container["entry"] = entryID?.uuidString
         container["pair"] = pairedID?.uuidString
+        container["notTransaction"] = isNotTransaction
+        container["hint"] = hint
     }
 }

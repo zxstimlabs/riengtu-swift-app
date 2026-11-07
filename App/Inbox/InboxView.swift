@@ -12,6 +12,10 @@ struct InboxView: View {
     @Environment(InboxStore.self) private var inbox
     @Environment(BackgroundReading.self) private var backgroundReading
     @State private var editing: CapturedTransaction?
+    /// One not read yet, or read without an amount, to see the message as it came and read it
+    /// again (`CapturedMessageView`), and the one to open in the editor once that closes.
+    @State private var viewing: CapturedTransaction?
+    @State private var editsAfterViewing: CapturedTransaction?
     @State private var saveFailed = false
     @State private var showsSetup = false
     @State private var picksFiles = false
@@ -36,7 +40,12 @@ struct InboxView: View {
                 Section {
                     ForEach(pending) { item in
                         Button {
-                            editing = item
+                            // A payment without an amount is typed in: Wallet didn't pass it.
+                            if item.wasRead, item.amount != nil || item.source == .payment {
+                                editing = item
+                            } else {
+                                viewing = item
+                            }
                         } label: {
                             CapturedRow(item: item, isReading: inbox.isReading, isCurrent: item.id == inbox.readingItemID)
                         }
@@ -136,6 +145,13 @@ struct InboxView: View {
         }
         .sheet(item: $editing) { item in
             EntryEditor(capturing: item, currencyCode: preferredCurrencyCode)
+        }
+        .sheet(item: $viewing, onDismiss: {
+            guard let item = editsAfterViewing else { return }
+            editsAfterViewing = nil
+            editing = item
+        }) { item in
+            CapturedMessageView(id: item.id) { editsAfterViewing = $0 }
         }
         .alert("Couldn’t Save", isPresented: $saveFailed) {
             Button("OK") {}

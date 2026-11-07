@@ -83,6 +83,26 @@ struct TransactionReaderTests {
             """, kind: .income, incomeCategory: .investment),
     ]
 
+    /// What the person added when they asked to read it again, read with the message.
+    @Test func readsWhatThePersonAdded() async throws {
+        let text = "TK 1234567890 GD tai SHOPEE luc 10:20 06/11/2026"
+        let hint = "120.000 đ, mua áo"
+        let answer = try await TransactionReader.read(text, hint: hint)
+        var item = CapturedTransaction(
+            source: .bankMessage, capturedAt: .now, date: .now, amount: nil, currencyCode: nil, description: "", text: text,
+            hint: hint
+        )
+        item.fill(from: answer, timeZone: TransactionTextTests.vietnam)
+        #expect(item.amount == 120_000)
+        #expect(!item.isMoneyIn)
+    }
+
+    /// None of these is left out as an ad: a + or − before the amount says it moved.
+    @Test(arguments: samples)
+    func isPlainlyATransaction(sample: Sample) {
+        #expect(TransactionText.isTransaction(sample.text) == true)
+    }
+
     @Test(arguments: samples)
     func readsWhichWayAndWhatKind(sample: Sample) async throws {
         // As the inbox asks it.

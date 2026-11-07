@@ -49,11 +49,17 @@ public final class InboxStore {
     public private(set) var readCount = 0
     public private(set) var readingStartedAt: Date?
     /// Whether reading stopped because the model can't read now, such as when iOS limits it for
-    /// an app in the background. It goes on next time it starts.
+    /// an app in the background, or didn't answer in time (`modelDidNotAnswer`). It goes on next
+    /// time it starts.
     public private(set) var isWaitingForModel = false
+    /// Whether the model didn't answer in time (`ExpenseTagger.timeLimit`), which the person can
+    /// try again, or read the rest without it.
+    public private(set) var modelDidNotAnswer = false
 
     @ObservationIgnored private var readingTask: Task<Void, Never>?
     @ObservationIgnored private var readingID: UUID?
+    /// The item the person asked to read again, which is read next, as a transaction.
+    @ObservationIgnored private var readAgainID: CapturedTransaction.ID?
 
     @ObservationIgnored private let location: Location?
     /// Opened when it's first needed, since it can't be before the device's first unlock.
@@ -239,17 +245,19 @@ public final class InboxStore {
     }
 
     /// Starts reading what's new, unless it's reading already. It goes on until nothing new is
-    /// left, including what arrives meanwhile.
-    public func startReading() {
+    /// left, including what arrives meanwhile. With Apple Intelligence where it's available,
+    /// unless the person chose to read without it (`usingModel`), when it didn't answer.
+    public func startReading(usingModel: Bool = true) {
         guard readingTask == nil else { return }
         let id = UUID()
         readingID = id
         isReading = true
         isWaitingForModel = false
+        modelDidNotAnswer = false
         readCount = 0
         readingStartedAt = .now
         readingTask = Task {
-            await readNewItems()
+            await readNewItems(usingModel: usingModel && ExpenseTagger.availability == .available)
             // Then the whole inbox, together.
             try? joinPairs()
             // Unless it was stopped, and maybe started again, meanwhile.
@@ -343,7 +351,10 @@ public final class InboxStore {
         if item.pairedID != nil {
             try split(id: id)
         } else {
-            try update(id: id) { $0.handledAt = nil }
+            try update(id: id) {
+                $0.handledAt = nil
+                $0.isNotTransaction = false
+            }
         }
     }
 
@@ -368,59 +379,74 @@ public final class InboxStore {
         }
     }
 
+    /// Reads an item again, before anything else, with what the person added to help (`hint`),
+    /// such as what it was for, or the amount: one that's being read, or waits, or that Apple
+    /// Intelligence didn't answer for, or that was read without an amount. It's read as a
+    /// transaction, since the person asked, and can dismiss it otherwise. What's being read now
+    /// stops, and is read after. The caller starts reading.
+    public func readAgain(id: CapturedTransaction.ID, hint: String) throws {
+        try update(id: id) { item in
+            item.hint = String(hint.trimmingCharacters(in: .whitespacesAndNewlines).prefix(TransactionReader.maximumHintLength))
+            item.wasRead = false
+            item.isNotTransaction = false
+            // What reading fills in, from scratch.
+            item.isTransfer = false
+            item.expenseCategory = nil
+            item.incomeCategory = nil
+        }
+        readAgainID = id
+        stopReading()
+    }
+
     /// Stops reading, such as when the app goes to the background. What wasn't read yet is read
     /// next time.
     public func stopReading() {
         readingTask?.cancel()
         readingTask = nil
         readingID = nil
+        readingItemID = nil
         isReading = false
     }
 
-    /// Reads what's new in the inbox, one item at a time, saving each. With Apple Intelligence
-    /// (`usingModel`), the model reads each message: the amount, what kind it is, where income
-    /// came from, and what for; then it picks an expense's category. The rules
-    /// (`TransactionText`) check the model's amount, and read the message on their own where the
-    /// model isn't available or can't answer.
+    /// Reads what's new in the inbox, one item at a time, saving each. A bank's message that
+    /// isn't about money that moved, such as an ad or a one-time code, goes to the history
+    /// (`isNotTransaction`): Apple Intelligence tells, where the rules can't plainly.
+    /// With Apple Intelligence (`usingModel`), the model reads each message: the amount, what
+    /// kind it is, where income came from, and what for; then it picks an expense's category.
+    /// The rules (`TransactionText`) check the model's amount, and read the message on their own
+    /// where the model isn't available or can't answer. Where it can't answer now, or doesn't
+    /// answer in time, reading stops, and the rest wait for it.
     func readNewItems(
-        usingModel: Bool = ExpenseTagger.availability == .available, timeZone: TimeZone = .current
+        usingModel: Bool = ExpenseTagger.availability == .available, timeZone: TimeZone = .current, now: Date = .now
     ) async {
-        defer { readingItemID = nil }
-        while let item = pending.last(where: { !$0.wasRead }) {
-            // Oldest first, as the person would have added them.
+        // Not once it's stopped, when another reading may have started.
+        defer { if !Task.isCancelled { readingItemID = nil } }
+        // The one the person asked to read again, then the oldest, as they'd add them.
+        while let item = pending.first(where: { $0.id == readAgainID && !$0.wasRead }) ?? pending.last(where: { !$0.wasRead }) {
+            let isAskedFor = item.id == readAgainID
+            if isAskedFor { readAgainID = nil }
             readingItemID = item.id
             var read = item
-            if item.source != .payment {
-                var answer: TransactionReader.Answer?
-                if usingModel {
-                    do {
-                        answer = try await TransactionReader.read(item.text)
-                    } catch is CancellationError {
-                        return
-                    } catch is TransactionReader.TryLaterError {
-                        // It stays unread, for when the model can read it.
-                        isWaitingForModel = true
-                        return
-                    } catch {
-                        // Such as a language the model doesn't support. The rules read it.
-                    }
+            do {
+                // Not one the person asked to read again, or added to: they'd dismiss an ad.
+                if item.source == .bankMessage, !isAskedFor, item.hint.isEmpty,
+                   try await !Self.isTransaction(item.text, usingModel: usingModel) {
+                    read.isNotTransaction = true
+                    read.handledAt = now
+                } else {
+                    try await Self.read(&read, usingModel: usingModel, timeZone: timeZone)
                 }
-                read.fill(from: answer, timeZone: timeZone)
-            }
-            // Not for a payment whose description is only the sender's name, which the model
-            // would guess a category for.
-            if usingModel, !read.isMoneyIn, !read.isTransfer, !read.description.isEmpty,
-               !TransactionText.isDefaultTransferContent(read.description) {
-                do {
-                    read.expenseCategory = try await ExpenseTagger.suggest(
-                        note: read.description, amount: read.amount, currencyCode: read.currencyCode ?? "VND", tags: []
-                    ).category
-                } catch where TransactionReader.isTemporary(error) {
-                    isWaitingForModel = true
-                    return
-                } catch {
-                    // No category, so it's "other".
-                }
+            } catch is CancellationError {
+                // Read next time, still first.
+                if isAskedFor, readAgainID == nil { readAgainID = item.id }
+                return
+            } catch {
+                if isAskedFor { readAgainID = item.id }
+                // It stays unread, for when the model can read it, though where it didn't
+                // answer in time, the person may choose to read it without the model.
+                isWaitingForModel = true
+                modelDidNotAnswer = error is TimedOutError
+                return
             }
             guard !Task.isCancelled else { return }
             read.wasRead = true
@@ -433,6 +459,57 @@ public final class InboxStore {
             }
             readCount += 1
         }
+    }
+
+    /// Whether a bank's message tells of money that moved, rather than being an ad, an offer, a
+    /// one-time code or a reminder: where it's plain, as the rules tell, and otherwise as Apple
+    /// Intelligence does, or where it can't, as their words suggest.
+    private static func isTransaction(_ text: String, usingModel: Bool) async throws -> Bool {
+        if let isTransaction = TransactionText.isTransaction(text) { return isTransaction }
+        if usingModel, let isTransaction = try await TransactionReader.isTransaction(text) { return isTransaction }
+        return !TransactionText.looksLikeOtherMessage(text)
+    }
+
+    /// Reads an item's message, and picks an expense's category. Throws only where the model
+    /// can't answer now or in time (`waitsForModel`), or reading was stopped.
+    private static func read(_ item: inout CapturedTransaction, usingModel: Bool, timeZone: TimeZone) async throws {
+        if item.source != .payment {
+            var answer: TransactionReader.Answer?
+            if usingModel {
+                do {
+                    answer = try await TransactionReader.read(item.text, hint: item.hint)
+                } catch where waitsForModel(error) {
+                    throw error
+                } catch {
+                    // Such as a language the model doesn't support. The rules read it.
+                }
+            }
+            item.fill(from: answer, timeZone: timeZone)
+        }
+        // Not for a payment whose description is only the sender's name, which the model
+        // would guess a category for.
+        if usingModel, !item.isMoneyIn, !item.isTransfer, !item.description.isEmpty,
+           !TransactionText.isDefaultTransferContent(item.description) {
+            do {
+                // With what the person added, which may say what it was for.
+                let note = item.hint.isEmpty ? item.description : item.description + "\n" + item.hint
+                item.expenseCategory = try await ExpenseTagger.suggest(
+                    note: note, amount: item.amount, currencyCode: item.currencyCode ?? "VND", tags: []
+                ).category
+            } catch where waitsForModel(error) {
+                throw error
+            } catch {
+                // No category, so it's "other".
+            }
+        }
+    }
+
+    /// Whether reading stops for an error, rather than the rules reading what the model didn't:
+    /// it was stopped, or the model can't answer now (`TransactionReader.TryLaterError`) or in
+    /// time (`TimedOutError`).
+    private static func waitsForModel(_ error: any Error) -> Bool {
+        error is CancellationError || error is TransactionReader.TryLaterError || error is TimedOutError
+            || TransactionReader.isTemporary(error)
     }
 
     /// Opens the database the first time it's needed, moving in the file builds before it kept
@@ -537,10 +614,12 @@ extension CapturedTransaction {
         }
 
         let moved = amounts.filter { !$0.isBalance }
-        // Where the rules found no amount, the model's must still be a number in the message.
+        // Where the rules found no amount, the model's must still be a number in the message,
+        // unless the person gave it in what they added (`hint`).
         if let value = answer.amount,
-           !amounts.contains(where: { $0.isBalance && $0.value == value }),
-           moved.isEmpty ? TransactionText.numbers(in: text).contains(value) : moved.contains(where: { $0.value == value }) {
+           TransactionText.numbers(in: hint).contains(value)
+            || !amounts.contains(where: { $0.isBalance && $0.value == value })
+            && (moved.isEmpty ? TransactionText.numbers(in: text).contains(value) : moved.contains(where: { $0.value == value })) {
             amount = value
             currencyCode = moved.first { $0.value == value }?.currencyCode ?? answer.currencyCode ?? rules.currencyCode
         } else {
@@ -563,7 +642,7 @@ extension CapturedTransaction {
         // whole line the rules take after the balance.
         if let labeled = TransactionText.labeledDescription(in: text).map(TransactionText.clean), !labeled.isEmpty {
             description = labeled
-        } else if TransactionText.isWritten(answer.description, in: text) {
+        } else if TransactionText.isWritten(answer.description, in: text) || TransactionText.isWritten(answer.description, in: hint) {
             description = answer.description
         } else {
             description = rules.description

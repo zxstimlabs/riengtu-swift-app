@@ -104,10 +104,14 @@ enum Outcome {
     case betweenOwnAccounts
     /// Left out because the same transaction came in another message.
     case cameTwice
+    /// Left out because it isn't about money that moved, such as an ad or a one-time code.
+    case notTransaction
 
     init(_ item: CapturedTransaction, in inbox: InboxStore) {
         if item.entryID != nil {
             self = .added
+        } else if item.isNotTransaction {
+            self = .notTransaction
         } else if inbox.isOwnTransferSide(item) {
             self = .betweenOwnAccounts
         } else if item.pairedID != nil {
@@ -123,6 +127,7 @@ enum Outcome {
         case .dismissed: Text("Dismissed")
         case .betweenOwnAccounts: Text("Between Your Accounts")
         case .cameTwice: Text("Came Twice")
+        case .notTransaction: Text("Not a Transaction")
         }
     }
 }
@@ -144,6 +149,7 @@ private struct HistoryRow: View {
                     case .dismissed: Text("Dismissed \(date, format: .dateTime.day().month().hour().minute())")
                     case .betweenOwnAccounts: Text("Between your accounts, \(date, format: .dateTime.day().month().hour().minute())")
                     case .cameTwice: Text("Came twice, \(date, format: .dateTime.day().month().hour().minute())")
+                    case .notTransaction: Text("Not a transaction, \(date, format: .dateTime.day().month().hour().minute())")
                     }
                 }
                 .font(.subheadline)
@@ -215,6 +221,8 @@ private struct HistoryItemView: View {
                         Text("It and the other side were left out, since a transfer between your accounts nets to zero. Putting it back puts both back, to add as an expense and income.")
                     case .cameTwice:
                         Text("It was left out, since the same transaction came in another message.")
+                    case .notTransaction:
+                        Text("It was left out, since it isn’t about money that moved, such as an ad or a one-time code. Put it back to read it again or add it yourself.")
                     default:
                         EmptyView()
                     }

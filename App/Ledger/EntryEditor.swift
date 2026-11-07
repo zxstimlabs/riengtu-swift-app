@@ -199,6 +199,15 @@ struct EntryEditor: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets())
 
+                // One not read, being filled in by hand: what it says, to copy from, first.
+                if let message, !message.wasRead, !message.text.isEmpty {
+                    Section {
+                        messageText(message)
+                    } header: {
+                        messageLabel(message)
+                    }
+                }
+
                 amountSection
 
                 switch mode {
@@ -218,21 +227,14 @@ struct EntryEditor: View {
                     }
                 }
 
-                if let message, !message.text.isEmpty {
+                if let message, message.wasRead, !message.text.isEmpty {
                     Section {
                         DisclosureGroup {
-                            Text(verbatim: message.text)
+                            messageText(message)
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
-                                .textSelection(.enabled)
                         } label: {
-                            switch message.source {
-                            case .bankMessage: Text("Bank Message")
-                            // What Wallet passed as the amount, when it couldn't be read.
-                            case .payment: Text("Amount from Wallet")
-                            case .screenshot: Text("Text from the Screenshot")
-                            case .file: Text("From the File")
-                            }
+                            messageLabel(message)
                         }
                     }
                 }
@@ -297,6 +299,22 @@ struct EntryEditor: View {
         case (.income, false): "Edit Income"
         case (.transfer, true): "New Transfer"
         case (.transfer, false): "Edit Transfer"
+        }
+    }
+
+    /// The bank's message or payment as it came.
+    private func messageText(_ message: CapturedTransaction) -> some View {
+        Text(verbatim: message.text)
+            .textSelection(.enabled)
+    }
+
+    @ViewBuilder private func messageLabel(_ message: CapturedTransaction) -> some View {
+        switch message.source {
+        case .bankMessage: Text("Bank Message")
+        // What Wallet passed as the amount, when it couldn't be read.
+        case .payment: Text("Amount from Wallet")
+        case .screenshot: Text("Text from the Screenshot")
+        case .file: Text("From the File")
         }
     }
 

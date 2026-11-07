@@ -124,6 +124,63 @@ final class InboxTests {
 
     // MARK: Reading
 
+    /// A bank's ad goes to the history, as one that isn't a transaction, and can be put back.
+    @Test func leavesOutWhatIsntATransaction() async throws {
+        let inbox = inbox()
+        _ = try inbox.capture(message: NotTransactionTests.linkCardAd.text)
+        _ = try inbox.capture(message: NotTransactionTests.worded[0].text)
+        _ = try inbox.capture(message: Self.transfer)
+        await inbox.readNewItems(usingModel: false, timeZone: Self.vietnam)
+
+        #expect(inbox.pending.map(\.text) == [Self.transfer])
+        let left = inbox.history
+        #expect(left.count == 2)
+        let areLeftOut = left.allSatisfy { $0.isNotTransaction && $0.wasRead && $0.entryID == nil }
+        #expect(areLeftOut)
+
+        // Kept as it is.
+        let reopened = self.inbox()
+        let areKept = reopened.history.allSatisfy(\.isNotTransaction)
+        #expect(areKept)
+
+        let ad = try #require(reopened.history.first { $0.text == NotTransactionTests.linkCardAd.text })
+        try reopened.putBack(id: ad.id)
+        let back = try #require(reopened.items.first { $0.id == ad.id })
+        #expect(back.isPending && !back.isNotTransaction && back.wasRead)
+    }
+
+    /// One the person reads again is read as a transaction, with what they added, which stays.
+    @Test func readsAgainWhatThePersonAsks() async throws {
+        let inbox = inbox()
+        _ = try inbox.capture(message: NotTransactionTests.linkCardAd.text)
+        await inbox.readNewItems(usingModel: false, timeZone: Self.vietnam)
+        let ad = try #require(inbox.history.first)
+        #expect(ad.isNotTransaction)
+
+        // Put back, from the history, then read again.
+        try inbox.putBack(id: ad.id)
+        try inbox.readAgain(id: ad.id, hint: "  Phí thường niên 50.000 VND  ")
+        let waiting = try #require(inbox.items.first { $0.id == ad.id })
+        #expect(waiting.isPending && !waiting.wasRead && !waiting.isNotTransaction)
+        #expect(waiting.hint == "Phí thường niên 50.000 VND")
+
+        await inbox.readNewItems(usingModel: false, timeZone: Self.vietnam)
+        let read = try #require(self.inbox().items.first { $0.id == ad.id })
+        #expect(read.isPending && read.wasRead && !read.isNotTransaction)
+        #expect(read.hint == "Phí thường niên 50.000 VND")
+    }
+
+    /// An amount the person gave is the model's to take, though the message doesn't give it.
+    @Test func takesTheModelsAmountFromWhatThePersonAdded() {
+        var item = Self.item("TK 1234567890 GD tai SHOPEE luc 10:20")
+        item.hint = "120.000 đ, mua áo"
+        item.fill(from: TransactionReader.Answer(
+            description: "mua áo", amount: 120_000, currencyCode: "VND", kind: .spending
+        ), timeZone: Self.vietnam)
+        #expect(item.amount == 120_000)
+        #expect(item.description == "mua áo")
+    }
+
     /// Without Apple Intelligence, the rules read it.
     @Test func readsNewItemsWithTheRules() async throws {
         let inbox = inbox()
