@@ -31,6 +31,34 @@
         }
       }
     },
+    "%lld items" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld item"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld items"
+                }
+              }
+            }
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld món"
+          }
+        }
+      }
+    },
     "%lld new to read" : {
       "localizations" : {
         "vi" : {
@@ -221,6 +249,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thêm khoản thanh toán vào Giao dịch chờ"
+          }
+        }
+      }
+    },
+    "Add Receipt" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm hóa đơn"
           }
         }
       }
@@ -479,6 +517,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Pay"
+          }
+        }
+      }
+    },
+    "As Riêng Tư gets better at reading transactions, bring the ones you added before up to date. Update fills in only what’s empty, such as who sent the money. Read Inbox Again reads what waits in the inbox again." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khi Riêng Tư đọc giao dịch tốt hơn, hãy cập nhật các giao dịch bạn đã thêm trước đây. Cập nhật chỉ điền vào chỗ còn trống, chẳng hạn người gửi tiền. Đọc lại Giao dịch chờ sẽ đọc lại những giao dịch đang chờ."
           }
         }
       }
@@ -753,6 +801,16 @@
         }
       }
     },
+    "Choose from Photos" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn từ Ảnh"
+          }
+        }
+      }
+    },
     "Choose two different assets." : {
       "localizations" : {
         "vi" : {
@@ -839,6 +897,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Không đọc được"
+          }
+        }
+      }
+    },
+    "Couldn’t Read the Receipt" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không đọc được hóa đơn"
           }
         }
       }
@@ -969,6 +1037,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chi tiết"
+          }
+        }
+      }
+    },
+    "Discount" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giảm giá"
           }
         }
       }
@@ -1893,6 +1971,16 @@
         }
       }
     },
+    "Nothing to Update" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có gì cần cập nhật"
+          }
+        }
+      }
+    },
     "OK" : {
       "localizations" : {
         "vi" : {
@@ -1943,6 +2031,26 @@
         }
       }
     },
+    "Paid To" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trả cho"
+          }
+        }
+      }
+    },
+    "Paid With" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hình thức"
+          }
+        }
+      }
+    },
     "Past Transactions" : {
       "localizations" : {
         "vi" : {
@@ -1979,6 +2087,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thú cưng"
+          }
+        }
+      }
+    },
+    "Picked from the receipt by Apple Intelligence." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence chọn dựa trên hóa đơn."
           }
         }
       }
@@ -2093,12 +2211,50 @@
         }
       }
     },
+    "Read %lld transactions again?" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Read %lld transaction again?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Read %lld transactions again?"
+                }
+              }
+            }
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đọc lại %lld giao dịch?"
+          }
+        }
+      }
+    },
     "Read Again" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đọc lại"
+          }
+        }
+      }
+    },
+    "Read Inbox Again" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đọc lại Giao dịch chờ"
           }
         }
       }
@@ -2163,12 +2319,42 @@
         }
       }
     },
+    "Reading stopped. Start again with Apple Intelligence, or read the rest without it." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã dừng đọc. Hãy bắt đầu lại với Apple Intelligence, hoặc đọc phần còn lại mà không cần Apple Intelligence."
+          }
+        }
+      }
+    },
+    "Reading the receipt…" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang đọc hóa đơn…"
+          }
+        }
+      }
+    },
     "Ready to Check" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sẵn sàng kiểm tra"
+          }
+        }
+      }
+    },
+    "Receipt" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hóa đơn"
           }
         }
       }
@@ -2193,6 +2379,16 @@
         }
       }
     },
+    "Received From" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhận từ"
+          }
+        }
+      }
+    },
     "Received In" : {
       "localizations" : {
         "vi" : {
@@ -2203,12 +2399,32 @@
         }
       }
     },
+    "Reference" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mã giao dịch"
+          }
+        }
+      }
+    },
     "Refunds & Cashback" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hoàn tiền"
+          }
+        }
+      }
+    },
+    "Remove Receipt" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa hóa đơn"
           }
         }
       }
@@ -2393,12 +2609,32 @@
         }
       }
     },
+    "Riêng Tư found nothing to read on it. Try again with the whole receipt in the photo, in good light." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư không đọc được gì trên ảnh. Hãy thử lại, chụp trọn hóa đơn ở nơi đủ sáng."
+          }
+        }
+      }
+    },
     "Riêng Tư has no account of its own. Your ledger and assets are on this device, in its backups, and in your iCloud account, encrypted end to end." : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Riêng Tư không cần tài khoản riêng. Sổ thu chi và tài sản của bạn nằm trên thiết bị này, trong bản sao lưu của thiết bị và trong tài khoản iCloud của bạn, được mã hóa đầu cuối."
+          }
+        }
+      }
+    },
+    "Riêng Tư reads the receipt on this device and doesn’t keep the photo." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riêng Tư đọc hóa đơn ngay trên thiết bị này và không lưu ảnh."
           }
         }
       }
@@ -2613,12 +2849,32 @@
         }
       }
     },
+    "Stop" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dừng"
+          }
+        }
+      }
+    },
     "Subscriptions" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gói đăng ký"
+          }
+        }
+      }
+    },
+    "Subtotal" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tạm tính"
           }
         }
       }
@@ -2743,6 +2999,16 @@
         }
       }
     },
+    "Take Photo" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chụp ảnh"
+          }
+        }
+      }
+    },
     "Tap Message in the action, and choose Shortcut Input." : {
       "localizations" : {
         "vi" : {
@@ -2773,6 +3039,16 @@
         }
       }
     },
+    "Tax" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thuế"
+          }
+        }
+      }
+    },
     "Text from the Screenshot" : {
       "localizations" : {
         "vi" : {
@@ -2789,6 +3065,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Các tin nhắn sẽ bị xóa. Những gì bạn đã thêm vẫn ở trong sổ thu chi, và những gì đang chờ vẫn ở trong Giao dịch chờ."
+          }
+        }
+      }
+    },
+    "The receipt wasn’t read." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa đọc được hóa đơn."
+          }
+        }
+      }
+    },
+    "The receipt’s total is %@." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tổng trên hóa đơn là %@."
           }
         }
       }
@@ -2819,6 +3115,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tất cả đã có trong Giao dịch chờ hoặc lịch sử của nó."
+          }
+        }
+      }
+    },
+    "They’re read as new ones are now. What you added to help read one stays." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chúng sẽ được đọc như giao dịch mới. Những gì bạn đã thêm để giúp đọc vẫn được giữ."
           }
         }
       }
@@ -2859,6 +3165,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mã"
+          }
+        }
+      }
+    },
+    "Time" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thời gian"
           }
         }
       }
@@ -2929,6 +3245,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tổng"
+          }
+        }
+      }
+    },
+    "Total Paid" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tổng thanh toán"
           }
         }
       }
@@ -3053,6 +3379,54 @@
         }
       }
     },
+    "Update" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cập nhật"
+          }
+        }
+      }
+    },
+    "Update %lld transactions?" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Update %lld transaction?"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Update %lld transactions?"
+                }
+              }
+            }
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cập nhật %lld giao dịch?"
+          }
+        }
+      }
+    },
+    "Update Past Transactions" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cập nhật giao dịch trước đây"
+          }
+        }
+      }
+    },
     "Update Riêng Tư on this device to change this." : {
       "localizations" : {
         "vi" : {
@@ -3069,6 +3443,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cập nhật %@"
+          }
+        }
+      }
+    },
+    "Updated %lld transactions." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Updated %lld transaction."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Updated %lld transactions."
+                }
+              }
+            }
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã cập nhật %lld giao dịch."
+          }
+        }
+      }
+    },
+    "Use Another Photo" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dùng ảnh khác"
+          }
+        }
+      }
+    },
+    "Use It" : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dùng số này"
           }
         }
       }
@@ -3163,6 +3585,16 @@
         }
       }
     },
+    "Who sent or got the money is filled in, from the note or the bank’s message. A name at the start of a note moves to its own field." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Người gửi hoặc nhận tiền sẽ được điền từ ghi chú hoặc thông báo ngân hàng. Tên ở đầu ghi chú sẽ được chuyển sang ô riêng."
+          }
+        }
+      }
+    },
     "Work" : {
       "localizations" : {
         "vi" : {
@@ -3199,6 +3631,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thông báo và email của ngân hàng, cùng các khoản thanh toán Apple Pay, sẽ chờ ở đây khi Phím tắt gửi đến, để bạn kiểm tra và thêm. Bạn cũng có thể thêm giao dịch trước đây từ ảnh chụp màn hình."
+          }
+        }
+      }
+    },
+    "Your past transactions already have everything Riêng Tư can find in them." : {
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Các giao dịch trước đây của bạn đã có đủ những gì Riêng Tư tìm được."
           }
         }
       }

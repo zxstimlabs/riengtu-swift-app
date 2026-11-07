@@ -166,8 +166,8 @@ final class LedgerStoreTests {
         let entry = Self.expense()
         try database.queue.write { db in
             try db.execute(
-                sql: "INSERT INTO record (name, type, version, modifiedAt, data) VALUES (?, 'Entry', 2, 0, ?)",
-                arguments: [LedgerDatabase.name(ofEntry: entry.id), try JSONEncoder().encode(entry)]
+                sql: "INSERT INTO record (name, type, version, modifiedAt, data) VALUES (?, 'Entry', ?, 0, ?)",
+                arguments: [LedgerDatabase.name(ofEntry: entry.id), LedgerDatabase.RecordVersion.entry + 1, try JSONEncoder().encode(entry)]
             )
         }
         let store = try LedgerStore(database: database)

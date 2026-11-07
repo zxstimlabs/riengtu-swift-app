@@ -108,7 +108,8 @@ public final class LedgerDatabase: Sendable {
     /// category, or a new field. An earlier version then shows the record without changing it,
     /// or keeps it unread if it can't decode it.
     enum RecordVersion {
-        static let entry = 1
+        /// 2: `Entry.party` and `Entry.receipt`.
+        static let entry = 2
         static let asset = 1
         static let tag = 1
     }

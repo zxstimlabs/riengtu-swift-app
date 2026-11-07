@@ -198,7 +198,9 @@ final class InboxTests {
 
         let notification = inbox.items[1]
         #expect(notification.amount == 25_000)
-        #expect(notification.description == "NGUYEN VAN AN chuyen tien")
+        // Who sent it, apart from what for.
+        #expect(notification.party == "NGUYEN VAN AN")
+        #expect(notification.description == "chuyen tien")
         // It doesn't say when, so it's when it arrived.
         #expect(notification.date == notification.capturedAt)
         #expect(notification.isReadyToAdd)
@@ -235,8 +237,9 @@ final class InboxTests {
         #expect(item.amount == 5_000_000)
         #expect(item.isMoneyIn)
         #expect(item.incomeCategory == .salary)
-        // The rules copied what "ND:" says.
-        #expect(item.description == "CONG TY ABC tra luong thang 10")
+        // The rules copied what "ND:" says, apart from who paid.
+        #expect(item.party == "CONG TY ABC")
+        #expect(item.description == "tra luong thang 10")
     }
 
     /// Where the rules find no description, the model's, if it's from the message.
@@ -283,8 +286,35 @@ final class InboxTests {
             description: "", amount: 10_000, currencyCode: "VND", kind: .income, incomeCategory: .salary
         ), timeZone: Self.vietnam)
         #expect(item.isMoneyIn)
-        #expect(item.description == "NGUYEN VAN AN CHUYEN KHOAN")
+        #expect(item.party == "NGUYEN VAN AN")
+        #expect(item.description == "CHUYEN KHOAN")
         #expect(item.incomeCategory == .other)
+    }
+
+    /// Techcombank's, with the account number and name changed: the model leaves the sender out
+    /// of what it was for, as it's asked to, so the rules keep who sent it.
+    @Test func keepsWhoSentIt() {
+        var item = Self.item("+ VND 10,000\nTài khoản: 1234567890\nSố dư: VND 16,251,570\nPHAM THI THU LAN chuyen tien")
+        item.fill(from: TransactionReader.Answer(
+            description: "chuyển tiền", amount: 10_000, currencyCode: "VND", kind: .income, incomeCategory: .other
+        ), timeZone: Self.vietnam)
+        #expect(item.party == "PHAM THI THU LAN")
+        #expect(item.description == "chuyển tiền")
+        #expect(item.incomeCategory == .other)
+
+        let entry = try? #require(Ledger().entry(adding: { var read = item; read.wasRead = true; return read }(), currencyCode: "VND"))
+        #expect(entry?.party == "PHAM THI THU LAN")
+        #expect(entry?.note == "chuyển tiền")
+    }
+
+    /// One who paid for something says what for, and who it was.
+    @Test func keepsWhoSentItWithWhatFor() {
+        var item = Self.item("+ VND 500,000\nTài khoản: 1234567890\nSố dư: VND 16,706,570\nTRAN THI BINH chuyen tien tra tien an toi")
+        item.fill(from: TransactionReader.Answer(
+            description: "tra tien an toi", amount: 500_000, currencyCode: "VND", kind: .income, incomeCategory: .other
+        ), timeZone: Self.vietnam)
+        #expect(item.party == "TRAN THI BINH")
+        #expect(item.description == "tra tien an toi")
     }
 
     /// As Vision may read it.

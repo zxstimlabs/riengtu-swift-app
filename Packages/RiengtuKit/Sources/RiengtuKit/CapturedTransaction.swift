@@ -38,6 +38,9 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
     public var incomeCategory: IncomeCategory?
     /// Who was paid or who paid, or what for. Empty when the message doesn't say.
     public var description: String
+    /// The person or company the money went to or came from, where the message names one
+    /// (`TransactionText.party`), apart from what it was for.
+    public var party: String
     /// The message as it came, kept with the history so the person can check what was read from
     /// it. For a payment, the amount as it came, only if it couldn't be read.
     public var text: String
@@ -72,6 +75,7 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
         expenseCategory: ExpenseCategory? = nil,
         incomeCategory: IncomeCategory? = nil,
         description: String,
+        party: String = "",
         text: String = "",
         wasRead: Bool = false,
         handledAt: Date? = nil,
@@ -91,6 +95,7 @@ public struct CapturedTransaction: Identifiable, Hashable, Sendable {
         self.expenseCategory = expenseCategory
         self.incomeCategory = incomeCategory
         self.description = description
+        self.party = party
         self.text = text
         self.wasRead = wasRead
         self.handledAt = handledAt
@@ -133,7 +138,8 @@ extension CapturedTransaction: Codable {
         wasRead = try container.decodeIfPresent(Bool.self, forKey: .wasRead) ?? false
         handledAt = try container.decodeIfPresent(Date.self, forKey: .handledAt)
         entryID = try container.decodeIfPresent(UUID.self, forKey: .entryID)
-        // The file earlier builds kept had neither.
+        // The file earlier builds kept had none of these.
+        party = ""
         isNotTransaction = false
         hint = ""
     }

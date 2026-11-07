@@ -6,9 +6,16 @@ struct SettingsView: View {
     @Environment(CloudSync.self) private var sync
     @Environment(InboxStore.self) private var inbox
     @Environment(AppLock.self) private var lock
+    @Environment(BackgroundReading.self) private var backgroundReading
     @Environment(\.openURL) private var openURL
     @State private var confirmsErasing = false
     @State private var eraseFailed = false
+    /// Past transactions as today's rules would fill them in, to confirm.
+    @State private var pastUpdates: [Entry] = []
+    @State private var confirmsUpdating = false
+    @State private var updatedCount: Int?
+    @State private var hasNothingToUpdate = false
+    @State private var confirmsReadingAgain = false
     @State private var iCloudEraseFailed = false
     @AppStorage(Self.suggestsTagsKey) private var suggestsTags = true
     @AppStorage(InboxHistoryDuration.key) private var historyDays = InboxHistoryDuration.standard.rawValue
@@ -80,6 +87,8 @@ struct SettingsView: View {
                 try? inbox.deleteHistory(handledBefore: InboxHistoryDuration.days(days).cutoff(from: .now))
             }
 
+            pastTransactionsSection
+
             Section {
                 LabeledContent("Language", value: language.endonym)
                 #if os(iOS)
@@ -127,6 +136,71 @@ struct SettingsView: View {
         } message: {
             Text("Riengtu couldn’t save your change. Try again.")
         }
+        .confirmationDialog(
+            Text("Update \(pastUpdates.count) transactions?"), isPresented: $confirmsUpdating, titleVisibility: .visible
+        ) {
+            Button("Update", action: updatePastTransactions)
+        } message: {
+            Text("Who sent or got the money is filled in, from the note or the bank’s message. A name at the start of a note moves to its own field.")
+        }
+        .alert(
+            Text("Updated \(updatedCount ?? 0) transactions."),
+            isPresented: Binding(get: { updatedCount != nil }, set: { if !$0 { updatedCount = nil } })
+        ) {
+            Button("OK") {}
+        }
+        .alert("Nothing to Update", isPresented: $hasNothingToUpdate) {
+            Button("OK") {}
+        } message: {
+            Text("Your past transactions already have everything Riêng Tư can find in them.")
+        }
+        .confirmationDialog(
+            Text("Read \(inbox.pending.count(where: \.wasRead)) transactions again?"), isPresented: $confirmsReadingAgain,
+            titleVisibility: .visible
+        ) {
+            Button("Read Again") {
+                do {
+                    try inbox.readAllAgain()
+                    backgroundReading.start(inbox)
+                } catch {
+                    eraseFailed = true
+                }
+            }
+        } message: {
+            Text("They’re read as new ones are now. What you added to help read one stays.")
+        }
+    }
+
+    /// Brings what was added before up to date with how Riêng Tư reads now (`PastTransactions`),
+    /// when the person asks: the ledger by rules, the inbox by reading it again.
+    private var pastTransactionsSection: some View {
+        Section {
+            Button("Update Past Transactions") {
+                pastUpdates = PastTransactions.updates(in: store.ledger) { inbox.item(forEntry: $0)?.text }
+                if pastUpdates.isEmpty {
+                    hasNothingToUpdate = true
+                } else {
+                    confirmsUpdating = true
+                }
+            }
+            .disabled(store.ledger.entries.isEmpty)
+            Button("Read Inbox Again") { confirmsReadingAgain = true }
+                .disabled(inbox.isReading || !inbox.pending.contains(where: \.wasRead))
+        } header: {
+            Text("Past Transactions")
+        } footer: {
+            Text("As Riêng Tư gets better at reading transactions, bring the ones you added before up to date. Update fills in only what’s empty, such as who sent the money. Read Inbox Again reads what waits in the inbox again.")
+        }
+    }
+
+    private func updatePastTransactions() {
+        do {
+            try store.save(pastUpdates)
+            updatedCount = pastUpdates.count
+        } catch {
+            eraseFailed = true
+        }
+        pastUpdates = []
     }
 
     /// Erases iCloud first, so nothing is erased if that fails.

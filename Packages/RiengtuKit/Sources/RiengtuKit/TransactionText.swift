@@ -271,14 +271,147 @@ public enum TransactionText {
         return best.direction
     }
 
-    /// A name in capitals, then "chuyen tien" or "chuyen khoan". Case-sensitive for the name.
+    // MARK: Parties
+
+    /// Who sent the money, or got it: a person or a company, as banks write a transfer, in
+    /// capitals, just before what it did ("NGUYEN VAN AN chuyen tien", "CONG TY ABC tra luong
+    /// thang 10"), back to where the line, a label or a code ends. Or else a person's name in any
+    /// case (`personName`). As it came.
+    public static func party(in text: String) -> String? {
+        let text = text.precomposedStringWithCanonicalMapping
+        let folded = fold(text)
+        for result in transferVerb.matches(in: folded, range: NSRange(folded.startIndex..., in: folded)) {
+            guard let range = Range(result.range, in: folded) else { continue }
+            // Folding keeps one character for each.
+            let before = text.prefix(folded.distance(from: folded.startIndex, to: range.lowerBound))
+            if let party = capitalsEnding(before) { return party }
+        }
+        return personName(in: text)
+    }
+
+    /// A description without the party's name at its start, as banks write a transfer: "NGUYEN
+    /// VAN AN chuyen tien" is "chuyen tien".
+    public static func removingParty(_ party: String, from description: String) -> String {
+        guard !party.isEmpty, fold(description).hasPrefix(fold(party)) else { return description }
+        // Folding keeps one character for each.
+        return String(description.dropFirst(party.count)).trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
+    }
+
+    /// What a transfer's content says the sender did, after their name, in folded text.
+    private static let transferVerb = regex(
+        #"(?<![\p{L}\d])(?:chuyen[ \t]+(?:tien|khoan)|ck|tra[ \t]+(?:luong|tien)|gui[ \t]+tien)(?![\p{L}\d])"#
+    )
+
+    /// The words in capitals at the end of `text`, back to where its line, a label or a code
+    /// ends, or a word that isn't in capitals; without a label such as "ND", and for a person,
+    /// from their family name, so "THONG BAO NGUYEN VAN AN" is "NGUYEN VAN AN".
+    private static func capitalsEnding(_ text: Substring) -> String? {
+        let tail = text.split(omittingEmptySubsequences: false) { "\n:.,;|_()[]/-".contains($0) }.last ?? ""
+        var words = tail.split(whereSeparator: \.isWhitespace)
+        if let other = words.lastIndex(where: { !isInCapitals($0) }) {
+            words = Array(words[(other + 1)...])
+        }
+        while let first = words.first, partyLabels.contains(fold(String(first))) {
+            words.removeFirst()
+        }
+        let folded = words.map { fold(String($0)) }
+        if let first = folded.first, !familyNames.contains(first), !folded.contains(where: companyWords.contains),
+           let family = folded.indices.dropFirst().first(where: { familyNames.contains(folded[$0]) }),
+           words.count - family >= 2 {
+            words = Array(words[family...])
+        }
+        let party = words.joined(separator: " ")
+        guard (1...10).contains(words.count), party.count <= 60 else { return nil }
+        return party
+    }
+
+    /// A word with a letter, and no small letters.
+    private static func isInCapitals(_ word: Substring) -> Bool {
+        word.contains(where: \.isLetter) && !word.contains(where: \.isLowercase)
+            && word.allSatisfy { $0.isLetter || $0.isNumber || "&'".contains($0) }
+    }
+
+    /// Labels and words before a party's name, folded.
+    private static let partyLabels: Set<String> = ["nd", "gd", "ct", "ck", "tk", "ref", "ma", "so", "tu", "den", "toi", "cho", "qua", "tai"]
+    /// Words in a company's or a shop's name, folded, which isn't cut to a person's.
+    private static let companyWords: Set<String> = ["cong", "cty", "tnhh", "cp", "jsc", "ltd", "co", "hkd", "shop", "cn"]
+
+    /// A person's name, in any case: the words just before "chuyen tien" or "chuyen khoan", or
+    /// after a label such as "Người chuyển:". A Vietnamese name is two to six short syllables,
+    /// each with a vowel, starting with a family name (`familyNames`), which tells it from a
+    /// shop's name or a code.
+    static func personName(in text: String) -> String? {
+        let text = text.precomposedStringWithCanonicalMapping
+        let folded = fold(text)
+        let range = NSRange(folded.startIndex..., in: folded)
+        for result in nameBeforeTransfer.matches(in: folded, range: range) {
+            if let name = name(in: result.range(at: 1), of: text, folded: folded, endingTheRun: true) { return name }
+        }
+        for result in nameAfterLabel.matches(in: folded, range: range) {
+            if let name = name(in: result.range(at: 1), of: text, folded: folded, endingTheRun: false) { return name }
+        }
+        return nil
+    }
+
+    /// The name among the words in `range`: the last words before a transfer's verb
+    /// (`endingTheRun`), or the first after a label, starting with a family name.
+    private static func name(in range: NSRange, of text: String, folded: String, endingTheRun: Bool) -> String? {
+        guard let foldedRange = Range(range, in: folded) else { return nil }
+        // Folding keeps one character for each, so the words line up with the text's.
+        let start = folded.distance(from: folded.startIndex, to: foldedRange.lowerBound)
+        let length = folded.distance(from: foldedRange.lowerBound, to: foldedRange.upperBound)
+        let lower = text.index(text.startIndex, offsetBy: start)
+        let original = text[lower..<text.index(lower, offsetBy: length)].split(whereSeparator: \.isWhitespace)
+        let words = folded[foldedRange].split(whereSeparator: \.isWhitespace)
+        guard original.count == words.count else { return nil }
+
+        func isSyllable(_ word: Substring) -> Bool {
+            word.count <= 7 && word.allSatisfy(\.isLetter) && word.contains { "aeiouy".contains($0) }
+        }
+        var indices: Range<Int>
+        if endingTheRun {
+            // The syllables just before the verb, from the first family name among them.
+            let first = words.lastIndex { !isSyllable($0) }.map { $0 + 1 } ?? 0
+            guard let family = words[first...].indices.first(where: { familyNames.contains(String(words[$0])) })
+            else { return nil }
+            indices = family..<words.count
+        } else {
+            guard let firstWord = words.first, familyNames.contains(String(firstWord)) else { return nil }
+            let end = words.indices.first { !isSyllable(words[$0]) || nameStopWords.contains(String(words[$0])) } ?? words.count
+            indices = 0..<end
+        }
+        guard (2...6).contains(indices.count) else { return nil }
+        return original[indices].joined(separator: " ")
+    }
+
+    /// Words, before "chuyen tien" or "chuyen khoan", in folded text.
+    private static let nameBeforeTransfer = regex(#"(?<![\p{L}\d])((?:\p{L}+[ \t]+){2,8})(?=chuyen[ \t]+(?:tien|khoan)(?!\p{L}))"#)
+    /// Words after a label for who sent or got the money, to the end of the line.
+    private static let nameAfterLabel = regex(
+        #"(?<!\p{L})(?:ten[ \t]+)?(?:nguoi|ben)[ \t]+(?:chuyen|gui|nhan|thu huong)[ \t]*[:：]?[ \t]*(\p{L}+(?:[ \t]+\p{L}+)*)"#
+    )
+    /// Where a name after a label ends, such as "NGUYEN VAN AN chuyen tien".
+    private static let nameStopWords: Set<String> = ["chuyen", "gui", "tra", "nap", "thanh", "noi", "luc", "tai", "qua", "den", "toi", "cho", "tu"]
+
+    /// The family names most Vietnamese have, folded. Not ones that are also everyday words in
+    /// capitals, such as "TU" or "MA".
+    private static let familyNames: Set<String> = [
+        "nguyen", "tran", "le", "pham", "hoang", "huynh", "phan", "vu", "vo", "dang", "bui", "do", "ho", "ngo",
+        "duong", "ly", "dao", "doan", "dinh", "lam", "mai", "trinh", "truong", "ha", "cao", "chu", "luu", "luong",
+        "la", "ta", "thai", "to", "tong", "quach", "kieu", "kim", "lai", "mac", "nghiem", "ninh", "nong", "phung",
+        "than", "thach", "trieu", "vuong", "giang", "khuc", "diep", "lieu", "au", "bach", "dam", "hua", "khong",
+        "khuat", "lac", "tang", "ung", "uong", "vi",
+    ]
+
+    /// A name in capitals, or none, then "chuyen tien" or "chuyen khoan". Case-sensitive for the
+    /// name.
     private static let defaultTransferContent = try! NSRegularExpression(
-        pattern: #"^\p{Lu}+(?:\s+\p{Lu}+)+\s+(?i:chuy[eể]n\s+(?:ti[eề]n|kho[aả]n))$"#
+        pattern: #"^(?:\p{Lu}+(?:\s+\p{Lu}+)+\s+)?(?i:chuy[eể]n\s+(?:ti[eề]n|kho[aả]n))$"#
     )
 
     /// Whether a description is only what the bank writes when the person writes nothing, such
     /// as "NGUYEN VAN AN chuyen tien" for a QR payment: the sender's name, which says nothing
-    /// about what the money was for.
+    /// about what the money was for, or only "chuyen tien" once the name is the party (`party`).
     public static func isDefaultTransferContent(_ description: String) -> Bool {
         let text = description.precomposedStringWithCanonicalMapping.trimmingCharacters(in: .whitespacesAndNewlines)
         return defaultTransferContent.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) != nil

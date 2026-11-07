@@ -128,6 +128,15 @@ public final class LedgerStore {
         try commit { $0.save(entry) }
     }
 
+    /// Saves several at once, such as past transactions brought up to date (`PastTransactions`),
+    /// or none if one is from a later version.
+    public func save(_ entries: [Entry]) throws {
+        guard !entries.contains(where: { ledger.newerIDs.contains($0.id) }) else { throw NewerVersionError() }
+        try commit { ledger in
+            for entry in entries { ledger.save(entry) }
+        }
+    }
+
     public func deleteEntry(id: Entry.ID) throws {
         try commit { $0.deleteEntry(id: id) }
     }

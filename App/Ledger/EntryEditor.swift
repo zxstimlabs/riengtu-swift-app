@@ -1,3 +1,4 @@
+import PhotosUI
 import RiengtuKit
 import SwiftUI
 
@@ -10,6 +11,9 @@ import SwiftUI
 ///
 /// Where Apple Intelligence is available, the model on the device reads an expense's note as
 /// it's typed and suggests tags, and a category until the person picks one.
+///
+/// An expense or income can have a receipt, scanned or chosen from Photos and read on the device
+/// (`ReceiptReader`), which fills in what's still empty. The photo isn't kept.
 struct EntryEditor: View {
     enum Mode: CaseIterable {
         case expense, income, transfer
@@ -42,12 +46,31 @@ struct EntryEditor: View {
     /// its own currency.
     @State private var toChangeText: String
     @State private var date: Date
+    /// Who the money came from or went to. Not for a transfer, between the person's own assets.
+    @State private var party: String
     @State private var note: String
     @State private var tags: [String]
     @State private var suggestion: TagSuggestion?
     /// Whether the person picked the category, so a suggestion doesn't change it.
     @State private var categoryWasPicked: Bool
     @State private var categoryWasSuggested = false
+    /// Whether the suggested category came from the receipt, rather than the note.
+    @State private var categoryIsFromReceipt = false
+    /// Whether the person set the date, or it came from the inbox, so a receipt doesn't change it.
+    @State private var dateWasPicked: Bool
+    @State private var receipt: Receipt?
+    @State private var isReadingReceipt = false
+    @State private var receiptTask: Task<Void, Never>?
+    /// The receipt's photos, in memory while the editor is open, to read again without taking
+    /// them again. Never saved: they're let go when the editor closes.
+    @State private var receiptPhotos: [Data] = []
+    /// Whether reading the receipt was stopped, or found nothing, so the person can try again.
+    @State private var receiptWasStopped = false
+    @State private var scansReceipt = false
+    @State private var picksReceiptPhoto = false
+    @State private var receiptPhoto: PhotosPickerItem?
+    @State private var showsReceipt = false
+    @State private var receiptFailed = false
     @State private var saveFailed = false
     @State private var savedCount = 0
     @FocusState private var amountIsFocused: Bool
@@ -73,9 +96,12 @@ struct EntryEditor: View {
             NumberField.text(for: $0, fractionDigits: Currencies.fractionDigits(for: currencyCode))
         } ?? "")
         _date = State(initialValue: entry?.date ?? captured?.date ?? .now)
+        _party = State(initialValue: entry?.party ?? captured?.party ?? "")
         _note = State(initialValue: entry?.note ?? captured?.description ?? "")
         _tags = State(initialValue: entry?.tags ?? [])
+        _receipt = State(initialValue: entry?.receipt)
         _categoryWasPicked = State(initialValue: entry != nil)
+        _dateWasPicked = State(initialValue: entry != nil || captured != nil)
 
         var mode = captured?.isTransfer == true ? Mode.transfer : captured?.isMoneyIn == true ? .income : .expense
         // From the inbox, a category that wasn't chosen is "other", as Add All saves it. Money
@@ -215,14 +241,21 @@ struct EntryEditor: View {
                     categorySection
                     Section {
                         accountPicker
-                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                        // When, who with, then what for.
+                        DatePicker("Date", selection: pickedDate, displayedComponents: [.date, .hourAndMinute])
+                        if mode == .income {
+                            TextField("Received From", text: $party)
+                        } else {
+                            TextField("Paid To", text: $party)
+                        }
                         TextField("Note", text: $note, axis: .vertical)
                     }
                     tagsSection
+                    receiptSection
                 case .transfer:
                     transferSections
                     Section {
-                        DatePicker("Date", selection: $date, displayedComponents: .date)
+                        DatePicker("Date", selection: $date, displayedComponents: [.date, .hourAndMinute])
                         TextField("Note", text: $note, axis: .vertical)
                     }
                 }
@@ -285,6 +318,40 @@ struct EntryEditor: View {
                 Button("OK") {}
             } message: {
                 Text("Riengtu couldn’t save your change. Try again.")
+            }
+            .alert("Couldn’t Read the Receipt", isPresented: $receiptFailed) {
+                Button("OK") {}
+            } message: {
+                Text("Riêng Tư found nothing to read on it. Try again with the whole receipt in the photo, in good light.")
+            }
+            #if os(iOS)
+            .fullScreenCover(isPresented: $scansReceipt) {
+                ReceiptScanner { photos in
+                    readReceipt(photos)
+                }
+                .ignoresSafeArea()
+                .privacyShield()
+            }
+            #endif
+            .photosPicker(isPresented: $picksReceiptPhoto, selection: $receiptPhoto, matching: .images)
+            .onChange(of: receiptPhoto) { _, item in
+                guard let item else { return }
+                receiptPhoto = nil
+                Task {
+                    guard let data = try? await item.loadTransferable(type: Data.self) else {
+                        receiptFailed = true
+                        return
+                    }
+                    readReceipt([data])
+                }
+            }
+            .onDisappear {
+                receiptTask?.cancel()
+            }
+            .sheet(isPresented: $showsReceipt) {
+                if let receipt {
+                    ReceiptSheet(receipt: receipt)
+                }
             }
             .sensoryFeedback(.success, trigger: savedCount)
         }
@@ -361,7 +428,11 @@ struct EntryEditor: View {
             Text("Category")
         } footer: {
             if mode == .expense, categoryWasSuggested {
-                Label("Picked from your note by Apple Intelligence.", systemImage: "apple.intelligence")
+                if categoryIsFromReceipt {
+                    Label("Picked from the receipt by Apple Intelligence.", systemImage: "apple.intelligence")
+                } else {
+                    Label("Picked from your note by Apple Intelligence.", systemImage: "apple.intelligence")
+                }
             }
         }
     }
@@ -377,6 +448,87 @@ struct EntryEditor: View {
             } label: {
                 Text(mode == .income ? "Received In" : "Paid From")
             }
+        }
+    }
+
+    /// The date, which a receipt doesn't change once the person has set it.
+    private var pickedDate: Binding<Date> {
+        Binding(get: { date }, set: { date = $0; dateWasPicked = true })
+    }
+
+    /// The receipt: to add, being read, or as it was read, to open whole.
+    @ViewBuilder private var receiptSection: some View {
+        Section {
+            if isReadingReceipt {
+                HStack(spacing: 12) {
+                    ProgressView()
+                    Text("Reading the receipt…")
+                        .foregroundStyle(.secondary)
+                    Spacer(minLength: 8)
+                    // When it seems stuck.
+                    Button("Stop", action: stopReadingReceipt)
+                        .buttonStyle(.borderless)
+                }
+            } else if receipt == nil, receiptWasStopped, !receiptPhotos.isEmpty {
+                Text("The receipt wasn’t read.")
+                    .foregroundStyle(.secondary)
+                Button("Try Again", systemImage: "arrow.clockwise") { readReceipt(receiptPhotos) }
+                if ExpenseTagger.availability == .available {
+                    Button("Read Without Apple Intelligence") { readReceipt(receiptPhotos, usingModel: false) }
+                }
+                addReceiptMenu(Label("Use Another Photo", systemImage: "camera"))
+            } else if let receipt {
+                Button {
+                    showsReceipt = true
+                } label: {
+                    ReceiptSummary(receipt: receipt)
+                }
+                .foregroundStyle(.primary)
+                if let total = receipt.total, let amount, total != amount, receipt.currencyCode == currencyCode {
+                    HStack {
+                        Text("The receipt’s total is \(total.formatted(.money(code: receipt.currencyCode))).")
+                            .font(.subheadline)
+                        Spacer(minLength: 8)
+                        Button("Use It") {
+                            amountText = NumberField.text(for: total, fractionDigits: fractionDigits)
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
+                // Not read well: again, from the photos taken in this editor.
+                if !receiptPhotos.isEmpty {
+                    Button("Read Again", systemImage: "arrow.clockwise") { readReceipt(receiptPhotos) }
+                }
+                Button("Remove Receipt", role: .destructive) {
+                    withAnimation {
+                        self.receipt = nil
+                        receiptPhotos = []
+                        receiptWasStopped = false
+                    }
+                }
+            } else {
+                addReceiptMenu(Label("Add Receipt", systemImage: "receipt"))
+            }
+        } header: {
+            Text("Receipt")
+        } footer: {
+            if receipt == nil {
+                Text("Riêng Tư reads the receipt on this device and doesn’t keep the photo.")
+            }
+        }
+    }
+
+    /// A photo of a receipt taken now, or one from the library.
+    private func addReceiptMenu(_ label: Label<Text, Image>) -> some View {
+        Menu {
+            #if os(iOS)
+            if ReceiptScanner.isSupported {
+                Button("Take Photo", systemImage: "camera") { scansReceipt = true }
+            }
+            #endif
+            Button("Choose from Photos", systemImage: "photo.on.rectangle") { picksReceiptPhoto = true }
+        } label: {
+            label
         }
     }
 
@@ -505,11 +657,83 @@ struct EntryEditor: View {
                 if !categoryWasPicked, let suggested = result.category {
                     expenseCategory = suggested
                     categoryWasSuggested = true
+                    categoryIsFromReceipt = false
                 }
             }
         } catch {
             // Cancelled by more typing, or the model couldn't answer, such as for a language it
             // doesn't support. Either way, no suggestion.
+        }
+    }
+
+    /// Reads a receipt's photos on the device, with Apple Intelligence unless the person chose
+    /// otherwise. The photos stay in memory to read again until the editor closes.
+    private func readReceipt(_ photos: [Data], usingModel: Bool = true) {
+        guard !photos.isEmpty else { return }
+        receiptTask?.cancel()
+        receiptPhotos = photos
+        receiptWasStopped = false
+        isReadingReceipt = true
+        receiptTask = Task {
+            do {
+                let rows = try await ReceiptReader.rows(in: photos)
+                try Task.checkCancellation()
+                let read = await ReceiptReader.read(rows, usingModel: usingModel && ExpenseTagger.availability == .available)
+                try Task.checkCancellation()
+                isReadingReceipt = false
+                guard !read.isEmpty else {
+                    receiptWasStopped = true
+                    receiptFailed = true
+                    return
+                }
+                withAnimation { fill(from: read) }
+                await suggestCategory(from: read)
+            } catch is CancellationError {
+                // Stopped: `stopReadingReceipt` shows how to go on.
+            } catch {
+                isReadingReceipt = false
+                receiptWasStopped = true
+                receiptFailed = true
+            }
+        }
+    }
+
+    /// Stops reading the receipt, when it seems stuck, so the person can try again.
+    private func stopReadingReceipt() {
+        receiptTask?.cancel()
+        receiptTask = nil
+        isReadingReceipt = false
+        receiptWasStopped = true
+    }
+
+    /// Keeps the receipt, and fills in from it only what's still empty, by the user's choice: the
+    /// amount, unless the account is in another currency; who was paid; and the date, unless the
+    /// person set it or it came from the inbox.
+    private func fill(from read: Receipt) {
+        receipt = read
+        if amount == nil, let total = read.total, asset(account).map({ $0.currencyCode == read.currencyCode }) ?? true {
+            currencyCode = read.currencyCode
+            amountText = NumberField.text(for: total, fractionDigits: Currencies.fractionDigits(for: read.currencyCode))
+        }
+        if party.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            party = read.merchant
+        }
+        if !dateWasPicked, let receiptDate = read.date {
+            date = receiptDate
+        }
+    }
+
+    /// An expense's category from what the receipt says was bought, until the person picks one.
+    private func suggestCategory(from receipt: Receipt) async {
+        let note = ([receipt.merchant] + receipt.items.prefix(8).map(\.name)).filter { !$0.isEmpty }.joined(separator: ", ")
+        guard mode == .expense, !categoryWasPicked, !note.isEmpty, ExpenseTagger.availability == .available,
+              let category = try? await ExpenseTagger.suggest(note: note, amount: amount, currencyCode: currencyCode, tags: []).category,
+              !categoryWasPicked
+        else { return }
+        withAnimation {
+            expenseCategory = category
+            categoryWasSuggested = true
+            categoryIsFromReceipt = true
         }
     }
 
@@ -522,8 +746,10 @@ struct EntryEditor: View {
             currencyCode: currencyCode,
             date: date,
             note: note.trimmingCharacters(in: .whitespacesAndNewlines),
+            party: mode == .transfer ? "" : party.trimmingCharacters(in: .whitespacesAndNewlines),
             // Tags say what money was spent or received for.
-            tags: mode == .transfer ? [] : tags
+            tags: mode == .transfer ? [] : tags,
+            receipt: mode == .transfer ? nil : receipt
         )
         do {
             try store.save(entry)

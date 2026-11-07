@@ -55,6 +55,8 @@ public final class InboxStore {
     /// Whether the model didn't answer in time (`ExpenseTagger.timeLimit`), which the person can
     /// try again, or read the rest without it.
     public private(set) var modelDidNotAnswer = false
+    /// Whether the person stopped reading (`stop()`), which they can start again.
+    public private(set) var wasStopped = false
 
     @ObservationIgnored private var readingTask: Task<Void, Never>?
     @ObservationIgnored private var readingID: UUID?
@@ -254,6 +256,7 @@ public final class InboxStore {
         isReading = true
         isWaitingForModel = false
         modelDidNotAnswer = false
+        wasStopped = false
         readCount = 0
         readingStartedAt = .now
         readingTask = Task {
@@ -390,12 +393,41 @@ public final class InboxStore {
             item.wasRead = false
             item.isNotTransaction = false
             // What reading fills in, from scratch.
+            item.party = ""
             item.isTransfer = false
             item.expenseCategory = nil
             item.incomeCategory = nil
         }
         readAgainID = id
         stopReading()
+    }
+
+    /// Marks everything read that waits in the inbox to be read again, with how it's read now,
+    /// when the person asks (Settings > Read Inbox Again), such as after reading has improved.
+    /// What the person added to help (`hint`) stays. Not what's in the history, which was added or
+    /// dismissed. Returns how many; the caller starts reading.
+    @discardableResult
+    public func readAllAgain() throws -> Int {
+        try loadIfNeeded()
+        let ids = pending.filter(\.wasRead).map(\.id)
+        for id in ids {
+            try update(id: id) { item in
+                item.wasRead = false
+                item.isTransfer = false
+                item.expenseCategory = nil
+                item.incomeCategory = nil
+                item.party = ""
+            }
+        }
+        if !ids.isEmpty { stopReading() }
+        return ids.count
+    }
+
+    /// Stops reading because the person asked, such as when it seems stuck. What wasn't read
+    /// waits for them to start again, with Apple Intelligence or without.
+    public func stop() {
+        stopReading()
+        wasStopped = true
     }
 
     /// Stops reading, such as when the app goes to the background. What wasn't read yet is read
@@ -594,6 +626,16 @@ extension CapturedTransaction {
         return read
     }
 
+    /// Who sent the money or got it, a person or a company (`TransactionText.party`), apart
+    /// from what it was for: the model leaves names out of its description, as it's asked to,
+    /// and the rules' description starts with the name, as banks write "NGUYEN VAN AN chuyen
+    /// tien", which leaves "chuyen tien".
+    mutating func findParty() {
+        guard let name = TransactionText.party(in: text) else { return }
+        party = name
+        description = TransactionText.removingParty(name, from: description)
+    }
+
     /// Fills in what a bank's message says, from what Apple Intelligence read (`answer`), checked
     /// with the rules, or from the rules alone without it.
     ///
@@ -610,6 +652,7 @@ extension CapturedTransaction {
             currencyCode = rules.currencyCode
             isMoneyIn = rules.direction == .moneyIn
             description = rules.description
+            findParty()
             return
         }
 
@@ -647,6 +690,7 @@ extension CapturedTransaction {
         } else {
             description = rules.description
         }
+        findParty()
         // A refund says so plainly, and money from someone whose transfer says only their name
         // doesn't say what it was for.
         if !isMoneyIn || isTransfer {

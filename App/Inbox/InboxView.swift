@@ -22,6 +22,8 @@ struct InboxView: View {
     @State private var picksScreenshots = false
     @State private var screenshots: [PhotosPickerItem] = []
     @State private var isImporting = false
+    /// Reading what the person picked, which they can cancel.
+    @State private var importTask: Task<Void, Never>?
     @State private var importResult: InboxStore.ImportResult?
     @State private var importFailed = false
     @State private var showsReading = false
@@ -85,9 +87,13 @@ struct InboxView: View {
         }
         .overlay {
             if isImporting {
-                ProgressView("Reading screenshots…")
-                    .padding(24)
-                    .background(.regularMaterial, in: .rect(cornerRadius: 16))
+                VStack(spacing: 16) {
+                    ProgressView("Reading screenshots…")
+                    Button("Cancel", role: .cancel) { importTask?.cancel() }
+                        .buttonStyle(.bordered)
+                }
+                .padding(24)
+                .background(.regularMaterial, in: .rect(cornerRadius: 16))
             }
         }
         .navigationTitle("Inbox")
@@ -111,12 +117,12 @@ struct InboxView: View {
         .photosPicker(isPresented: $picksScreenshots, selection: $screenshots, maxSelectionCount: 30, matching: .images)
         .fileImporter(isPresented: $picksFiles, allowedContentTypes: Self.fileTypes, allowsMultipleSelection: true) { result in
             guard case .success(let urls) = result, !urls.isEmpty else { return }
-            Task { await importFiles(urls) }
+            importTask = Task { await importFiles(urls) }
         }
         .onChange(of: screenshots) { _, items in
             guard !items.isEmpty else { return }
             screenshots = []
-            Task { await importScreenshots(items) }
+            importTask = Task { await importScreenshots(items) }
         }
         .alert(
             importResult?.added == 0 ? Text("No New Transactions") : Text("Added to the Inbox"),
@@ -194,13 +200,17 @@ struct InboxView: View {
         do {
             var found: [ScreenshotText.Transaction] = []
             for item in items {
+                try Task.checkCancellation()
                 guard let data = try await item.loadTransferable(type: Data.self) else { continue }
                 let (lines, takenAt) = try await ScreenshotReader.read(data)
                 found += ScreenshotText.transactions(in: lines, takenAt: takenAt ?? .now, timeZone: .current)
             }
+            try Task.checkCancellation()
             importResult = try inbox.importScreenshots(found)
             // The person asked for them, so reading starts.
             if inbox.unreadCount > 0 { backgroundReading.start(inbox) }
+        } catch is CancellationError {
+            // Nothing's added.
         } catch {
             importFailed = true
         }
@@ -216,6 +226,7 @@ struct InboxView: View {
             var messages: [String] = []
             var found: [ScreenshotText.Transaction] = []
             for url in urls {
+                try Task.checkCancellation()
                 let isAllowed = url.startAccessingSecurityScopedResource()
                 defer { if isAllowed { url.stopAccessingSecurityScopedResource() } }
                 let data = try Data(contentsOf: url)
@@ -226,12 +237,15 @@ struct InboxView: View {
                     messages += FileText.messages(in: data, fileExtension: url.pathExtension)
                 }
             }
+            try Task.checkCancellation()
             let fromFiles = try inbox.importFile(messages)
             let fromImages = try inbox.importScreenshots(found)
             importResult = InboxStore.ImportResult(
                 added: fromFiles.added + fromImages.added, alreadyThere: fromFiles.alreadyThere + fromImages.alreadyThere
             )
             if inbox.unreadCount > 0 { backgroundReading.start(inbox) }
+        } catch is CancellationError {
+            // Nothing's added.
         } catch {
             importFailed = true
         }

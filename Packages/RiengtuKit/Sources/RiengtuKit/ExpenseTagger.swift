@@ -57,7 +57,7 @@ public enum ExpenseTagger {
         if #available(iOS 26.0, macOS 26.0, *) {
             let prompt = prompt(note: note, amount: amount, currencyCode: currencyCode)
             let schema = try schema(tags: list)
-            let content = try await withTimeLimit(timeLimit) {
+            let content = try await ModelQueue.shared.run(within: timeLimit) {
                 try await LanguageModelSession(model: model, instructions: instructions).respond(
                     to: prompt,
                     schema: schema,

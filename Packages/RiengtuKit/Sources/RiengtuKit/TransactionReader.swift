@@ -154,7 +154,7 @@ public enum TransactionReader {
         within limit: Duration = ExpenseTagger.timeLimit, _ question: @escaping @Sendable () async throws -> T
     ) async throws -> T? {
         do {
-            return try await withTimeLimit(limit, question)
+            return try await ModelQueue.shared.run(within: limit, question)
         } catch is CancellationError {
             throw CancellationError()
         } catch let error as TimedOutError {

@@ -17,7 +17,7 @@ settings:
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "6.0"
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "13"
+    CURRENT_PROJECT_VERSION: "14"
 
 packages:
   RiengtuKit:
@@ -83,6 +83,7 @@ targets:
         OTHER_LDFLAGS: -weak_framework FoundationModels
         # Translated in App/InfoPlist.xcstrings.
         INFOPLIST_KEY_NSFaceIDUsageDescription: Riengtu uses Face ID to keep your spending and assets private.
+        INFOPLIST_KEY_NSCameraUsageDescription: Riêng Tư uses the camera to read your receipts, on this device. The photos aren’t kept.
     scheme:
       testTargets:
         - package: RiengtuKit/RiengtuKitTests

@@ -79,8 +79,10 @@ struct ReadingCard: View {
 
     var body: some View {
         let isDone = total > 0 && done == total
+        // Stopped, by the person or because Apple Intelligence can't answer, until started again.
+        let isPaused = !inbox.isReading && (inbox.isWaitingForModel || inbox.wasStopped)
         VStack(alignment: .leading, spacing: 10) {
-            if !inbox.isReading, !isDone, done == 0, !inbox.isWaitingForModel {
+            if !inbox.isReading, !isDone, done == 0, !isPaused {
                 Text("\(total) new to read")
                     .font(.headline)
                 // About two seconds each, as measured on sample notices.
@@ -102,12 +104,16 @@ struct ReadingCard: View {
                         .monospacedDigit()
                         .contentTransition(.numericText())
                     Spacer()
-                    status(isDone: isDone, left: total - done)
-                        .foregroundStyle(.secondary)
+                    if inbox.isReading || isDone {
+                        status(isDone: isDone, left: total - done)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .font(.subheadline)
                 Group {
-                    if inbox.modelDidNotAnswer, !inbox.isReading {
+                    if inbox.wasStopped, !inbox.isReading {
+                        Text("Reading stopped. Start again with Apple Intelligence, or read the rest without it.")
+                    } else if inbox.modelDidNotAnswer, !inbox.isReading {
                         Text("Apple Intelligence didn’t answer in time. Try again, or read the rest without it.")
                     } else if inbox.isWaitingForModel, !inbox.isReading {
                         Text("Apple Intelligence can’t read more just now. The rest are read when you try again or open Riêng Tư later.")
@@ -122,8 +128,13 @@ struct ReadingCard: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 HStack {
-                    if inbox.isWaitingForModel, !inbox.isReading {
+                    if isPaused {
                         Button("Try Again") { backgroundReading.start(inbox) }
+                            .buttonStyle(.bordered)
+                    }
+                    if inbox.isReading {
+                        // When it seems stuck: what's left waits, to try again or read without the model.
+                        Button("Stop", role: .cancel) { inbox.stop() }
                             .buttonStyle(.bordered)
                     }
                     if let showsDetails, !isDone {
@@ -131,7 +142,7 @@ struct ReadingCard: View {
                             .buttonStyle(.bordered)
                     }
                 }
-                if inbox.isWaitingForModel, !inbox.isReading {
+                if isPaused, ExpenseTagger.availability == .available {
                     // The rules read the rest at once, and the person checks them.
                     Button("Read Without Apple Intelligence") { inbox.startReading(usingModel: false) }
                         .buttonStyle(.bordered)

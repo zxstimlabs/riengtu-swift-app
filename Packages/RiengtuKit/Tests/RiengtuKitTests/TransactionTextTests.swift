@@ -309,3 +309,40 @@ struct TransactionTextTests {
         #expect(TransactionText.fold(text).count == text.count)
     }
 }
+
+/// Who sent the money or got it, a person or a company, where a message names one.
+struct PartyTests {
+    @Test(arguments: [
+        ("NGUYEN VAN AN chuyen tien", "NGUYEN VAN AN"),
+        ("+ VND 10,000\nTài khoản: 1234567890\nSố dư: VND 16,251,570\nPHAM THI THU LAN chuyen tien", "PHAM THI THU LAN"),
+        ("LUONG NGOC THANG CHUYEN KHOAN-071126-01:00:51 6311ASCB02V2Q9YC", "LUONG NGOC THANG"),
+        ("ACB: TK 123456789(VND) - 100,000 luc 00:31 07/11/2026. GD: NGUYEN VAN AN CHUYEN KHOAN-071126-00:31:28 6311A", "NGUYEN VAN AN"),
+        ("MBVCB.11223344.556677.NGUYEN VAN A chuyen tien an trua.CT tu 0011004123456 NGUYEN VAN A toi 1903123 CONG TY ABC", "NGUYEN VAN A"),
+        // Companies, and wallets, write their names in capitals too.
+        ("TK 0123 +5,000,000 VND. ND: CONG TY ABC tra luong thang 10", "CONG TY ABC"),
+        ("CONG TY TNHH THUONG MAI XYZ CHUYEN KHOAN", "CONG TY TNHH THUONG MAI XYZ"),
+        ("MOMO chuyen tien", "MOMO"),
+        // Words before it that aren't part of it.
+        ("ND TRAN THI BINH chuyen tien", "TRAN THI BINH"),
+        ("THONG BAO NGUYEN VAN AN CHUYEN TIEN", "NGUYEN VAN AN"),
+        ("Tài khoản nhận từ LE THI HOA chuyen tien", "LE THI HOA"),
+        // A person's name not in capitals.
+        ("Nguyễn Thị Hoa chuyển tiền", "Nguyễn Thị Hoa"),
+        ("Người chuyển: LE VAN HUNG\nSố tiền: +500,000 VND", "LE VAN HUNG"),
+        ("Tên người nhận: Đỗ Minh Khoa\nSố tiền: -200,000 VND", "Đỗ Minh Khoa"),
+    ])
+    func findsAParty(text: String, party: String) {
+        #expect(TransactionText.party(in: text) == party)
+    }
+
+    @Test(arguments: [
+        "Thanh toán tại .OP*Green SM",
+        "Thanh toan tai CIRCLE K HO CHI MINH",
+        "Lợi nhuận Sinh lời tự động đã về",
+        "chuyen tien",
+        "TK 1903 chuyen tien",
+    ])
+    func findsNoParty(text: String) {
+        #expect(TransactionText.party(in: text) == nil)
+    }
+}

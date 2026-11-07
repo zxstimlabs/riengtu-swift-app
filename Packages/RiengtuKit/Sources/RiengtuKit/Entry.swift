@@ -14,8 +14,13 @@ public struct Entry: Identifiable, Hashable, Sendable {
     public var date: Date
     /// What the person wrote about it. Empty when they wrote nothing.
     public var note: String
+    /// Who the money went to or came from, such as the person who sent it. Empty when it isn't
+    /// known, and for transfers and adjustments.
+    public var party: String
     /// What it was for, from the person's tags (`Ledger.tags`), in the order they were added.
     public var tags: [String]
+    /// What its receipt says, when the person added one. Not for transfers and adjustments.
+    public var receipt: Receipt?
 
     public enum Kind: Hashable, Sendable {
         /// Money spent, from `account` if the person said which: its balance goes down by the
@@ -55,7 +60,9 @@ public struct Entry: Identifiable, Hashable, Sendable {
         currencyCode: String,
         date: Date,
         note: String = "",
-        tags: [String] = []
+        party: String = "",
+        tags: [String] = [],
+        receipt: Receipt? = nil
     ) {
         self.id = id
         self.kind = kind
@@ -63,7 +70,9 @@ public struct Entry: Identifiable, Hashable, Sendable {
         self.currencyCode = currencyCode
         self.date = date
         self.note = note
+        self.party = party
         self.tags = tags
+        self.receipt = receipt
     }
 
     /// Whether the entry is income, spending, or neither, as the month's totals count it.
@@ -103,7 +112,7 @@ public struct Entry: Identifiable, Hashable, Sendable {
 
 extension Entry: Codable {
     private enum CodingKeys: String, CodingKey {
-        case id, type, amount, currencyCode = "currency", date, note, tags
+        case id, type, amount, currencyCode = "currency", date, note, party, tags, receipt
         case category, account
         case from, fromChange, to, toChange
         case asset, increase
@@ -122,7 +131,9 @@ extension Entry: Codable {
         currencyCode = try container.decode(String.self, forKey: .currencyCode)
         date = try container.decode(Date.self, forKey: .date)
         note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+        party = try container.decodeIfPresent(String.self, forKey: .party) ?? ""
         tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
+        receipt = try container.decodeIfPresent(Receipt.self, forKey: .receipt)
 
         switch try container.decodeIfPresent(EntryType.self, forKey: .type) ?? .expense {
         case .expense:
@@ -158,9 +169,13 @@ extension Entry: Codable {
         if !note.isEmpty {
             try container.encode(note, forKey: .note)
         }
+        if !party.isEmpty {
+            try container.encode(party, forKey: .party)
+        }
         if !tags.isEmpty {
             try container.encode(tags, forKey: .tags)
         }
+        try container.encodeIfPresent(receipt, forKey: .receipt)
 
         switch kind {
         case .expense(let category, let account):

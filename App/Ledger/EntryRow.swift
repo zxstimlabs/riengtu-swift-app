@@ -12,7 +12,10 @@ struct EntryRow: View {
         HStack(spacing: 12) {
             icon
             VStack(alignment: .leading, spacing: 2) {
-                if entry.note.isEmpty {
+                // Who it was with, or else what for, then the rest below.
+                let headline = entry.party.isEmpty ? entry.note : entry.party
+                let note = entry.party.isEmpty || entry.note.isEmpty ? nil : entry.note
+                if headline.isEmpty {
                     title
                     if let detail {
                         Text(verbatim: detail)
@@ -20,9 +23,9 @@ struct EntryRow: View {
                             .foregroundStyle(.secondary)
                     }
                 } else {
-                    Text(entry.note)
+                    Text(verbatim: headline)
                         .lineLimit(2)
-                    Text(verbatim: [titleString, detail].compactMap { $0 }.joined(separator: " · "))
+                    Text(verbatim: [note, titleString, detail].compactMap { $0 }.joined(separator: " · "))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

@@ -1,3 +1,4 @@
+import Foundation
 import Synchronization
 
 /// Thrown when an answer didn't come in time.
@@ -80,5 +81,52 @@ private final class TimeLimitRace<T: Sendable>: Sendable {
         guard let (continuation, tasks) = ended else { return }
         for task in tasks { task.cancel() }
         continuation?.resume(with: result)
+    }
+}
+
+/// Riêng Tư's questions to the model on the device, one at a time, as the model answers them,
+/// so each one's time limit counts only its own answer, not the wait behind another, such as a
+/// receipt's while the inbox reads. One that's stopped while it waits leaves the queue at once.
+actor ModelQueue {
+    static let shared = ModelQueue()
+
+    private var isBusy = false
+    private var waiting: [(id: UUID, continuation: CheckedContinuation<Void, any Error>)] = []
+
+    /// `operation`'s result, once the questions before it are answered, or `TimedOutError` once
+    /// `limit` has passed after it started.
+    func run<T: Sendable>(within limit: Duration, _ operation: @escaping @Sendable () async throws -> T) async throws -> T {
+        try await takeTurn()
+        defer { passTurn() }
+        return try await withTimeLimit(limit, operation)
+    }
+
+    private func takeTurn() async throws {
+        guard isBusy else {
+            isBusy = true
+            return
+        }
+        let id = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                waiting.append((id, continuation))
+            }
+        } onCancel: {
+            Task { await self.leave(id) }
+        }
+    }
+
+    /// Takes a question that was stopped out of the queue, unless its turn has come.
+    private func leave(_ id: UUID) {
+        guard let index = waiting.firstIndex(where: { $0.id == id }) else { return }
+        waiting.remove(at: index).continuation.resume(throwing: CancellationError())
+    }
+
+    private func passTurn() {
+        if waiting.isEmpty {
+            isBusy = false
+        } else {
+            waiting.removeFirst().continuation.resume()
+        }
     }
 }

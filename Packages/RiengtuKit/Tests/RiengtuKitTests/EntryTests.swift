@@ -352,3 +352,23 @@ struct EntryTests {
         #expect(categories == [.salary, .other])
     }
 }
+
+/// Who the money went to or came from, kept with the entry.
+struct EntryPartyTests {
+    @Test func keepsItsParty() throws {
+        let entry = Entry(
+            kind: .income(.other, account: nil), amount: 10_000, currencyCode: "VND", date: Date(timeIntervalSinceReferenceDate: 0),
+            note: "chuyen tien", party: "PHAM THI THU LAN"
+        )
+        let data = try JSONEncoder().encode(entry)
+        #expect(try JSONDecoder().decode(Entry.self, from: data) == entry)
+    }
+
+    /// One without a party is saved as before, and one from before reads with none.
+    @Test func leavesOutAnEmptyParty() throws {
+        let entry = Entry(kind: .expense(.food, account: nil), amount: 45_000, currencyCode: "VND", date: Date(timeIntervalSinceReferenceDate: 0))
+        let json = try #require(String(data: try JSONEncoder().encode(entry), encoding: .utf8))
+        #expect(!json.contains("party"))
+        #expect(try JSONDecoder().decode(Entry.self, from: Data(json.utf8)).party == "")
+    }
+}

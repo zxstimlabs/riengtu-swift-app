@@ -70,3 +70,33 @@ struct TimeLimitTests {
         }
     }
 }
+
+/// Questions to the model wait their turn, and each one's time limit starts when it does.
+struct ModelQueueTests {
+    @Test func timesEachFromItsTurn() async throws {
+        let queue = ModelQueue()
+        async let first = queue.run(within: .seconds(5)) { await TimeLimitTests.ignoringCancellation(for: 1) }
+        // Waits about a second behind the first, longer than its own limit.
+        async let second = queue.run(within: .milliseconds(500)) { "answered" }
+        #expect(try await first == "late")
+        #expect(try await second == "answered")
+    }
+}
+
+extension ModelQueueTests {
+    /// One stopped while it waits leaves at once, and those after it still get their turn.
+    @Test func leavesWhenStopped() async throws {
+        let queue = ModelQueue()
+        let start = ContinuousClock.now
+        let first = Task { try await queue.run(within: .seconds(5)) { await TimeLimitTests.ignoringCancellation(for: 1) } }
+        try await Task.sleep(for: .milliseconds(50))
+        let stopped = Task { try await queue.run(within: .seconds(5)) { "never" } }
+        try await Task.sleep(for: .milliseconds(50))
+        stopped.cancel()
+        await #expect(throws: CancellationError.self) { try await stopped.value }
+        #expect(ContinuousClock.now - start < .milliseconds(800))
+        let third = try await queue.run(within: .seconds(5)) { "answered" }
+        #expect(third == "answered")
+        #expect(try await first.value == "late")
+    }
+}

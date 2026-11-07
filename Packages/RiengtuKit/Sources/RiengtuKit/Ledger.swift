@@ -129,7 +129,8 @@ public struct Ledger: Equatable, Sendable {
             amount: amount,
             currencyCode: currencyCode,
             date: item.date,
-            note: item.description
+            note: item.description,
+            party: item.party
         )
     }
 

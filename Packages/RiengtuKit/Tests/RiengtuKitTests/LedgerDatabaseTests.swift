@@ -28,7 +28,7 @@ struct LedgerDatabaseTests {
 
         let row = try #require(try database.rows(named: [Self.name])[Self.name])
         #expect(row.type == "Entry")
-        #expect(row.version == 1)
+        #expect(row.version == LedgerDatabase.RecordVersion.entry)
         #expect(try JSONDecoder().decode(Entry.self, from: row.data) == Self.entry)
         #expect(row.needsUpload)
     }
@@ -136,7 +136,7 @@ struct LedgerDatabaseTests {
         let database = try LedgerDatabase()
         try Self.save(Ledger(entries: [Self.entry]), to: database, at: Date(timeIntervalSinceReferenceDate: 200))
 
-        #expect(try database.receive([Self.row(Self.entry, version: 2, modifiedAt: Date(timeIntervalSinceReferenceDate: 100))]))
+        #expect(try database.receive([Self.row(Self.entry, version: LedgerDatabase.RecordVersion.entry + 1, modifiedAt: Date(timeIntervalSinceReferenceDate: 100))]))
 
         let ledger = try database.load()
         #expect(ledger.newerIDs == [Self.entry.id])

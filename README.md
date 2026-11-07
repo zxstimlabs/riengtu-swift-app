@@ -84,7 +84,7 @@ Don't pipe the upload into `head`: closing the pipe early stops `xcodebuild` par
   - `RootView` holds the tabs, loads the ledger when the app becomes active, and locks it in the background.
   - `Ledger/` has the Ledger tab (`LedgerView`, a month of entries grouped by day under the month's totals), the rows (`EntryRow`), the editor sheet for expenses, income and transfers (`EntryEditor`), the category grid and the currency picker. Each category's name, symbol and color is in `ExpenseCategory+Display.swift` and `IncomeCategory+Display.swift`.
   - `Assets/` has the Assets tab (`AssetsView`) and its editor sheet. Each kind of asset's name, symbol and color is in `AssetKind+Display.swift`.
-  - `Inbox/` has the Inbox tab (`InboxView`), the first: what waits to be added, Add All, and Add from Screenshots. Also the reading screen (`ReadingView`), reading in the background (`BackgroundReading`), an unread item's message with Read Again (`CapturedMessageView`), and the inbox's history.
+  - `Inbox/` has the Inbox tab (`InboxView`), the first: what waits to be added, Add All, and Add from Screenshots. Also the reading screen (`ReadingView`), reading in the background (`BackgroundReading`), an unread item's message with Read Again (`CapturedMessageView`), and the inbox's history. `Ledger/` has the editor and the ledger, and receipts: the camera's scanner (`ReceiptScanner`) and the receipt as read (`ReceiptView`).
   - `Capture/` has the Shortcuts actions that put payments in the inbox, and the screen that explains how to set them up.
   - `Tags/` has the tag chips in the entry editor, the Tags screen, and `Tags.displayName`, which shows the starter tags in the app's language.
   - `Components/` has views both tabs use: `NumberField`, which tidies typed amounts, and `IconBadge`.
@@ -99,6 +99,7 @@ Don't pipe the upload into `head`: closing the pipe early stops `xcodebuild` par
   - `LedgerFile` reads the JSON file builds before the database used (version 1 to 5), once, to move it into the database.
   - `InboxStore` keeps captured payments (`CapturedTransaction`) and their history in `InboxDatabase`, and reads new ones. `InboxFile` reads the JSON file builds up to 8 used, once. `TransactionText` reads a bank's message with rules, and `TransactionReader` with the model.
   - `ScreenshotReader` reads the text on a screenshot with Vision, and `ScreenshotText` finds the transactions in it.
+  - `ReceiptReader` reads a receipt's photos (`Receipt`), with Apple Intelligence where it's available, checked with the rules in `ReceiptText`.
   - `MoneyFormatStyle` writes amounts, with ₫ after the number.
   - `Tags` tidies and matches tag names. `ExpenseTagger` asks the model on the device for a `TagSuggestion`, which is checked against the person's tags.
   - `AmountInput` tidies typed amounts in the device's number format, such as `1.250.000` in Vietnam.

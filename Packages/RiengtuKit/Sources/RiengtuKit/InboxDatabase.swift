@@ -84,6 +84,12 @@ public final class InboxDatabase: Sendable {
                 table.add(column: "hint", .text).notNull().defaults(to: "")
             }
         }
+        migrator.registerMigration("v4") { db in
+            // `CapturedTransaction.party`.
+            try db.alter(table: "item") { table in
+                table.add(column: "party", .text).notNull().defaults(to: "")
+            }
+        }
         return migrator
     }
 
@@ -161,6 +167,7 @@ extension CapturedTransaction: FetchableRecord, PersistableRecord {
             expenseCategory: expenseCategory.map { ExpenseCategory(rawValue: $0) ?? .other },
             incomeCategory: incomeCategory.map { IncomeCategory(rawValue: $0) ?? .other },
             description: row["description"],
+            party: row["party"],
             text: row["text"],
             wasRead: row["wasRead"],
             handledAt: (row["handledAt"] as Double?).map(Date.init(timeIntervalSinceReferenceDate:)),
@@ -183,6 +190,7 @@ extension CapturedTransaction: FetchableRecord, PersistableRecord {
         container["expenseCategory"] = expenseCategory?.rawValue
         container["incomeCategory"] = incomeCategory?.rawValue
         container["description"] = description
+        container["party"] = party
         container["text"] = text
         container["wasRead"] = wasRead
         container["handledAt"] = handledAt?.timeIntervalSinceReferenceDate
